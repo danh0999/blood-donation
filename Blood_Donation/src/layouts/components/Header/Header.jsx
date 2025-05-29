@@ -39,8 +39,6 @@ const AppHeader = () => {
           </Link>
         </div>
       </div>
-
-      {/* Navbar */}
     </header>
   );
 };

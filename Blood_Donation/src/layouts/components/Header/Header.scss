@@ -10,7 +10,7 @@
   width: 100%;
   z-index: 1000;
   background: white;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
 
   /* Top header */
   .top-header {
@@ -27,7 +27,7 @@
     /* Logo */
     .logo-container {
       .logo {
-        height: 70px;
+        height: 80px;
       }
     }
 
@@ -42,7 +42,7 @@
         text-decoration: none;
         transition: color 0.3s ease;
         &:hover {
-          color: #2563eb;
+          color: #e73e2c;
         }
       }
     }
@@ -61,12 +61,12 @@
       list-style: none;
 
       a {
-        color: black;
+        color: #4b5563;
         text-decoration: none;
         font-weight: 600;
         font-size: 16px; // tăng từ 14px lên 16px
         &:hover {
-          text-decoration: underline;
+          color: #e73e2c;
         }
       }
     }
