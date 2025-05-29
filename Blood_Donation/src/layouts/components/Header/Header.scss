@@ -1,0 +1,74 @@
+* {
+  padding: 0;
+  margin: 0;
+}
+
+.header {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  z-index: 1000;
+  background: white;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+
+  /* Top header */
+  .top-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.5rem 1.5rem;
+    padding-bottom: 0.1rem;
+    max-width: 1200px; /* Giới hạn chiều rộng nếu cần */
+    margin: 0 auto; /* Căn giữa nội dung */
+    width: 100%;
+    font-family: "Poppins", sans-serif;
+
+    /* Logo */
+    .logo-container {
+      .logo {
+        height: 70px;
+      }
+    }
+
+    /* Login link */
+    .login-link {
+      a {
+        display: flex;
+        align-items: center;
+        gap: 0.25rem;
+        font-size: 16px;
+        color: #4b5563;
+        text-decoration: none;
+        transition: color 0.3s ease;
+        &:hover {
+          color: #2563eb;
+        }
+      }
+    }
+  }
+
+  /* Navbar */
+  .navbar {
+    background-color: #1e56a0;
+    padding: 0.5rem 0; // tăng chiều cao tổng thể
+    .nav-list {
+      display: flex;
+      justify-content: center;
+      gap: 3rem;
+      margin: 0 auto;
+      max-width: 1200px;
+      list-style: none;
+
+      a {
+        color: white;
+        text-decoration: none;
+        font-weight: 600;
+        font-size: 16px; // tăng từ 14px lên 16px
+        &:hover {
+          text-decoration: underline;
+        }
+      }
+    }
+  }
+}
