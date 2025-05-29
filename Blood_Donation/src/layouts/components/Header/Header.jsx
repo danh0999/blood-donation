@@ -14,6 +14,22 @@ const AppHeader = () => {
         <div className="logo-container">
           <img src={Logo} alt="logo" className="logo" />
         </div>
+        <nav className="navbar">
+          <ul className="nav-list">
+            <li>
+              <Link to="/">TRANG CHỦ</Link>
+            </li>
+            <li>
+              <Link to="/faq">HỎI - ĐÁP</Link>
+            </li>
+            <li>
+              <Link to="/news">TIN TỨC</Link>
+            </li>
+            <li>
+              <Link to="/contact">LIÊN HỆ</Link>
+            </li>
+          </ul>
+        </nav>
 
         {/* Đăng nhập */}
         <div className="login-link">
@@ -25,22 +41,6 @@ const AppHeader = () => {
       </div>
 
       {/* Navbar */}
-      <nav className="navbar">
-        <ul className="nav-list">
-          <li>
-            <Link to="/">TRANG CHỦ</Link>
-          </li>
-          <li>
-            <Link to="/faq">HỎI - ĐÁP</Link>
-          </li>
-          <li>
-            <Link to="/news">TIN TỨC</Link>
-          </li>
-          <li>
-            <Link to="/contact">LIÊN HỆ</Link>
-          </li>
-        </ul>
-      </nav>
     </header>
   );
 };
