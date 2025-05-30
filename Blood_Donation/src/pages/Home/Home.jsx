@@ -4,6 +4,7 @@ import styles from "../Home/Home.module.scss";
 import DonorBenefits from "../../components/DonorBenefit/DonorBenefit";
 import Banner from "../../components/Banner/Banner";
 import { BloodDonationStandards } from "../../components/BloodDonationStandards/BloodDonationStandards";
+import { Faqs } from "../../components/Faqs/Faqs";
 
 const Home = () => {
   const handleSearch = (range) => {
@@ -29,6 +30,10 @@ const Home = () => {
       </div>
       <div>
         <BloodDonationStandards />
+      </div>
+      {/*Block 2*/}
+      <div className={styles["home-block-2"]}>
+        <Faqs />
       </div>
     </div>
   );
