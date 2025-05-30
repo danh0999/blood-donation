@@ -3,6 +3,7 @@ import DateRangeSearch from "../../components/SearchBar/SearchBar";
 import styles from "../Home/Home.module.scss";
 import DonorBenefits from "../../components/DonorBenefit/DonorBenefit";
 import Banner from "../../components/Banner/Banner";
+import { BloodDonationStandards } from "../../components/BloodDonationStandards/BloodDonationStandards";
 
 const Home = () => {
   const handleSearch = (range) => {
@@ -25,6 +26,9 @@ const Home = () => {
       {/*Block 1*/}
       <div className={styles["home-block-1"]}>
         <DonorBenefits />
+      </div>
+      <div>
+        <BloodDonationStandards />
       </div>
     </div>
   );
