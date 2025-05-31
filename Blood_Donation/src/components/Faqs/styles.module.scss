@@ -2,7 +2,7 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 40px 20px;
+  padding: 0px 20px;
 }
 
 .faqsTitle {
@@ -64,7 +64,7 @@
 .faqItemContainer {
   max-width: 800px;
   width: 100%;
-  margin: 16px auto; // căn giữa theo chiều ngang
+  margin: 5px auto; // căn giữa theo chiều ngang
   padding: 20px;
   border: 1px solid #ddd;
   border-radius: 10px;
