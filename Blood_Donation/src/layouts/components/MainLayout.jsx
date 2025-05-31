@@ -8,7 +8,7 @@ const { Content } = Layout;
 
 const MainLayout = () => {
   return (
-    <Layout style={{ minHeight: "100vh", paddingTop: 85 }}>
+    <Layout style={{ minHeight: "100vh", paddingTop: 100 }}>
       <Header />
       <Content>
         <Outlet />
