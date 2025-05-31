@@ -14,11 +14,11 @@ function App() {
           element: <Home />,
         },
         {
-          path: "register",
+          path: "/register",
           element: <Register />,
         },
         {
-          path: "login",
+          path: "/login",
           element: <Login />,
         },
       ],
