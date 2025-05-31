@@ -92,8 +92,8 @@ const RegisterForm = () => {
           rules={[
             { required: true, message: "Vui lòng nhập số CCCD!" },
             {
-              pattern: /^(0792)[0-9]{12}$/,
-              message: "CCCD phải gồm đúng 12 chữ số!",
+              pattern: /^0792[0-9]{8}$/,
+              message: "CCCD phải bắt đầu bằng 0792 và gồm đúng 12 chữ số!",
             },
           ]}
         >
