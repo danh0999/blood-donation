@@ -20,7 +20,7 @@ const AppHeader = () => {
               <Link to="/">TRANG CHỦ</Link>
             </li>
             <li>
-              <Link to="/faq">HỎI - ĐÁP</Link>
+              <Link to="/information">HỎI - ĐÁP</Link>
             </li>
             <li>
               <Link to="/news">TIN TỨC</Link>
