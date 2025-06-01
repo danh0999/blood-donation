@@ -141,6 +141,14 @@ const RegisterForm = () => {
         </Form.Item>
 
         <Form.Item
+          name="username"
+          label="UserName"
+          rules={[{ required: true, message: "Vui lòng nhập UserName!" }]}
+        >
+          <Input placeholder="Tên bạn muốn hiển thị" />
+        </Form.Item>
+
+        <Form.Item
           name="cccd"
           label="CCCD"
           rules={[
@@ -181,14 +189,6 @@ const RegisterForm = () => {
           ]}
         >
           <Input.Password placeholder="••••••••" />
-        </Form.Item>
-
-        <Form.Item
-          name="username"
-          label="UserName"
-          rules={[{ required: true, message: "Vui lòng nhập UserName!" }]}
-        >
-          <Input placeholder="Tên bạn muốn hiển thị" />
         </Form.Item>
 
         <Form.Item
