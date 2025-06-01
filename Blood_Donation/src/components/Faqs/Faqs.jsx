@@ -1,6 +1,7 @@
 import React from "react";
 import styles from "./styles.module.scss";
 import FaqItem from "./FaqsItem";
+import { Button } from "../Button/Button";
 
 export const Faqs = () => {
   const { faqsContainer, faqsTitle, faqItemContainer } = styles;
@@ -55,6 +56,7 @@ export const Faqs = () => {
           </ul>
         </FaqItem>
       </div>
+      <Button />
     </div>
   );
 };
