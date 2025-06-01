@@ -6,6 +6,7 @@ import Banner from "../../components/Banner/Banner";
 import { BloodDonationStandards } from "../../components/BloodDonationStandards/BloodDonationStandards";
 import { Faqs } from "../../components/Faqs/Faqs";
 import { BloodDonationAdvance } from "../../components/BloodDonationAdvance/BloodDonationAdvance";
+import { DonationGallery } from "../../components/DonationGallery/DonationGallery";
 
 const Home = () => {
   const handleSearch = (range) => {
@@ -38,6 +39,9 @@ const Home = () => {
       </div>
       <div>
         <BloodDonationAdvance />
+      </div>
+      <div>
+        <DonationGallery />
       </div>
     </div>
   );
