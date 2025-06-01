@@ -23,7 +23,13 @@
     margin: 0 auto; /* Căn giữa nội dung */
     width: 100%;
     font-family: "Poppins", sans-serif;
+    user-select: none;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
 
+    /* 👇 Ngăn hiện dấu nháy khi double click */
+    outline: none;
     /* Logo */
     .logo-container {
       .logo {
