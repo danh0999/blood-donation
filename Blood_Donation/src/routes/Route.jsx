@@ -5,6 +5,7 @@ import Register from "../pages/Register/Register";
 import Login from "../pages/Login/Login";
 import NotFound from "../pages/NotFound/NotFound"; // bạn tạo trang 404 này nhé
 import Information from "../pages/Information/Information";
+import { News } from "../pages/News/News";
 
 const routes = [
   {
@@ -16,6 +17,7 @@ const routes = [
       { path: "register", element: <Register /> },
       { path: "login", element: <Login /> },
       { path: "information", element: <Information /> },
+      { path: "news", element: <News /> },
       { path: "*", element: <NotFound /> }, // catch-all cho 404
     ],
   },

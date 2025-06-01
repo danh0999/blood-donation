@@ -11,6 +11,10 @@
   margin-bottom: 20px;
   color: #e60000;
   animation: pulse 2s infinite;
+  user-select: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
 }
 
 @keyframes pulse {
@@ -32,6 +36,10 @@
   font-size: 14px;
   font-weight: bold;
   text-align: center;
+  user-select: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
 }
 .faqItem {
   margin-bottom: 20px;
@@ -42,6 +50,10 @@
   font-weight: bold;
   cursor: pointer;
   transition: color 0.3s ease;
+  user-select: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
 }
 .title:hover {
   color: #ff5555;
