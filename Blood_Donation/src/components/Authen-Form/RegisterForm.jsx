@@ -9,6 +9,7 @@ import {
   message,
 } from "antd";
 import { UploadOutlined } from "@ant-design/icons";
+// import api from "../../configs/axios";
 import { useNavigate } from "react-router-dom";
 
 const { Option } = Select;
@@ -51,6 +52,21 @@ const RegisterForm = () => {
     }, 1000);
   };
 
+  //form call api
+  // const onFinish = async (values) => {
+  //   console.log("Success:", values);
+
+  //   // 400: bad request
+  //   // 200: success
+  //   try {
+  //     // values: thông tin người dùng nhập
+  //     await api.post("register", values);
+  //   } catch (e) {
+  //     console.log(e);
+
+  //     // show ra màn hình cho người dùng biết lỗi
+  //   }
+  // };
   return (
     <div
       style={{
@@ -75,6 +91,16 @@ const RegisterForm = () => {
         scrollToFirstError
       >
         {/* Các Form.Item giữ nguyên như bạn viết, không thay đổi */}
+
+        {/* //form theo swagger mentor
+        <Form.Item
+          name="fullName"
+          label="FullName"
+          rules={[{ required: true, message: "Vui lòng nhập fullName!" }]}
+        >
+          <Input placeholder="Tên bạn muốn hiển thị" />
+        </Form.Item>
+
         <Form.Item
           name="email"
           label="Email"
@@ -84,6 +110,42 @@ const RegisterForm = () => {
           ]}
         >
           <Input placeholder="example@gmail.com" />
+        </Form.Item>
+
+        <Form.Item
+          name="username"
+          label="UserName"
+          rules={[{ required: true, message: "Vui lòng nhập UserName!" }]}
+        >
+          <Input placeholder="Tên bạn muốn hiển thị" />
+        </Form.Item>
+
+        <Form.Item
+          name="password"
+          label="Mật khẩu"
+          rules={[{ required: true, message: "Vui lòng nhập mật khẩu!" }]}
+          hasFeedback
+        >
+          <Input.Password placeholder="••••••••" />
+        </Form.Item> */}
+
+        <Form.Item
+          name="email"
+          label="Email"
+          rules={[
+            { type: "email", message: "Email không hợp lệ!" },
+            { required: true, message: "Vui lòng nhập email!" },
+          ]}
+        >
+          <Input placeholder="example@gmail.com" />
+        </Form.Item>
+
+        <Form.Item
+          name="username"
+          label="UserName"
+          rules={[{ required: true, message: "Vui lòng nhập UserName!" }]}
+        >
+          <Input placeholder="Tên bạn muốn hiển thị" />
         </Form.Item>
 
         <Form.Item
@@ -127,14 +189,6 @@ const RegisterForm = () => {
           ]}
         >
           <Input.Password placeholder="••••••••" />
-        </Form.Item>
-
-        <Form.Item
-          name="nickname"
-          label="Nickname"
-          rules={[{ required: true, message: "Vui lòng nhập nickname!" }]}
-        >
-          <Input placeholder="Tên bạn muốn hiển thị" />
         </Form.Item>
 
         <Form.Item
