@@ -1,16 +1,24 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { FaUser } from "react-icons/fa";
 import "./Header.scss";
 import Logo from "../../../assets/Logo.png";
 import { Layout } from "antd";
+import { useAuth } from "../../../hooks/AuthContext"; // import hook
+
 const { Header } = Layout;
 
 const AppHeader = () => {
+  const { user, logout } = useAuth(); // lấy trạng thái đăng nhập
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    logout();
+    navigate("/"); // quay lại trang chủ sau khi logout
+  };
+
   return (
     <header className="header">
-      {/* Top header */}
       <div className="top-header">
-        {/* Logo */}
         <div className="logo-container">
           <img src={Logo} alt="logo" className="logo" />
         </div>
@@ -25,18 +33,31 @@ const AppHeader = () => {
             <li>
               <Link to="/news">TIN TỨC</Link>
             </li>
-            <li>
-              <Link to="/contact">LIÊN HỆ</Link>
-            </li>
+            {user ? (
+              <li>
+                <Link to="/profile">THÔNG TIN NGƯỜI DÙNG</Link>
+              </li>
+            ) : (
+              <li>
+                <Link to="/contact">LIÊN HỆ</Link>
+              </li>
+            )}
           </ul>
         </nav>
 
-        {/* Đăng nhập */}
+        {/* Đăng nhập / Đăng xuất */}
         <div className="login-link">
-          <Link to="/login">
-            <FaUser className="login-icon" />
-            <span>Đăng nhập</span>
-          </Link>
+          {user ? (
+            <button onClick={handleLogout} className="logout-button">
+              <FaUser className="login-icon" />
+              <span>Đăng xuất</span>
+            </button>
+          ) : (
+            <Link to="/login">
+              <FaUser className="login-icon" />
+              <span>Đăng nhập</span>
+            </Link>
+          )}
         </div>
       </div>
     </header>

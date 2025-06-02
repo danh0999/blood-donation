@@ -1,18 +1,27 @@
 import React from "react";
-import { LockOutlined, UserOutlined } from "@ant-design/icons";
+import { LockOutlined, SyncOutlined, UserOutlined } from "@ant-design/icons";
 import { Button, Checkbox, Form, Input, Flex, Typography } from "antd";
+import { useAuth } from "../../hooks/AuthContext"; // THÊM DÒNG NÀY
 
 const { Title } = Typography;
 import { Link } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
+import api from "../../configs/axios";
+import { toast } from "react-toastify";
+
 const LoginForm = () => {
   const navigate = useNavigate();
-  const onFinish = (values) => {
-    console.log("Received values of form: ", values);
-
-    setTimeout(() => {
+  const { login } = useAuth();
+  const onFinish = async (values) => {
+    try {
+      const res = await api.post("login", values);
+      login(res.data.data); // CẬP NHẬT user vào context
+      toast.success("Đăng nhập thành công!");
       navigate("/");
-    }, 1000);
+    } catch (e) {
+      console.log(e);
+      toast.error(e.response?.data || "Lỗi đăng nhập!");
+    }
   };
 
   return (
