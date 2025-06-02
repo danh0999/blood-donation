@@ -6,10 +6,11 @@ import {
   Select,
   Typography,
   Upload,
-  message,
+  // message,
 } from "antd";
 import { UploadOutlined } from "@ant-design/icons";
-// import api from "../../configs/axios";
+import api from "../../configs/axios";
+import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
 
 const { Option } = Select;
@@ -40,33 +41,25 @@ const tailFormItemLayout = {
 
 const RegisterForm = () => {
   const [form] = Form.useForm();
-  const [messageRegister, contextHolder] = message.useMessage();
   const navigate = useNavigate();
-  const onFinish = (values) => {
-    console.log("Received values of form: ", values);
-    messageRegister.info("Đăng kí thành công!");
+  //call api
+  const onFinish = async (values) => {
+    console.log("Success:", values);
 
-    // ✅ Chuyển đến trang /login sau một chút delay (1s)
-    setTimeout(() => {
+    // 400: bad request
+    // 200: success
+    try {
+      // values: thông tin người dùng nhập
+      await api.post("register", values);
+      toast.success("Đăng kí thành công!");
       navigate("/login");
-    }, 1000);
+    } catch (e) {
+      console.log(e);
+      toast.error(e.response.data);
+
+      // show ra màn hình cho người dùng biết lỗi
+    }
   };
-
-  //form call api
-  // const onFinish = async (values) => {
-  //   console.log("Success:", values);
-
-  //   // 400: bad request
-  //   // 200: success
-  //   try {
-  //     // values: thông tin người dùng nhập
-  //     await api.post("register", values);
-  //   } catch (e) {
-  //     console.log(e);
-
-  //     // show ra màn hình cho người dùng biết lỗi
-  //   }
-  // };
   return (
     <div
       style={{
@@ -78,7 +71,6 @@ const RegisterForm = () => {
         boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
       }}
     >
-      {contextHolder}
       <Title level={2} style={{ textAlign: "center", marginBottom: 24 }}>
         Đăng Kí
       </Title>
@@ -92,7 +84,7 @@ const RegisterForm = () => {
       >
         {/* Các Form.Item giữ nguyên như bạn viết, không thay đổi */}
 
-        {/* //form theo swagger mentor
+        {/* //form theo swagger mentor */}
         <Form.Item
           name="fullName"
           label="FullName"
@@ -127,9 +119,9 @@ const RegisterForm = () => {
           hasFeedback
         >
           <Input.Password placeholder="••••••••" />
-        </Form.Item> */}
+        </Form.Item>
 
-        <Form.Item
+        {/* <Form.Item
           name="email"
           label="Email"
           rules={[
@@ -154,8 +146,8 @@ const RegisterForm = () => {
           rules={[
             { required: true, message: "Vui lòng nhập số CCCD!" },
             {
-              pattern: /^0792[0-9]{8}$/,
-              message: "CCCD phải bắt đầu bằng 0792 và gồm đúng 12 chữ số!",
+              pattern: /^[0-9]{12}$/,
+              message: "CCCD phải gồm đúng 12 chữ số!",
             },
           ]}
         >
@@ -273,7 +265,7 @@ const RegisterForm = () => {
           <Checkbox>
             I have read the <a href="">agreement</a>
           </Checkbox>
-        </Form.Item>
+        </Form.Item> */}
 
         <Form.Item {...tailFormItemLayout}>
           <Button type="primary" htmlType="submit">

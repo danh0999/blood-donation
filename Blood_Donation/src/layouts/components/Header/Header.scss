@@ -39,14 +39,20 @@
 
     /* Login link */
     .login-link {
-      a {
+      a,
+      button {
         display: flex;
         align-items: center;
         gap: 0.25rem;
         font-size: 16px;
         color: #4b5563;
+        background: none;
+        border: none;
+        cursor: pointer;
         text-decoration: none;
         transition: color 0.3s ease;
+        padding: 0; // để button không có padding mặc định
+        font-family: inherit; // kế thừa font chữ của cha, tránh khác biệt
         &:hover {
           color: #e73e2c;
         }
