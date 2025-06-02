@@ -56,7 +56,7 @@ export const Faqs = () => {
           </ul>
         </FaqItem>
       </div>
-      <Button />
+      <Button content="Tìm hiểu thêm" to="/information" />
     </div>
   );
 };
