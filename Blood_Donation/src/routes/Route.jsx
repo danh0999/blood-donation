@@ -6,9 +6,10 @@ import Login from "../pages/Login/Login";
 import NotFound from "../pages/NotFound/NotFound";
 import Information from "../pages/Information/Information";
 import { News } from "../pages/News/News";
-import NewsDetail from "../pages/NewsDetail/NewsDetail"; 
-import Profile from "../pages/Profile/Profile"; 
-import ProtectedRoute from "./ProtectedRoute"; 
+import NewsDetail from "../pages/NewsDetail/NewsDetail";
+import Profile from "../pages/Profile/Profile";
+import ProtectedRoute from "./ProtectedRoute";
+import { Contact } from "../pages/Contact/Contact";
 
 const routes = [
   {
@@ -21,8 +22,8 @@ const routes = [
       { path: "login", element: <Login /> },
       { path: "information", element: <Information /> },
       { path: "news", element: <News /> },
-      { path: "news/:id", element: <NewsDetail /> }, // ✅ giữ lại route chi tiết tin tức
-
+      { path: "news/:id", element: <NewsDetail /> },
+      { path: "contact", element: <Contact /> },
       // ✅ Route cần bảo vệ
       {
         path: "profile",
@@ -35,7 +36,7 @@ const routes = [
         ],
       },
 
-      { path: "*", element: <NotFound /> }, // ✅ 404 fallback
+      { path: "*", element: <NotFound /> }, // 404 fallback
     ],
   },
 ];
