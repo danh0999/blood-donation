@@ -7,10 +7,9 @@ import NotFound from "../pages/NotFound/NotFound";
 import Information from "../pages/Information/Information";
 import { News } from "../pages/News/News";
 import NewsDetail from "../pages/NewsDetail/NewsDetail";
-import Profile from "../pages/Profile/Profile";
-import ProtectedRoute from "./ProtectedRoute";
+import Profile from "../pages/Profile/Profile"; // ⬅️ thêm trang Profile
+import ProtectedRoute from "./ProtectedRoute"; // ⬅️ import ProtectedRoute
 import { Contact } from "../pages/Contact/Contact";
-
 const routes = [
   {
     path: "/",
@@ -24,19 +23,19 @@ const routes = [
       { path: "news", element: <News /> },
       { path: "news/:id", element: <NewsDetail /> },
       { path: "contact", element: <Contact /> },
-      // ✅ Route cần bảo vệ
+
       {
         path: "profile",
-        element: <ProtectedRoute allowedRoles={["ROLE_USER"]} />,
+        element: <ProtectedRoute allowedRoles={["ROLE_USER"]} />, // 👈 Đây là route cha (bọc bảo vệ)
         children: [
           {
             index: true,
-            element: <Profile />,
+            element: <Profile />, // 👈 Đây là route con thực sự sẽ được render nếu role hợp lệ
           },
         ],
       },
 
-      { path: "*", element: <NotFound /> }, // 404 fallback
+      { path: "*", element: <NotFound /> },
     ],
   },
 ];
