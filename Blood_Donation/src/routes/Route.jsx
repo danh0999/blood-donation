@@ -24,7 +24,14 @@ const routes = [
       { path: "news", element: <News /> },
       { path: "news/:id", element: <NewsDetail /> },
       { path: "contact", element: <Contact /> },
-      // ✅ Route cần bảo vệ
+      {
+        path: "admin",
+        element: <ProtectedRoute allowedRoles={["ROLE_ADMIN"]} />,
+        children: [
+     
+        ],
+      },
+      
       {
         path: "profile",
         element: <ProtectedRoute allowedRoles={["ROLE_USER"]} />,

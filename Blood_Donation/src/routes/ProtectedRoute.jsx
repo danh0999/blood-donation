@@ -1,8 +1,7 @@
-// ProtectedRoute.jsx
-import { Navigate } from "react-router-dom";
+import { Navigate, Outlet } from "react-router-dom";
 import { useAuth } from "../hooks/AuthContext";
 
-const ProtectedRoute = ({ allowedRoles, children }) => {
+const ProtectedRoute = ({ allowedRoles }) => {
   const { user } = useAuth();
   console.log("USER in ProtectedRoute:", user);
 
@@ -14,7 +13,7 @@ const ProtectedRoute = ({ allowedRoles, children }) => {
     return <Navigate to="/" replace />;
   }
 
-  return children;
+  return <Outlet />; 
 };
 
 export default ProtectedRoute;
