@@ -10,6 +10,7 @@ import NewsDetail from "../pages/NewsDetail/NewsDetail";
 import Profile from "../pages/Profile/Profile";
 import ProtectedRoute from "./ProtectedRoute";
 import { Contact } from "../pages/Contact/Contact";
+import  AdminDashboard  from "../pages/Admin/AdminDashboard";
 
 const routes = [
   {
@@ -29,7 +30,12 @@ const routes = [
       {
         path: "admin",
         element: <ProtectedRoute allowedRoles={["ROLE_ADMIN"]} />,
-        children: [],
+        children: [
+          {
+            index: true,
+            element: <AdminDashboard />,
+          },
+        ],
       },
 
       {

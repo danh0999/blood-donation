@@ -1,0 +1,22 @@
+.filterBar {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 1rem;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.selectBox {
+  padding: 0.5rem;
+  font-size: 1rem;
+  border-radius: 6px;
+}
+
+.searchInput {
+  padding: 0.5rem;
+  font-size: 1rem;
+  flex: 1;
+  min-width: 250px;
+  border-radius: 6px;
+}
+    
