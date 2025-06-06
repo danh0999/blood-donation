@@ -24,14 +24,14 @@ const routes = [
       { path: "news", element: <News /> },
       { path: "news/:id", element: <NewsDetail /> },
       { path: "contact", element: <Contact /> },
+
+      // 👇 Optional: Nếu chưa dùng admin thì có thể comment lại
       {
         path: "admin",
         element: <ProtectedRoute allowedRoles={["ROLE_ADMIN"]} />,
-        children: [
-     
-        ],
+        children: [],
       },
-      
+
       {
         path: "profile",
         element: <ProtectedRoute allowedRoles={["ROLE_USER"]} />,
@@ -43,7 +43,7 @@ const routes = [
         ],
       },
 
-      { path: "*", element: <NotFound /> }, // 404 fallback
+      { path: "*", element: <NotFound /> },
     ],
   },
 ];
