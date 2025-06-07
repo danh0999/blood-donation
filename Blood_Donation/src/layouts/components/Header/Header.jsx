@@ -3,17 +3,19 @@ import { FaUser } from "react-icons/fa";
 import "./Header.scss";
 import Logo from "../../../assets/Logo.png";
 import { Layout } from "antd";
-import { useAuth } from "../../../hooks/AuthContext"; // import hook
+import { useSelector, useDispatch } from "react-redux";
+import { logout } from "../../../redux/features/userSlice"; // 👈 import action
 
 const { Header } = Layout;
 
 const AppHeader = () => {
-  const { user, logout } = useAuth(); // lấy trạng thái đăng nhập
+  const user = useSelector((state) => state.user); // 👈 lấy user từ Redux
+  const dispatch = useDispatch();
   const navigate = useNavigate();
 
   const handleLogout = () => {
-    logout();
-    navigate("/"); // quay lại trang chủ sau khi logout
+    dispatch(logout()); // 👈 dispatch action logout
+    navigate("/");
   };
 
   return (

@@ -1,22 +1,35 @@
 import React from "react";
-import { useAuth } from "../../hooks/AuthContext";
+import { useSelector, useDispatch } from "react-redux";
+import { logout } from "../../redux/features/userSlice";
+import { useNavigate } from "react-router-dom";
 
 const Profile = () => {
-  const { user, logout } = useAuth();
+  const user = useSelector((state) => state.user);
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    dispatch(logout());
+    navigate("/"); // quay về trang chủ
+  };
+
+  if (!user) {
+    return <p>Bạn chưa đăng nhập.</p>;
+  }
 
   return (
     <div style={{ padding: 24 }}>
       <h2>Thông tin cá nhân</h2>
       <p>
-        <strong>Username:</strong> {user?.username}
+        <strong>Username:</strong> {user.username}
       </p>
       <p>
-        <strong>Email:</strong> {user?.email}
+        <strong>Email:</strong> {user.email}
       </p>
       <p>
-        <strong>Role:</strong> {user?.role}
+        <strong>Role:</strong> {user.role}
       </p>
-      <button onClick={logout}>Đăng xuất</button>
+      <button onClick={handleLogout}>Đăng xuất</button>
     </div>
   );
 };

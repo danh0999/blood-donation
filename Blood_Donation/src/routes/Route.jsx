@@ -40,15 +40,15 @@ const routes = [
 
       {
         path: "profile",
-        element: <ProtectedRoute allowedRoles={["ROLE_USER"]} />,
+        element: <ProtectedRoute allowedRoles={["USER"]} />, // bảo vệ
         children: [
           {
             index: true,
-            element: <Profile />,
+            element: <Profile />, // hiển thị nếu đúng role
+
           },
         ],
       },
-
       { path: "*", element: <NotFound /> },
     ],
   },
