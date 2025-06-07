@@ -14,7 +14,6 @@ const ProtectedRoute = () => {
   //   return <Navigate to="/" replace />;
   // }
 
-
   return <Outlet />;
 };
 

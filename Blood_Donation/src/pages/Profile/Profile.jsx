@@ -2,6 +2,7 @@ import React from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { logout } from "../../redux/features/userSlice";
 import { useNavigate } from "react-router-dom";
+import styles from "../Profile/styles.module.scss";
 
 const Profile = () => {
   const user = useSelector((state) => state.user);
@@ -18,7 +19,7 @@ const Profile = () => {
   }
 
   return (
-    <div style={{ padding: 24 }}>
+    <div className={styles["profile-container"]}>
       <h2>Thông tin cá nhân</h2>
       <p>
         <strong>Username:</strong> {user.username}

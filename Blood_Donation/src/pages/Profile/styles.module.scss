@@ -1,0 +1,59 @@
+.profile-container {
+  max-width: 500px;
+  margin: 40px auto;
+  padding: 2rem;
+  background-color: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08);
+  font-family: "Inter", sans-serif;
+  color: #1e293b;
+  animation: fadeIn 0.3s ease-in-out;
+
+  h2 {
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: #3b82f6;
+    margin-bottom: 1.5rem;
+    text-align: center;
+  }
+
+  p {
+    font-size: 1rem;
+    margin-bottom: 1rem;
+    line-height: 1.4;
+
+    strong {
+      font-weight: 600;
+      color: #0f172a;
+      margin-right: 0.5rem;
+    }
+  }
+
+  button {
+    width: 100%;
+    padding: 0.75rem;
+    background-color: #ef4444;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+
+    &:hover {
+      background-color: #dc2626;
+    }
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

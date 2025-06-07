@@ -14,11 +14,11 @@ import AdminDashboard from "../pages/Admin/AdminDashboard";
 
 const routes = [
   {
-    path: "/",
+    path: "",
     element: <MainLayout />,
     errorElement: <NotFound />,
     children: [
-      { index: true, element: <Home /> },
+      { path: "/", element: <Home /> },
       { path: "register", element: <Register /> },
       { path: "login", element: <Login /> },
       { path: "information", element: <Information /> },
