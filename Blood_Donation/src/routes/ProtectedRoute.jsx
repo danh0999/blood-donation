@@ -1,22 +1,19 @@
 import { Navigate, Outlet } from "react-router-dom";
 
-import { useSelector } from "react-redux";
+// import { useSelector } from "react-redux";
 
-const ProtectedRoute = ({ allowedRoles }) => {
+// const ProtectedRoute = ({ allowedRoles }) => {
+const ProtectedRoute = () => {
+  // const user = useSelector((state) => state.user);
 
-//   const { user } = useAuth();
-//   console.log("USER in ProtectedRoute:", user);
+  // if (!user) {
+  //   return <Navigate to="/login" replace />;
+  // }
 
-//   const user = useSelector((state) => state.user);
- 
+  // if (allowedRoles && !allowedRoles.includes(user.role)) {
+  //   return <Navigate to="/" replace />;
+  // }
 
-//   if (!user) {
-//     return <Navigate to="/login" replace />;
-//   }
-
-//   if (allowedRoles && !allowedRoles.includes(user.role)) {
-//     return <Navigate to="/" replace />;
-//   }
 
   return <Outlet />;
 };
