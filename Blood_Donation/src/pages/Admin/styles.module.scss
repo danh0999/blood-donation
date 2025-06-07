@@ -1,9 +1,12 @@
+@use "sass:color";
+
 $primary: #3b82f6;
 $secondary: #10b981;
 $bg: linear-gradient(135deg, #f0f4f8 0%, #e2e8f0 100%);
 $text: #1e293b;
 $card-bg: #ffffff;
-$hover: darken($primary, 10%);
+$hover: color.scale($primary, $lightness: -10%);
+
 $stat-bg: #f1f5f9;
 $border-color: #e5e7eb;
 
@@ -11,7 +14,7 @@ $border-color: #e5e7eb;
   padding: 1rem;
   background: $bg;
   min-height: 100vh;
-  font-family: 'Inter', sans-serif;
+  font-family: "Inter", sans-serif;
   color: $text;
 }
 
@@ -76,7 +79,7 @@ $border-color: #e5e7eb;
   padding-left: 12px;
 
   &::before {
-    content: '';
+    content: "";
     position: absolute;
     left: 0;
     top: 0;
@@ -98,7 +101,9 @@ $border-color: #e5e7eb;
   padding: 1rem;
   border-radius: 10px;
   text-align: center;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
   cursor: default;
 
   &:hover {
@@ -160,7 +165,9 @@ $border-color: #e5e7eb;
   justify-content: space-between;
   align-items: flex-start;
   gap: 1rem;
-  transition: background 0.2s ease, box-shadow 0.2s ease;
+  transition:
+    background 0.2s ease,
+    box-shadow 0.2s ease;
 
   &:hover {
     background: lighten($primary, 42%);
@@ -207,7 +214,7 @@ $border-color: #e5e7eb;
   width: 100%;
   border-collapse: separate;
   border-spacing: 0 12px; /* khoảng cách giữa các hàng */
-  font-family: 'Inter', sans-serif;
+  font-family: "Inter", sans-serif;
   color: #334155;
   background: transparent;
 }
@@ -232,7 +239,9 @@ $border-color: #e5e7eb;
   background: #ffffff;
   box-shadow: 0 1px 4px rgb(0 0 0 / 0.05);
   border-radius: 10px;
-  transition: transform 0.15s ease, box-shadow 0.15s ease;
+  transition:
+    transform 0.15s ease,
+    box-shadow 0.15s ease;
   cursor: default;
   /* Hiệu ứng bo tròn cho hàng */
   & > td:first-child {
@@ -271,7 +280,7 @@ $border-color: #e5e7eb;
 
 /* Icon hành động */
 .icon {
-  font-size: 1.5rem;  /* tăng kích thước icon */
+  font-size: 1.5rem; /* tăng kích thước icon */
   color: #64748b;
   cursor: pointer;
   transition: color 0.3s ease;
@@ -283,7 +292,6 @@ $border-color: #e5e7eb;
     background: rgba(59, 130, 246, 0.15);
   }
 }
-
 
 /* Khi không có kết quả */
 .userTable tbody tr td[colspan="6"] {
