@@ -12,10 +12,15 @@ const AppFooter = () => {
 
   return (
     <>
-      <Footer className={footerWrapper} style={{ textAlign: "center" ,padding: 0}}>
+      <Footer
+        className={footerWrapper}
+        style={{ textAlign: "center", padding: 0 }}
+      >
         <div className={footer}>
           <div className={footerLeft}>
-            <p className={title}>© 2025 Blood Donation Management System</p>
+            <p className={title}>
+              © {new Date().getFullYear()} Blood Donation Management System
+            </p>
             <ul>
               <li>
                 <a href="#">Contact Us</a>
