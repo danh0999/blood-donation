@@ -37,7 +37,7 @@ const AppHeader = () => {
             </li>
             {user ? (
               <li>
-                <Link to="/profile">THÔNG TIN NGƯỜI DÙNG</Link>
+                <Link to="/profile">THÔNG TIN </Link>
               </li>
             ) : (
               <li>
