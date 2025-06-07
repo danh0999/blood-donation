@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Layout, Menu, Breadcrumb } from "antd";
+import { Layout, Menu, Breadcrumb, Pagination } from "antd";
 import {
   PieChartOutlined,
   UserOutlined,
@@ -13,10 +13,12 @@ import SearchBarV2 from "../../components/SearchBarV2/SearchBarV2";
 
 const { Header, Content, Footer, Sider } = Layout;
 
+// Hàm tạo item cho menu
 function getItem(label, key, icon, children) {
   return { key, icon, children, label };
 }
 
+// Menu bên sidebar
 const menuItems = [
   getItem("Tổng Quan", "overview", <PieChartOutlined />),
   getItem("Tài Khoản", "accounts", <UserOutlined />, [
@@ -28,9 +30,16 @@ const menuItems = [
 const AdminDashboard = () => {
   const [collapsed, setCollapsed] = useState(false);
   const [selectedKey, setSelectedKey] = useState("overview");
+
+  // Dùng cho lọc tìm kiếm & phân trang
   const [searchText, setSearchText] = useState("");
   const [roleFilter, setRoleFilter] = useState("All");
 
+  // State quản lý trang hiện tại của phân trang
+  const [currentPage, setCurrentPage] = useState(1);
+  const pageSize = 10; // số user hiển thị trên 1 trang
+
+  // Dữ liệu giả lập user
   const fakeUsers = [
     {
       id: 1,
@@ -174,6 +183,7 @@ const AdminDashboard = () => {
     },
   ];
 
+  // Lọc user theo role và text search
   const filteredUsers = fakeUsers.filter((user) => {
     const matchRole = roleFilter === "All" || user.role === roleFilter;
     const matchSearch = user.name
@@ -182,11 +192,17 @@ const AdminDashboard = () => {
     return matchRole && matchSearch;
   });
 
+  // Tính dữ liệu user cho trang hiện tại phân trang
+  const startIndex = (currentPage - 1) * pageSize;
+  const currentUsers = filteredUsers.slice(startIndex, startIndex + pageSize);
+
+  // Khi chọn menu, đổi trang về trang đầu tiên
   const onMenuSelect = ({ key }) => {
     setSelectedKey(key);
+    setCurrentPage(1);
   };
 
-  // Tạo breadcrumbs theo selectedKey (nếu là menu con thì có thể parse để hiển thị đẹp hơn)
+  // Breadcrumb
   const breadcrumbItems = [
     { title: "Trang Chủ" },
     { title: selectedKey === "accounts-list" ? "Danh Sách" : selectedKey },
@@ -212,7 +228,7 @@ const AdminDashboard = () => {
       </Sider>
       <Layout>
         <Header className={styles.header}>
-          <h1 className={styles.headerTitle}>Bảng Điều Khiển Quản Trị</h1>
+          <h1 className={styles.headerTitle}>Admin Dashboard</h1>
         </Header>
         <Content className={styles.content}>
           <Breadcrumb className={styles.breadcrumb} items={breadcrumbItems} />
@@ -250,9 +266,15 @@ const AdminDashboard = () => {
               <SearchBarV2
                 roles={["User", "Staff", "Staff Hospital"]}
                 selectedRole={roleFilter}
-                onRoleChange={setRoleFilter}
+                onRoleChange={(role) => {
+                  setRoleFilter(role);
+                  setCurrentPage(1); // reset trang khi đổi filter
+                }}
                 searchText={searchText}
-                onSearchChange={setSearchText}
+                onSearchChange={(text) => {
+                  setSearchText(text);
+                  setCurrentPage(1); // reset trang khi đổi search
+                }}
               />
 
               <table className={styles.userTable}>
@@ -267,8 +289,8 @@ const AdminDashboard = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  {filteredUsers.length > 0 ? (
-                    filteredUsers.map((user) => (
+                  {currentUsers.length > 0 ? (
+                    currentUsers.map((user) => (
                       <tr key={user.id}>
                         <td>{user.id}</td>
                         <td>{user.name}</td>
@@ -277,7 +299,7 @@ const AdminDashboard = () => {
                         <td>{user.role}</td>
                         <td
                           className={styles.actions}
-                          style={{ marginLeft: "-105px" }}
+                          style={{ marginLeft: "-10vw" }}
                         >
                           <FaEye title="Xem" className={styles.icon} />
                           <FaEdit title="Sửa" className={styles.icon} />
@@ -291,6 +313,15 @@ const AdminDashboard = () => {
                   )}
                 </tbody>
               </table>
+
+              <Pagination
+                current={currentPage}
+                pageSize={pageSize}
+                total={filteredUsers.length}
+                onChange={(page) => setCurrentPage(page)}
+                showSizeChanger={false}
+                style={{ marginTop: 16, textAlign: "right" }}
+              />
             </section>
           )}
 
@@ -328,8 +359,8 @@ const AdminDashboard = () => {
             </section>
           )}
         </Content>
-        <Footer className={styles.footer}>
-          Ant Design ©{new Date().getFullYear()} Created by Ant UED
+        <Footer style={{ textAlign: "center" }}>
+          ©2024 Admin Dashboard by You
         </Footer>
       </Layout>
     </Layout>

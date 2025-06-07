@@ -1,8 +1,8 @@
 import React from "react";
-import { DatePicker, Button, Typography } from "antd";
+import { DatePicker, Typography } from "antd";
 import { CalendarOutlined } from "@ant-design/icons";
 import styles from "../SearchBar/SearchBar.module.scss";
-
+import { Button } from "../../components/Button/Button";
 const { RangePicker } = DatePicker;
 const { Text } = Typography;
 
