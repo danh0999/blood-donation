@@ -1,10 +1,8 @@
-// ProtectedRoute.jsx
-import { Navigate } from "react-router-dom";
-import { useAuth } from "../hooks/AuthContext";
+import { Navigate, Outlet } from "react-router-dom";
+import { useSelector } from "react-redux";
 
-const ProtectedRoute = ({ allowedRoles, children }) => {
-  const { user } = useAuth();
-  console.log("USER in ProtectedRoute:", user);
+const ProtectedRoute = ({ allowedRoles }) => {
+  const user = useSelector((state) => state.user);
 
   if (!user) {
     return <Navigate to="/login" replace />;
@@ -14,7 +12,7 @@ const ProtectedRoute = ({ allowedRoles, children }) => {
     return <Navigate to="/" replace />;
   }
 
-  return children;
+  return <Outlet />;
 };
 
 export default ProtectedRoute;

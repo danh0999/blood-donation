@@ -26,15 +26,14 @@ const routes = [
 
       {
         path: "profile",
-        element: <ProtectedRoute allowedRoles={["ROLE_USER"]} />, // 👈 Đây là route cha (bọc bảo vệ)
+        element: <ProtectedRoute allowedRoles={["USER"]} />, // bảo vệ
         children: [
           {
             index: true,
-            element: <Profile />, // 👈 Đây là route con thực sự sẽ được render nếu role hợp lệ
+            element: <Profile />, // hiển thị nếu đúng role
           },
         ],
       },
-
       { path: "*", element: <NotFound /> },
     ],
   },

@@ -1,23 +1,27 @@
 import React from "react";
 import { LockOutlined, SyncOutlined, UserOutlined } from "@ant-design/icons";
 import { Button, Checkbox, Form, Input, Flex, Typography } from "antd";
-import { useAuth } from "../../hooks/AuthContext"; // THÊM DÒNG NÀY
 
 const { Title } = Typography;
 import { Link } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
 import api from "../../configs/axios";
 import { toast } from "react-toastify";
-
+import { login } from "../../redux/features/userSlice";
+import { useDispatch } from "react-redux";
+import redirectByRole from "../../hooks/redirectByRole";
 const LoginForm = () => {
   const navigate = useNavigate();
-  const { login } = useAuth();
+  const dispatch = useDispatch();
   const onFinish = async (values) => {
     try {
       const res = await api.post("login", values);
-      login(res.data.data); // CẬP NHẬT user vào context
+      dispatch(login(res.data.data));
+      localStorage.setItem("token", res.data.data.token);
       toast.success("Đăng nhập thành công!");
-      navigate("/");
+
+      // ✅ Điều hướng theo role
+      redirectByRole(res.data.data.role, navigate);
     } catch (e) {
       console.log(e);
       toast.error(e.response?.data || "Lỗi đăng nhập!");
