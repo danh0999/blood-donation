@@ -9,19 +9,27 @@ import api from "../../configs/axios";
 import { toast } from "react-toastify";
 import { login } from "../../redux/features/userSlice";
 import { useDispatch } from "react-redux";
-import redirectByRole from "../../hooks/redirectByRole";
+// import redirectByRole from "../../hooks/redirectByRole";
 const LoginForm = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const onFinish = async (values) => {
     try {
       const res = await api.post("login", values);
+      const user = res.data.data;
       dispatch(login(res.data.data));
       localStorage.setItem("token", res.data.data.token);
-      toast.success("Đăng nhập thành công!");
-
       // ✅ Điều hướng theo role
-      redirectByRole(res.data.data.role, navigate);
+      if (user.role === "ADMIN") {
+        navigate("/admin");
+      } else if (user.role === "USER") {
+        navigate("/");
+      } else if (user.role === "STAFF") {
+        navigate("/staff");
+      } else if (user.role === "HOSPITAL_STAFF") {
+        navigate("/hospital");
+      }
+      toast.success("Đăng nhập thành công!");
     } catch (e) {
       console.log(e);
       toast.error(e.response?.data || "Lỗi đăng nhập!");

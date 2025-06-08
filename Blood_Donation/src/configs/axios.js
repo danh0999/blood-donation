@@ -8,7 +8,11 @@ api.interceptors.request.use(
   function (config) {
     // Do something before request is sent
     const token = localStorage.getItem("token");
-    if (token) {
+    if (
+      token &&
+      !config.url.includes("login") &&
+      !config.url.includes("register")
+    ) {
       config.headers.Authorization = `Bearer ${token}`;
     }
     return config;
