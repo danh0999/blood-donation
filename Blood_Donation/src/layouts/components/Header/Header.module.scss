@@ -1,0 +1,164 @@
+/* Reset */
+* {
+  padding: 0;
+  margin: 0;
+}
+
+/* Header tổng */
+.header {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  z-index: 1000;
+  background: white;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+
+  .topHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.5rem 1.5rem 0.1rem;
+    max-width: 1200px;
+    margin: 0 auto;
+    width: 100%;
+    font-family: "Poppins", sans-serif;
+    user-select: none;
+    outline: none;
+
+    .logoContainer {
+      .logo {
+        height: 80px;
+      }
+    }
+
+    .navbar {
+      background-color: white;
+      padding: 0.5rem 0;
+
+      .navList {
+        display: flex;
+        justify-content: center;
+        gap: 3rem;
+        margin: 0 auto;
+        max-width: 1200px;
+        list-style: none;
+
+        a {
+          color: #4b5563;
+          text-decoration: none;
+          font-weight: 600;
+          font-size: 16px;
+
+          &:hover {
+            color: #e73e2c;
+          }
+        }
+      }
+    }
+
+    .loginArea {
+      display: flex;
+      align-items: center;
+
+      .userDropdown {
+        position: relative;
+
+        .avatarButton {
+          display: flex;
+          align-items: center;
+          gap: 8px; // khoảng cách giữa avatar và tên
+          background: none;
+          border: none;
+          cursor: pointer;
+          padding: 0;
+
+          .avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            object-fit: cover;
+          }
+
+          .userName {
+            color: #4b5563;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 16px;
+            &:hover {
+              color: #e73e2c;
+            }
+          }
+          &:hover {
+            transform: scale(1.05);
+          }
+        }
+
+        .dropdownMenu {
+          position: absolute;
+          right: 0;
+          top: 40px;
+          background-color: #ffffff;
+          border: 1px solid #ddd;
+          border-radius: 6px;
+          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+          min-width: 160px;
+          z-index: 1001;
+
+          .dropdownItem {
+            display: block;
+            width: 100%;
+            padding: 10px 16px;
+            background: none;
+            border: none;
+            font-size: 14px;
+            text-align: left;
+            color: #4b5563;
+            cursor: pointer;
+            text-decoration: none;
+            font-family: inherit;
+
+            &:hover {
+              background-color: #f3f4f6;
+              color: #e73e2c;
+            }
+          }
+        }
+      }
+
+      .authButtons {
+        display: flex;
+        gap: 0.5rem;
+
+        .btn {
+          padding: 6px 12px;
+          font-size: 14px;
+          font-weight: 500;
+          border-radius: 4px;
+          border: none;
+          cursor: pointer;
+          font-family: inherit;
+          transition: background-color 0.3s ease;
+        }
+
+        .loginBtn {
+          background-color: #e74c3c;
+          color: white;
+
+          &:hover {
+            background-color: #c0392b;
+          }
+        }
+
+        .registerBtn {
+          background-color: #3498db;
+          color: white;
+
+          &:hover {
+            background-color: #2980b9;
+          }
+        }
+      }
+    }
+  }
+}

@@ -2,7 +2,7 @@ import React from "react";
 import styles from "./styles.module.scss";
 import { useNavigate } from "react-router-dom";
 
-export const Button = ({ content = "Tìm hiểu thêm", to }) => {
+export const Button = ({ content = "Tìm kiếm", to }) => {
   const { buttonContainer, button } = styles;
   const navigate = useNavigate();
 

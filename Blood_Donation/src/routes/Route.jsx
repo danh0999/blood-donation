@@ -11,6 +11,9 @@ import Profile from "../pages/Profile/Profile";
 import ProtectedRoute from "./ProtectedRoute";
 import { Contact } from "../pages/Contact/Contact";
 import AdminDashboard from "../pages/Admin/AdminDashboard";
+import AppHeader from "../layouts/components/Header/Header";
+import { Outlet } from "react-router-dom";
+import AppFooter from "../layouts/components/Footer/Footer";
 
 const routes = [
   {
