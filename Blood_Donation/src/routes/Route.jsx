@@ -14,6 +14,8 @@ import AdminDashboard from "../pages/Admin/AdminDashboard";
 import AppHeader from "../layouts/components/Header/Header";
 import { Outlet } from "react-router-dom";
 import AppFooter from "../layouts/components/Footer/Footer";
+import BloodDonationForm from "../components/Blood-Form/Blood-Donation-Form/BloodDonationForm";
+import BloodReceiveForm from "../components/Blood-Form/Blood-Receive-Form/BloodReceiveForm";
 
 const routes = [
   {
@@ -24,6 +26,8 @@ const routes = [
       { path: "/", element: <Home /> },
       { path: "register", element: <Register /> },
       { path: "login", element: <Login /> },
+      { path: "form-register", element: <BloodDonationForm /> },
+      { path: "form-receive", element: <BloodReceiveForm /> },
       { path: "information", element: <Information /> },
       { path: "news", element: <News /> },
       { path: "news/:id", element: <NewsDetail /> },
