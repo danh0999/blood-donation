@@ -10,6 +10,8 @@ import { Button } from "../../components/Button/Button";
 import { MdAccountCircle } from "react-icons/md";
 import { FaEye, FaEdit } from "react-icons/fa";
 import SearchBarV2 from "../../components/SearchBarV2/SearchBarV2";
+import AccountModal from "../../components/Account-Modal/AccountModal";
+import "@ant-design/v5-patch-for-react-19";
 
 const { Header, Content, Footer, Sider } = Layout;
 
@@ -28,19 +30,7 @@ const menuItems = [
 ];
 
 const AdminDashboard = () => {
-  const [collapsed, setCollapsed] = useState(false);
-  const [selectedKey, setSelectedKey] = useState("overview");
-
-  // Dùng cho lọc tìm kiếm & phân trang
-  const [searchText, setSearchText] = useState("");
-  const [roleFilter, setRoleFilter] = useState("All");
-
-  // State quản lý trang hiện tại của phân trang
-  const [currentPage, setCurrentPage] = useState(1);
-  const pageSize = 10; // số user hiển thị trên 1 trang
-
-  // Dữ liệu giả lập user
-  const fakeUsers = [
+  const [users, setUsers] = useState([
     {
       id: 1,
       name: "Nguyễn Văn An",
@@ -181,10 +171,49 @@ const AdminDashboard = () => {
       gender: "Nam",
       role: "Staff",
     },
-  ];
+  ]);
+
+  const [collapsed, setCollapsed] = useState(false);
+  const [selectedKey, setSelectedKey] = useState("overview");
+
+  // Dùng cho lọc tìm kiếm & phân trang
+  const [searchText, setSearchText] = useState("");
+  const [roleFilter, setRoleFilter] = useState("All");
+
+  // State quản lý trang hiện tại của phân trang
+  const [currentPage, setCurrentPage] = useState(1);
+  const pageSize = 10; // số user hiển thị trên 1 trang
+
+  // Thêm vào state
+  const [modalVisible, setModalVisible] = useState(false);
+  const [modalMode, setModalMode] = useState("view"); // "view" | "edit"
+  const [selectedUser, setSelectedUser] = useState(null);
+
+  // Xử lý khi click icon
+  const handleViewUser = (user) => {
+    setSelectedUser(user);
+    setModalMode("view");
+    setModalVisible(true);
+  };
+
+  const handleEditUser = (user) => {
+    setSelectedUser(user);
+    setModalMode("edit");
+    setModalVisible(true);
+  };
+  const handleSaveUser = (updatedData) => {
+    setUsers((prevUsers) =>
+      prevUsers.map((user) =>
+        user.id === updatedData.id ? { ...user, ...updatedData } : user
+      )
+    );
+    setModalVisible(false);
+  };
+
+  // Dữ liệu giả lập user
 
   // Lọc user theo role và text search
-  const filteredUsers = fakeUsers.filter((user) => {
+  const filteredUsers = users.filter((user) => {
     const matchRole = roleFilter === "All" || user.role === roleFilter;
     const matchSearch = user.name
       .toLowerCase()
@@ -299,10 +328,18 @@ const AdminDashboard = () => {
                         <td>{user.role}</td>
                         <td
                           className={styles.actions}
-                          style={{ marginLeft: "-10vw" }}
+                          style={{ marginLeft: "-9vw" }}
                         >
-                          <FaEye title="Xem" className={styles.icon} />
-                          <FaEdit title="Sửa" className={styles.icon} />
+                          <FaEye
+                            title="Xem"
+                            className={styles.icon}
+                            onClick={() => handleViewUser(user)}
+                          />
+                          <FaEdit
+                            title="Sửa"
+                            className={styles.icon}
+                            onClick={() => handleEditUser(user)}
+                          />
                         </td>
                       </tr>
                     ))
@@ -359,6 +396,14 @@ const AdminDashboard = () => {
             </section>
           )}
         </Content>
+        <AccountModal
+          visible={modalVisible}
+          mode={modalMode}
+          onClose={() => setModalVisible(false)}
+          onSave={handleSaveUser}
+          user={selectedUser}
+        />
+
         <Footer style={{ textAlign: "center" }}>
           ©2024 Admin Dashboard by You
         </Footer>
