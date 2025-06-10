@@ -13,9 +13,35 @@ import { useDispatch } from "react-redux";
 const LoginForm = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
+
+  const testAccount = {
+    username: "testuser",
+    password: "password",
+  };
+
   const onFinish = async (values) => {
+    if (
+      values.username === testAccount.username &&
+      values.password === testAccount.password
+    ) {
+      // Simulate successful login with test account
+      const testUser = {
+        id: "test-id",
+        name: "Test User",
+        username: "testuser",
+        role: "USER",
+        token: "test-token",
+      };
+      dispatch(login(testUser));
+      localStorage.setItem("token", "test-token");
+      navigate("/");
+      toast.success("Đăng nhập thành công (tài khoản test)!");
+      return; //skip the code below if input test account info
+    }
+
     try {
       const res = await api.post("login", values);
+      console.log(res.data.data);
       const user = res.data.data;
       dispatch(login(res.data.data));
       localStorage.setItem("token", res.data.data.token);

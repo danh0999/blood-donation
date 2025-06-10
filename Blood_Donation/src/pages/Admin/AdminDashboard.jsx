@@ -11,7 +11,6 @@ import { MdAccountCircle } from "react-icons/md";
 import { FaEye, FaEdit } from "react-icons/fa";
 import SearchBarV2 from "../../components/SearchBarV2/SearchBarV2";
 import AccountModal from "../../components/Account-Modal/AccountModal";
-import "@ant-design/v5-patch-for-react-19";
 
 const { Header, Content, Footer, Sider } = Layout;
 

@@ -12,10 +12,11 @@ import ProtectedRoute from "./ProtectedRoute";
 import { Contact } from "../pages/Contact/Contact";
 import AdminDashboard from "../pages/Admin/AdminDashboard";
 import AppHeader from "../layouts/components/Header/Header";
-import { Outlet } from "react-router-dom";
+import { Outlet, Navigate } from "react-router-dom";
 import AppFooter from "../layouts/components/Footer/Footer";
 import BloodDonationForm from "../components/Blood-Form/Blood-Donation-Form/BloodDonationForm";
 import BloodReceiveForm from "../components/Blood-Form/Blood-Receive-Form/BloodReceiveForm";
+import StaffDashboard from "../pages/Staff/StaffDashboard";
 
 const routes = [
   {
@@ -47,6 +48,23 @@ const routes = [
       },
       { path: "*", element: <NotFound /> },
     ],
+  },
+
+  {
+    path: "staff",
+    element: <ProtectedRoute allowedRoles={["STAFF"]} />,
+    children: [
+      {
+        index: true,
+        // Auto navigate to staff/overview
+        element: <Navigate to='overview' replace />
+      },
+
+      {
+        path: "overview",
+        element: <StaffDashboard/>
+      }
+    ]
   },
 
   {
