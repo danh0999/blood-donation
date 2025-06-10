@@ -81,7 +81,7 @@ const AppHeader = () => {
                     e.target.src = "https://via.placeholder.com/32";
                   }}
                 />
-                <span className={styles.userName}>{user?.fullName}</span>{" "}
+                <span className={styles.userName}>{user?.username}</span>{" "}
                 {/* 👈 Thêm dòng này */}
               </button>
 

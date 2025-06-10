@@ -121,6 +121,26 @@ const RegisterForm = () => {
           <Input.Password placeholder="••••••••" />
         </Form.Item>
 
+        <Form.Item
+          name="confirm"
+          label="Xác nhận mật khẩu"
+          dependencies={["password"]}
+          hasFeedback
+          rules={[
+            { required: true, message: "Vui lòng xác nhận mật khẩu!" },
+            ({ getFieldValue }) => ({
+              validator(_, value) {
+                if (!value || getFieldValue("password") === value) {
+                  return Promise.resolve();
+                }
+                return Promise.reject(new Error("Mật khẩu không khớp!"));
+              },
+            }),
+          ]}
+        >
+          <Input.Password placeholder="••••••••" />
+        </Form.Item>
+
         {/* <Form.Item
           name="email"
           label="Email"
