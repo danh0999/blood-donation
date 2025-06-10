@@ -16,6 +16,8 @@ import { Outlet } from "react-router-dom";
 import AppFooter from "../layouts/components/Footer/Footer";
 import BloodDonationForm from "../components/Blood-Form/Blood-Donation-Form/BloodDonationForm";
 import BloodReceiveForm from "../components/Blood-Form/Blood-Receive-Form/BloodReceiveForm";
+import StaffDashboard from "../pages/Staff/StaffDashboard";
+import HospitalStaff_Dashboard from "../pages/Hospital_Staff/HospitalStaff_Dashboard";
 
 const routes = [
   {
@@ -56,6 +58,26 @@ const routes = [
       {
         index: true,
         element: <AdminDashboard />,
+      },
+    ],
+  },
+  {
+    path: "staff",
+    element: <ProtectedRoute allowedRoles={["STAFF"]} />,
+    children: [
+      {
+        index: true,
+        element: <StaffDashboard />,
+      },
+    ],
+  },
+  {
+    path: "hospital",
+    element: <ProtectedRoute allowedRoles={["HOSPITAL_STAFF"]} />,
+    children: [
+      {
+        index: true,
+        element: <HospitalStaff_Dashboard />,
       },
     ],
   },
