@@ -15,6 +15,35 @@ const LoginForm = () => {
   const dispatch = useDispatch();
   const onFinish = async (values) => {
     try {
+      if (values.username === "test" && values.password === "password") {
+        const user = {
+          username: "test",
+          role: "MEMBER", // or "MEMBER", "STAFF", etc. as you want
+          token: "test-token",
+        };
+        dispatch(login(user));
+        localStorage.setItem("token", user.token);
+
+        switch (user.role) {
+          case "ADMIN":
+            navigate("/admin");
+            break;
+          case "MEMBER":
+            navigate("/");
+            break;
+          case "STAFF":
+            navigate("/staff");
+            break;
+          case "HOSPITAL_STAFF":
+            navigate("/hospital");
+            break;
+          default:
+            navigate("/");
+        }
+
+        toast.success("Đăng nhập thành công! (test account)");
+        return;
+      }
       const res = await api.post("login", values);
       console.log("Server response:", res.data); // 👈 In ra để kiểm tra
 
