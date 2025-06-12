@@ -16,23 +16,38 @@ const LoginForm = () => {
   const onFinish = async (values) => {
     try {
       const res = await api.post("login", values);
-      const user = res.data.data;
-      dispatch(login(res.data.data));
-      localStorage.setItem("token", res.data.data.token);
-      // ✅ Điều hướng theo role
-      if (user.role === "ADMIN") {
-        navigate("/admin");
-      } else if (user.role === "USER") {
-        navigate("/");
-      } else if (user.role === "STAFF") {
-        navigate("/staff");
-      } else if (user.role === "HOSPITAL_STAFF") {
-        navigate("/hospital");
+      console.log("Server response:", res.data); // 👈 In ra để kiểm tra
+
+      const user = res.data; // 👈 Tùy chỉnh theo cấu trúc thật
+
+      if (user && user.token) {
+        dispatch(login(user));
+        localStorage.setItem("token", user.token);
+
+        switch (user.role) {
+          case "ADMIN":
+            navigate("/admin");
+            break;
+          case "MEMBER":
+            navigate("/");
+            break;
+          case "STAFF":
+            navigate("/staff");
+            break;
+          case "HOSPITAL_STAFF":
+            navigate("/hospital");
+            break;
+          default:
+            navigate("/");
+        }
+
+        toast.success("Đăng nhập thành công!");
+      } else {
+        toast.error("Phản hồi không hợp lệ từ server (không có token)");
       }
-      toast.success("Đăng nhập thành công!");
     } catch (e) {
-      console.log(e);
-      toast.error(e.response?.data || "Lỗi đăng nhập!");
+      console.error("Login error:", e);
+      toast.error(e.response?.data?.message || "Lỗi đăng nhập!");
     }
   };
 

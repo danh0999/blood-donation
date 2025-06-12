@@ -251,9 +251,9 @@ const RegisterForm = () => {
             <Option value="O+">O+</Option>
             <Option value="O-">O-</Option>
           </Select>
-        </Form.Item>
+        </Form.Item> */}
 
-        <Form.Item
+        {/* <Form.Item
           name="healthFile"
           label="Hồ sơ khám sức khỏe"
           valuePropName="fileList"
@@ -285,7 +285,7 @@ const RegisterForm = () => {
           <Checkbox>
             I have read the <a href="">agreement</a>
           </Checkbox>
-        </Form.Item> */}
+        </Form.Item>  */}
 
         <Form.Item {...tailFormItemLayout}>
           <Button type="primary" htmlType="submit">

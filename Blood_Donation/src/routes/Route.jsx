@@ -39,7 +39,7 @@ const routes = [
 
       {
         path: "profile",
-        element: <ProtectedRoute allowedRoles={["USER"]} />, // bảo vệ
+        element: <ProtectedRoute allowedRoles={["MEMBER"]} />, // bảo vệ
         children: [
           {
             index: true,
