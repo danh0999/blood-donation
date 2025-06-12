@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import BloodRequestTable from "./BloodRequestTable";
 import {
   DashboardOutlined,
   FormOutlined,
@@ -9,6 +10,7 @@ import {
 import { Breadcrumb, Layout, Menu, theme } from "antd";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
+import styles from "./styles.module.scss";
 
 const { Header, Content, Footer, Sider } = Layout;
 
@@ -69,7 +71,6 @@ const StaffDashboard = () => {
         />
       </Sider>
       <Layout>
-        <Header style={{ padding: 0, background: colorBgContainer }} />
         <Content style={{ margin: "0 16px" }}>
           <Breadcrumb
             style={{ margin: "16px 0" }}
@@ -91,11 +92,16 @@ const StaffDashboard = () => {
             }}
           >
             {selectedMenuItem === "dashboard" && (
-              <h2>Welcome to Staff Dashboard</h2>
+              <div className={styles.dashboardCenterWrapper}>
+                <h2>Welcome to Staff Dashboard</h2>
+                <p>Please choose one of the following functions on the sidebar to start</p>
+              </div>
             )}
             {selectedMenuItem === "blog" && <h2>Welcome to Blog Management</h2>}
             {selectedMenuItem === "blood-requests" && (
-              <h2>Welcome to Blood Requests</h2>
+              <>
+                <BloodRequestTable />
+              </>
             )}
             {selectedMenuItem === "donation-forms" && (
               <h2>Welcome to Donation Forms</h2>
