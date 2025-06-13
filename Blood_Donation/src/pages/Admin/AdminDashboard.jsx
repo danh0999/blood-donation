@@ -13,6 +13,8 @@ import SearchBarV2 from "../../components/SearchBarV2/SearchBarV2";
 import AccountModal from "../../components/Account-Modal/AccountModal";
 import "@ant-design/v5-patch-for-react-19";
 
+import { RiDeleteBin5Fill } from "react-icons/ri";
+import DeleteConfirmModal from "../../components/DeleteConfirmModal/DeleteConfirmModal";
 const { Header, Content, Footer, Sider } = Layout;
 
 // Hàm tạo item cho menu
@@ -237,6 +239,25 @@ const AdminDashboard = () => {
     { title: selectedKey === "accounts-list" ? "Danh Sách" : selectedKey },
   ];
 
+  const [confirmDeleteVisible, setConfirmDeleteVisible] = useState(false);
+  const [deletingUserId, setDeletingUserId] = useState(null);
+
+  const showDeleteConfirm = (id) => {
+    setDeletingUserId(id);
+    setConfirmDeleteVisible(true);
+  };
+
+  const handleConfirmDelete = () => {
+    setUsers((prev) => prev.filter((user) => user.id !== deletingUserId));
+    setConfirmDeleteVisible(false);
+    setDeletingUserId(null);
+  };
+
+  const handleCancelDelete = () => {
+    setConfirmDeleteVisible(false);
+    setDeletingUserId(null);
+  };
+
   return (
     <Layout style={{ minHeight: "100vh" }}>
       <Sider
@@ -340,6 +361,11 @@ const AdminDashboard = () => {
                             className={styles.icon}
                             onClick={() => handleEditUser(user)}
                           />
+                          <RiDeleteBin5Fill
+                            title="Xóa"
+                            className={styles.icon}
+                            onClick={() => showDeleteConfirm(user.id)}
+                          />
                         </td>
                       </tr>
                     ))
@@ -402,6 +428,11 @@ const AdminDashboard = () => {
           onClose={() => setModalVisible(false)}
           onSave={handleSaveUser}
           user={selectedUser}
+        />
+        <DeleteConfirmModal
+          visible={confirmDeleteVisible}
+          onCancel={handleCancelDelete}
+          onConfirm={handleConfirmDelete}
         />
 
         <Footer style={{ textAlign: "center" }}>

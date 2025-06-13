@@ -1,9 +1,7 @@
 import { Navigate, Outlet } from "react-router-dom";
+import { useSelector } from "react-redux";
 
-// import { useSelector } from "react-redux";
-
-// const ProtectedRoute = ({ allowedRoles }) => {
-const ProtectedRoute = () => {
+const ProtectedRoute = ({ allowedRoles }) => {
   // const user = useSelector((state) => state.user);
 
   // if (!user) {
