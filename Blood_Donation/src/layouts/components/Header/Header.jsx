@@ -45,17 +45,16 @@ const AppHeader = () => {
             <li>
               <Link to="/">TRANG CHỦ</Link>
             </li>
-            <li className={styles.dropdown}>
-              <button className={styles.dropdownToggle}>ĐĂNG KÍ</button>
-              <ul className={styles.dropdownMenu}>
-                <li>
-                  <Link to="/form-register">Hiến máu</Link>
-                </li>
-                <li>
-                  <Link to="/form-receive">Nhận máu</Link>
-                </li>
-              </ul>
-            </li>
+            {user && (
+              <li>
+                <Link to="/bloodDonate">LỊCH HẸN CỦA BẠN</Link>
+              </li>
+            )}
+            {user && (
+              <li>
+                <Link to="/history">LỊCH SỬ ĐẶT HẸN</Link>
+              </li>
+            )}
             <li>
               <Link to="/information">HỎI - ĐÁP</Link>
             </li>

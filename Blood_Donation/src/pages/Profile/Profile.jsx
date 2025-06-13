@@ -4,22 +4,27 @@ import { Modal, Table, Button, Form, Input, Select } from "antd";
 import { login } from "../../redux/features/userSlice"; // Đảm bảo đúng đường dẫn
 import styles from "./styles.module.scss";
 import { toast } from "react-toastify";
+import api from "../../configs/axios";
 
 const { Option } = Select;
 
 const Profile = () => {
   const user = useSelector((state) => state.user);
-  const donationHistory = useSelector(
-    (state) => state.bloodHistory.donationHistory
-  );
-  const receiveHistory = useSelector(
-    (state) => state.bloodHistory.receiveHistory
-  );
+
   const dispatch = useDispatch();
 
-  const [isDonationModalVisible, setDonationModalVisible] = useState(false);
-  const [isReceiveModalVisible, setReceiveModalVisible] = useState(false);
   const [isUpdateModalVisible, setUpdateModalVisible] = useState(false);
+
+  const bloodTypeOptions = [
+    { label: "A+", value: "A_POS" },
+    { label: "A-", value: "A_NEG" },
+    { label: "B+", value: "B_POS" },
+    { label: "B-", value: "B_NEG" },
+    { label: "AB+", value: "AB_POS" },
+    { label: "AB-", value: "AB_NEG" },
+    { label: "O+", value: "O_POS" },
+    { label: "O-", value: "O_NEG" },
+  ];
 
   const [form] = Form.useForm();
 
@@ -27,26 +32,22 @@ const Profile = () => {
     return <p className={styles.notice}>Bạn chưa đăng nhập.</p>;
   }
 
-  const donationColumns = [
-    { title: "Ngày", dataIndex: "date", key: "date" },
-    { title: "Địa điểm", dataIndex: "location", key: "location" },
-    { title: "Nhóm máu", dataIndex: "bloodType", key: "bloodType" },
-  ];
-
-  const receiveColumns = [
-    { title: "Ngày", dataIndex: "date", key: "date" },
-    { title: "Bệnh viện", dataIndex: "hospital", key: "hospital" },
-    { title: "Nhóm máu", dataIndex: "bloodType", key: "bloodType" },
-  ];
-
-  const handleUpdate = (values) => {
-    const updatedUser = {
+  const handleUpdate = async (values) => {
+    const payload = {
       ...user,
       ...values,
     };
-    dispatch(login(updatedUser));
-    toast.success("Cập nhật thông tin thành công!");
-    setUpdateModalVisible(false);
+    console.log("Payload gửi lên:", payload);
+
+    try {
+      const res = await api.put(`/users/${user.userID}`, payload);
+      dispatch(login(res.data.data));
+      toast.success("Cập nhật thành công!");
+      setUpdateModalVisible(false);
+    } catch (err) {
+      console.error("Lỗi cập nhật:", err.response?.data || err.message);
+      toast.error("Cập nhật thất bại!");
+    }
   };
 
   return (
@@ -59,19 +60,25 @@ const Profile = () => {
         <strong>Email:</strong> {user.email}
       </p>
       <p>
-        <strong>Số điện thoại:</strong> {user.phone_number}
+        <strong>CCCD:</strong> {user.cccd}
+      </p>
+      <p>
+        <strong>Address:</strong> {user.address}
+      </p>
+      <p>
+        <strong>Số điện thoại:</strong> {user.phone}
+      </p>
+      <p>
+        <strong>Gender:</strong> {user.gender}
+      </p>
+      <p>
+        <strong>TypeBlood:</strong> {user.tyleBlood}
       </p>
       <p>
         <strong>Vai trò:</strong> {user.role}
       </p>
 
       <div className={styles.buttonGroup}>
-        <Button type="primary" onClick={() => setDonationModalVisible(true)}>
-          Lịch sử hiến máu
-        </Button>
-        <Button onClick={() => setReceiveModalVisible(true)}>
-          Lịch sử nhận máu
-        </Button>
         <Button
           type="dashed"
           onClick={() => {
@@ -80,9 +87,9 @@ const Profile = () => {
               username: user.username || "",
               cccd: user.cccd || "",
               address: user.address || "",
-              phone: user.phone_number || "",
+              phone: user.phone || "",
               gender: user.gender || "",
-              bloodType: user.bloodType || "",
+              typeBlood: user.typeBlood || "",
             });
             setUpdateModalVisible(true);
           }}
@@ -90,37 +97,6 @@ const Profile = () => {
           Cập nhật thông tin
         </Button>
       </div>
-
-      {/* Donation Modal */}
-      <Modal
-        title="Lịch sử hiến máu"
-        open={isDonationModalVisible}
-        onCancel={() => setDonationModalVisible(false)}
-        footer={null}
-        className={styles.modalStyle}
-      >
-        <Table
-          columns={donationColumns}
-          dataSource={donationHistory}
-          rowKey="id"
-          pagination={false}
-        />
-      </Modal>
-
-      {/* Receive Modal */}
-      <Modal
-        title="Lịch sử nhận máu"
-        open={isReceiveModalVisible}
-        onCancel={() => setReceiveModalVisible(false)}
-        footer={null}
-      >
-        <Table
-          columns={receiveColumns}
-          dataSource={receiveHistory}
-          rowKey="id"
-          pagination={false}
-        />
-      </Modal>
 
       {/* Update User Info Modal */}
       <Modal
@@ -138,9 +114,9 @@ const Profile = () => {
             username: user.username,
             cccd: user.cccd,
             address: user.address,
-            phone: user.phone_number,
+            phone: user.phone,
             gender: user.gender,
-            bloodType: user.bloodType,
+            bloodType: user.typeBlood,
           }}
         >
           <Form.Item
@@ -211,19 +187,16 @@ const Profile = () => {
           </Form.Item>
 
           <Form.Item
-            name="bloodType"
+            name="typeBlood"
             label="Nhóm máu"
             rules={[{ required: true, message: "Vui lòng chọn nhóm máu!" }]}
           >
             <Select placeholder="Chọn nhóm máu">
-              <Option value="A+">A+</Option>
-              <Option value="A-">A-</Option>
-              <Option value="B+">B+</Option>
-              <Option value="B-">B-</Option>
-              <Option value="AB+">AB+</Option>
-              <Option value="AB-">AB-</Option>
-              <Option value="O+">O+</Option>
-              <Option value="O-">O-</Option>
+              {bloodTypeOptions.map((option) => (
+                <Option key={option.value} value={option.value}>
+                  {option.label}
+                </Option>
+              ))}
             </Select>
           </Form.Item>
 

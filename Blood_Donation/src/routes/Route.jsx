@@ -18,6 +18,7 @@ import BloodDonationForm from "../components/Blood-Form/Blood-Donation-Form/Bloo
 import BloodReceiveForm from "../components/Blood-Form/Blood-Receive-Form/BloodReceiveForm";
 import StaffDashboard from "../pages/Staff/StaffDashboard";
 import HospitalStaff_Dashboard from "../pages/Hospital_Staff/HospitalStaff_Dashboard";
+import BloodDonate from "../components/BloodDonate/BloodDonate";
 
 const routes = [
   {
@@ -28,8 +29,6 @@ const routes = [
       { path: "/", element: <Home /> },
       { path: "register", element: <Register /> },
       { path: "login", element: <Login /> },
-      { path: "form-register", element: <BloodDonationForm /> },
-      { path: "form-receive", element: <BloodReceiveForm /> },
       { path: "information", element: <Information /> },
       { path: "news", element: <News /> },
       { path: "news/:id", element: <NewsDetail /> },
@@ -38,13 +37,18 @@ const routes = [
       // 👇 Optional: Nếu chưa dùng admin thì có thể comment lại
 
       {
-        path: "profile",
+        path: "user",
         element: <ProtectedRoute allowedRoles={["MEMBER"]} />, // bảo vệ
         children: [
           {
             index: true,
             element: <Profile />, // hiển thị nếu đúng role
           },
+          { path: "bloodDonate", element: <BloodDonate /> },
+          { path: "information", element: <Information /> },
+          { path: "news", element: <News /> },
+          { path: "news/:id", element: <NewsDetail /> },
+          { path: "contact", element: <Contact /> },
         ],
       },
       { path: "*", element: <NotFound /> },
