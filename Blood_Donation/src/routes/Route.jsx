@@ -1,5 +1,5 @@
 import React from "react";
-import MainLayout from "../layouts/components/MainLayout";
+// import MainLayout from "../layouts/components/MainLayout";
 import Home from "../pages/Home/Home";
 import Register from "../pages/Register/Register";
 import Login from "../pages/Login/Login";
@@ -19,16 +19,27 @@ import BloodReceiveForm from "../components/Blood-Form/Blood-Receive-Form/BloodR
 import StaffDashboard from "../pages/Staff/StaffDashboard";
 import HospitalStaff_Dashboard from "../pages/Hospital_Staff/HospitalStaff_Dashboard";
 import BloodDonate from "../components/BloodDonate/BloodDonate";
+import { Content } from "antd/es/layout/layout";
+import { Layout } from "antd";
 
 const routes = [
   {
     path: "",
-    element: <MainLayout />,
+    element: (
+      <Layout style={{ minHeight: "100vh", paddingTop: 93 }}>
+        <AppHeader />
+        <Content>
+          <Outlet />
+        </Content>
+        <AppFooter />
+      </Layout>
+    ),
     errorElement: <NotFound />,
     children: [
       { path: "/", element: <Home /> },
       { path: "register", element: <Register /> },
       { path: "login", element: <Login /> },
+      { path: "bloodDonate", element: <BloodDonate /> },
       { path: "information", element: <Information /> },
       { path: "news", element: <News /> },
       { path: "news/:id", element: <NewsDetail /> },
@@ -37,18 +48,13 @@ const routes = [
       // 👇 Optional: Nếu chưa dùng admin thì có thể comment lại
 
       {
-        path: "user",
+        path: "profile",
         element: <ProtectedRoute allowedRoles={["MEMBER"]} />, // bảo vệ
         children: [
           {
             index: true,
             element: <Profile />, // hiển thị nếu đúng role
           },
-          { path: "bloodDonate", element: <BloodDonate /> },
-          { path: "information", element: <Information /> },
-          { path: "news", element: <News /> },
-          { path: "news/:id", element: <NewsDetail /> },
-          { path: "contact", element: <Contact /> },
         ],
       },
       { path: "*", element: <NotFound /> },

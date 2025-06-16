@@ -15,68 +15,34 @@ const LoginForm = () => {
   const dispatch = useDispatch();
   const onFinish = async (values) => {
     try {
-      if (values.username === "test" && values.password === "password") {
-        const user = {
-          username: "test",
-          role: "MEMBER", // or "MEMBER", "STAFF", etc. as you want
-          token: "test-token",
-        };
-        dispatch(login(user));
-        localStorage.setItem("token", user.token);
+      const response = await api.post("login", values);
+      const userData = response.data;
 
-        switch (user.role) {
-          case "ADMIN":
-            navigate("/admin");
-            break;
-          case "MEMBER":
-            navigate("/");
-            break;
-          case "STAFF":
-            navigate("/staff");
-            break;
-          case "HOSPITAL_STAFF":
-            navigate("/hospital");
-            break;
-          default:
-            navigate("/");
-        }
+      dispatch(login(userData));
+      localStorage.setItem("token", userData.token);
 
-        toast.success("Đăng nhập thành công! (test account)");
-        return;
-      }
-      const res = await api.post("login", values);
-      console.log("Server response:", res.data); // 👈 In ra để kiểm tra
+      toast.success("Đăng nhập thành công!");
 
-      const user = res.data; // 👈 Tùy chỉnh theo cấu trúc thật
-
-      if (user && user.token) {
-        dispatch(login(user));
-        localStorage.setItem("token", user.token);
-
-        switch (user.role) {
-          case "ADMIN":
-            navigate("/admin");
-            break;
-          case "MEMBER":
-            navigate("/");
-            break;
-          case "STAFF":
-            navigate("/staff");
-            break;
-          case "HOSPITAL_STAFF":
-            navigate("/hospital");
-            break;
-          default:
-            navigate("/");
-        }
-
-        toast.success("Đăng nhập thành công!");
-      } else {
-        toast.error("Phản hồi không hợp lệ từ server (không có token)");
+      // 👉 Phân quyền điều hướng theo role
+      switch (userData.role) {
+        case "ADMIN":
+          navigate("/admin");
+          break;
+        case "MEMBER":
+          navigate("/");
+          break;
+        case "STAFF":
+          navigate("/staff");
+          break;
+        case "HOSPITAL_STAFF":
+          navigate("/hospital");
+          break;
+        default:
+          navigate("/");
       }
     } catch (e) {
       console.error("Login error:", e);
-      toast.error(e.response?.data?.message || "Lỗi đăng nhập!");
+      toast.error(e.response?.data || "Đăng nhập thất bại!");
     }
   };
 

@@ -1,7 +1,7 @@
 import React, { useState } from "react";
-import { useSelector, useDispatch } from "react-redux";
+import { useSelector } from "react-redux";
 import { Modal, Table, Button, Form, Input, Select } from "antd";
-import { login } from "../../redux/features/userSlice"; // Đảm bảo đúng đường dẫn
+
 import styles from "./styles.module.scss";
 import { toast } from "react-toastify";
 import api from "../../configs/axios";
@@ -11,19 +11,17 @@ const { Option } = Select;
 const Profile = () => {
   const user = useSelector((state) => state.user);
 
-  const dispatch = useDispatch();
-
   const [isUpdateModalVisible, setUpdateModalVisible] = useState(false);
 
   const bloodTypeOptions = [
-    { label: "A+", value: "A_POS" },
-    { label: "A-", value: "A_NEG" },
-    { label: "B+", value: "B_POS" },
-    { label: "B-", value: "B_NEG" },
-    { label: "AB+", value: "AB_POS" },
-    { label: "AB-", value: "AB_NEG" },
-    { label: "O+", value: "O_POS" },
-    { label: "O-", value: "O_NEG" },
+    { label: "A+", value: "A_POSITIVE" },
+    { label: "A-", value: "A_NEGATIVE" },
+    { label: "B+", value: "B_POSITIVE" },
+    { label: "B-", value: "B_NEGATIVE" },
+    { label: "AB+", value: "AB_POSITIVE" },
+    { label: "AB-", value: "AB_NEGATIVE" },
+    { label: "O+", value: "O_POSITIVE" },
+    { label: "O-", value: "O_NEGATIVE" },
   ];
 
   const [form] = Form.useForm();
@@ -32,21 +30,26 @@ const Profile = () => {
     return <p className={styles.notice}>Bạn chưa đăng nhập.</p>;
   }
 
-  const handleUpdate = async (values) => {
-    const payload = {
-      ...user,
-      ...values,
-    };
-    console.log("Payload gửi lên:", payload);
-
+  const handleUpdate = async (updatedData) => {
     try {
-      const res = await api.put(`/users/${user.userID}`, payload);
-      dispatch(login(res.data.data));
+      if (!user || !user.userID) {
+        toast.error("Không tìm thấy ID người dùng");
+        console.log("🧠 USER TỪ REDUX:", user);
+
+        return;
+      }
+      console.log("🧠 USER TỪ REDUX:", user);
+
+      console.log("📦 Updated data:", updatedData);
+      console.log("🆔 User ID:", user.userID);
+
+      const response = await api.put(`/users/${user.userID}`, updatedData);
+      console.log(response);
+
       toast.success("Cập nhật thành công!");
-      setUpdateModalVisible(false);
-    } catch (err) {
-      console.error("Lỗi cập nhật:", err.response?.data || err.message);
-      toast.error("Cập nhật thất bại!");
+    } catch (error) {
+      console.error("Lỗi cập nhật:", error.response?.data || error.message);
+      toast.error("Cập nhật thất bại");
     }
   };
 
@@ -73,9 +76,6 @@ const Profile = () => {
       </p>
       <p>
         <strong>TypeBlood:</strong> {user.tyleBlood}
-      </p>
-      <p>
-        <strong>Vai trò:</strong> {user.role}
       </p>
 
       <div className={styles.buttonGroup}>
@@ -180,9 +180,8 @@ const Profile = () => {
             rules={[{ required: true, message: "Vui lòng chọn giới tính!" }]}
           >
             <Select placeholder="Chọn giới tính">
-              <Option value="male">Nam</Option>
-              <Option value="female">Nữ</Option>
-              <Option value="other">Khác</Option>
+              <Option value="MALE">Nam</Option>
+              <Option value="FEMALE">Nữ</Option>
             </Select>
           </Form.Item>
 
