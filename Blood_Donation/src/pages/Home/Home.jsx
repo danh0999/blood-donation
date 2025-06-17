@@ -7,6 +7,7 @@ import { BloodDonationStandards } from "../../components/BloodDonationStandards/
 import { Faqs } from "../../components/Faqs/Faqs";
 import { BloodDonationAdvance } from "../../components/BloodDonationAdvance/BloodDonationAdvance";
 import { DonationGallery } from "../../components/DonationGallery/DonationGallery";
+import ScrollToTopButton from "../../components/ScrollToTopButton/ScrollToTopButton";
 
 const Home = () => {
   const handleSearch = (range) => {
@@ -37,11 +38,15 @@ const Home = () => {
       <div className={styles["home-block-2"]}>
         <Faqs />
       </div>
-      <div>
+      <div className={styles["home-block-2"]}>
         <BloodDonationAdvance />
       </div>
-      <div>
+      <div className={styles["home-block-2"]}>
         <DonationGallery />
+      </div>
+      {/*Block 3*/}
+      <div className={styles["home-block-3"]}>
+        <ScrollToTopButton />
       </div>
     </div>
   );

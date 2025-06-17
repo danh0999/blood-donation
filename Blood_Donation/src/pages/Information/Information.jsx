@@ -1,6 +1,7 @@
 import React from "react";
 import FaqItem from "../../components/Faqs/FaqsItem";
 import styles from "./styles.module.scss";
+import ScrollToTopButton from "../../components/ScrollToTopButton/ScrollToTopButton";
 const Information = () => {
   const { faqsContainer, faqsTitle, faqItemContainer } = styles;
   return (
@@ -159,6 +160,7 @@ const Information = () => {
           </ul>
         </FaqItem>
       </div>
+      <ScrollToTopButton />
     </div>
   );
 };
