@@ -1,0 +1,33 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 20px;
+  background-color: #fff;
+  min-height: 70vh;
+  text-align: center;
+}
+
+.image {
+  width: 12vw;
+  height: auto;
+  margin-bottom: 16px;
+  opacity: 0.9;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
+  border-radius: 8px;
+}
+
+.title {
+  font-size: 1.6rem;
+  color: #1a1a1a;
+  margin-bottom: 8px;
+  font-weight: 600;
+}
+
+.message {
+  font-size: 1rem;
+  color: #666;
+  margin-bottom: 24px;
+  max-width: 300px;
+}

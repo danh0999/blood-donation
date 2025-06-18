@@ -16,6 +16,7 @@ import news11 from "../../assets/news11.png";
 import news12 from "../../assets/news12.png";
 import NewsDetailForm from "../../components/NewsDetailForm.jsx/NewsDetailForm";
 import { Button } from "../../components/Button/Button";
+import ScrollToTopButton from "../../components/ScrollToTopButton/ScrollToTopButton";
 
 const newsData = [
   {
@@ -202,6 +203,7 @@ const NewsDetail = () => {
         content={news.content}
       />
       <Button content="Trở về" to="/news" />
+      <ScrollToTopButton />
     </div>
   );
 };

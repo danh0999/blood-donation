@@ -14,6 +14,7 @@ import news9 from "../../assets/news9.png";
 import news10 from "../../assets/news10.png";
 import news11 from "../../assets/news11.png";
 import news12 from "../../assets/news12.png";
+import ScrollToTopButton from "../../components/ScrollToTopButton/ScrollToTopButton";
 
 export const News = () => {
   const { container, list } = styles;
@@ -117,6 +118,7 @@ export const News = () => {
           />
         ))}
       </div>
+      <ScrollToTopButton />
     </div>
   );
 };

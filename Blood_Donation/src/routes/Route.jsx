@@ -21,6 +21,8 @@ import HospitalStaff_Dashboard from "../pages/Hospital_Staff/HospitalStaff_Dashb
 import BloodDonate from "../components/BloodDonate/BloodDonate";
 import { Content } from "antd/es/layout/layout";
 import { Layout } from "antd";
+import { History } from "../pages/History/History";
+import { Schedule } from "../pages/Schedule/Schedule";
 
 const routes = [
   {
@@ -44,6 +46,8 @@ const routes = [
       { path: "news", element: <News /> },
       { path: "news/:id", element: <NewsDetail /> },
       { path: "contact", element: <Contact /> },
+      { path: "history", element: <History /> },
+      { path: "schedule" ,element: <Schedule />}, 
 
       // 👇 Optional: Nếu chưa dùng admin thì có thể comment lại
 
