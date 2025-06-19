@@ -42,22 +42,19 @@ const BloodDonate = () => {
         <div className={styles.card}>
           <h3>Thông tin cá nhân</h3>
           <p>
-            <strong>Họ và tên:</strong> {user?.fullName || "-"}
+            <strong>Họ và tên :</strong> {user?.fullName || "-"}
           </p>
           <p>
-            <strong>CCCD:</strong> {user?.cccd || "-"}
+            <strong>CCCD :</strong> {user?.cccd || "-"}
           </p>
           <p>
-            <strong>Ngày sinh:</strong> {user?.dob || "-"}
+            <strong>Ngày sinh :</strong> {user?.dob || "-"}
           </p>
           <p>
-            <strong>Giới tính:</strong> {user?.gender || "-"}
+            <strong>Giới tính :</strong> {user?.gender || "-"}
           </p>
           <p>
-            <strong>Nghề nghiệp:</strong> {user?.career || "-"}
-          </p>
-          <p>
-            <strong>Đơn vị:</strong> {user?.organization || "-"}
+            <strong>Nhóm máu :</strong> {user?.typeBlood || "-"}
           </p>
         </div>
 
