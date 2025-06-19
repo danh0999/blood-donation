@@ -15,6 +15,12 @@ import "@ant-design/v5-patch-for-react-19";
 
 import { RiDeleteBin5Fill } from "react-icons/ri";
 import DeleteConfirmModal from "../../components/DeleteConfirmModal/DeleteConfirmModal";
+import { useDispatch } from "react-redux";
+import { useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
+import { logout } from "../../redux/features/userSlice";
+import { LoginOutlined } from "@ant-design/icons"; // bạn đang dùng nhưng chưa import
+
 const { Header, Content, Footer, Sider } = Layout;
 
 // Hàm tạo item cho menu
@@ -29,6 +35,7 @@ const menuItems = [
     getItem("Danh Sách", "accounts-list"),
   ]),
   getItem("Báo Cáo", "reports", <FileOutlined />),
+  getItem("Logout", "logout", <LoginOutlined />),
 ];
 
 const AdminDashboard = () => {
@@ -191,6 +198,9 @@ const AdminDashboard = () => {
   const [modalMode, setModalMode] = useState("view"); // "view" | "edit"
   const [selectedUser, setSelectedUser] = useState(null);
 
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+
   // Xử lý khi click icon
   const handleViewUser = (user) => {
     setSelectedUser(user);
@@ -229,8 +239,14 @@ const AdminDashboard = () => {
 
   // Khi chọn menu, đổi trang về trang đầu tiên
   const onMenuSelect = ({ key }) => {
-    setSelectedKey(key);
-    setCurrentPage(1);
+    if (key === "logout") {
+      toast.success("Đăng xuất thành công");
+      dispatch(logout());
+      navigate("/login");
+    } else {
+      setSelectedKey(key);
+      setCurrentPage(1);
+    }
   };
 
   // Breadcrumb
