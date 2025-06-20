@@ -12,7 +12,7 @@ import ProtectedRoute from "./ProtectedRoute";
 import { Contact } from "../pages/Contact/Contact";
 import AdminDashboard from "../pages/Admin/AdminDashboard";
 import AppHeader from "../layouts/components/Header/Header";
-import { Outlet } from "react-router-dom";
+import { Outlet, Navigate } from "react-router-dom";
 import AppFooter from "../layouts/components/Footer/Footer";
 import BloodDonationForm from "../components/Blood-Form/Blood-Donation-Form/BloodDonationForm";
 import BloodReceiveForm from "../components/Blood-Form/Blood-Receive-Form/BloodReceiveForm";
@@ -22,7 +22,9 @@ import BloodDonate from "../pages/BloodDonate/BloodDonate";
 import { Content } from "antd/es/layout/layout";
 import { Layout } from "antd";
 import { History } from "../pages/History/History";
-import { Schedule } from "../pages/Schedule/Schedule";
+import { Schedule } from "../pages/Donate/Schedule/Schedule";
+import DonateContainer from "../pages/Donate/DonateContainer";
+import DonateCheckup from "../pages/Donate/Checkup/DonateCheckup";
 
 const routes = [
   {
@@ -41,59 +43,64 @@ const routes = [
       { path: "/", element: <Home /> },
       { path: "register", element: <Register /> },
       { path: "login", element: <Login /> },
-      { path: "bloodDonate", element: <BloodDonate /> },
       { path: "information", element: <Information /> },
       { path: "news", element: <News /> },
       { path: "news/:id", element: <NewsDetail /> },
       { path: "contact", element: <Contact /> },
+      { path: "*", element: <NotFound /> },
+    ],
+  },
+
+  {
+    path: "user",
+    element: (
+      <Layout style={{ minHeight: "100vh", paddingTop: 93 }}>
+        <AppHeader />
+        <Content>
+          <ProtectedRoute allowedRoles={["MEMBER"]}>
+            <Outlet />
+          </ProtectedRoute>
+        </Content>
+        <AppFooter />
+      </Layout>
+    ),
+    children: [
+      { index: true, element: <Home /> },
+      { path: "profile", element: <Profile /> },
+      { path: "bloodDonate", element: <BloodDonate /> },
       { path: "history", element: <History /> },
-      { path: "schedule", element: <Schedule /> },
-
-      // 👇 Optional: Nếu chưa dùng admin thì có thể comment lại
-
+      { path: "information", element: <Information /> },
+      { path: "news", element: <News /> },
+      { path: "news/:id", element: <NewsDetail /> },
+      { path: "contact", element: <Contact /> },
       {
-        path: "profile",
-        element: <ProtectedRoute allowedRoles={["MEMBER"]} />, // bảo vệ
+        path: "donate",
+        element: <DonateContainer />,
         children: [
-          {
-            index: true,
-            element: <Profile />, // hiển thị nếu đúng role
-          },
+          { path: "schedule", element: <Schedule /> },
+          { path: "checkup", element: <DonateCheckup /> },
+          { index: true, element: <Navigate to="schedule" /> },
         ],
       },
-      { path: "*", element: <NotFound /> },
     ],
   },
 
   {
     path: "admin",
     element: <ProtectedRoute allowedRoles={["ADMIN"]} />,
-    children: [
-      {
-        index: true,
-        element: <AdminDashboard />,
-      },
-    ],
+    children: [{ index: true, element: <AdminDashboard /> }],
   },
+
   {
     path: "staff",
     element: <ProtectedRoute allowedRoles={["STAFF"]} />,
-    children: [
-      {
-        index: true,
-        element: <StaffDashboard />,
-      },
-    ],
+    children: [{ index: true, element: <StaffDashboard /> }],
   },
+
   {
     path: "hospital",
     element: <ProtectedRoute allowedRoles={["HOSPITAL_STAFF"]} />,
-    children: [
-      {
-        index: true,
-        element: <HospitalStaff_Dashboard />,
-      },
-    ],
+    children: [{ index: true, element: <HospitalStaff_Dashboard /> }],
   },
 ];
 

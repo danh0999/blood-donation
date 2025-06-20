@@ -11,7 +11,7 @@ export const History = () => {
       <img src={calendarImg} alt="Calendar" className={image} />
       <h1 className={title}>Lịch sử đặt hẹn hiến máu</h1>
       <p className={message}>Hiện tại bạn chưa có lịch hẹn nào.</p>
-      <Button content="Đặt lịch ngay" to="/schedule" />
+      <Button content="Đặt lịch ngay" to="/user/donate" />
     </div>
   );
 };

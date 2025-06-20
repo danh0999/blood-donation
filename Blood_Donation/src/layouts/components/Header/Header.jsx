@@ -46,24 +46,37 @@ const AppHeader = () => {
               <Link to="/">TRANG CHỦ</Link>
             </li>
             {user && (
-              <li>
-                <Link to="/bloodDonate">LỊCH HẸN CỦA BẠN</Link>
-              </li>
+              <>
+                <li>
+                  <Link to="/user/bloodDonate">LỊCH HẸN CỦA BẠN</Link>
+                </li>
+                <li>
+                  <Link to="/user/history">LỊCH SỬ ĐẶT HẸN</Link>
+                </li>
+                <li>
+                  <Link to="/user/information">HỎI - ĐÁP</Link>
+                </li>
+                <li>
+                  <Link to="/user/news">TIN TỨC</Link>
+                </li>
+                <li>
+                  <Link to="/user/contact">LIÊN HỆ</Link>
+                </li>
+              </>
             )}
-            {user && (
-              <li>
-                <Link to="/history">LỊCH SỬ ĐẶT HẸN</Link>
-              </li>
+            {!user && (
+              <>
+                <li>
+                  <Link to="/information">HỎI - ĐÁP</Link>
+                </li>
+                <li>
+                  <Link to="/news">TIN TỨC</Link>
+                </li>
+                <li>
+                  <Link to="/contact">LIÊN HỆ</Link>
+                </li>
+              </>
             )}
-            <li>
-              <Link to="/information">HỎI - ĐÁP</Link>
-            </li>
-            <li>
-              <Link to="/news">TIN TỨC</Link>
-            </li>
-            <li>
-              <Link to="/contact">LIÊN HỆ</Link>
-            </li>
           </ul>
         </nav>
 
@@ -87,7 +100,7 @@ const AppHeader = () => {
               {showDropdown && (
                 <div className={styles.dropdownMenu}>
                   <Link
-                    to="/profile"
+                    to="/user/profile"
                     className={styles.dropdownItem}
                     onClick={closeDropdown}
                   >
