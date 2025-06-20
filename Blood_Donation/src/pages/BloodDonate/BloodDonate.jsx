@@ -16,7 +16,7 @@ const BloodDonate = () => {
   const handleRegister = () => {
     // TODO: Gọi API đăng ký hiến máu tại đây
     // message.success("Đăng ký hiến máu thành công!");
-    navigate("/schedule");
+    navigate("/user/donate/schedule");
   };
 
   const handleDelete = () => {
