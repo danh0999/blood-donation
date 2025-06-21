@@ -59,3 +59,25 @@ h2 {
   flex: 1;
   padding: 24px;
 }
+/* Thêm hiệu ứng hover cho sidebar link */
+.sidebar a:hover {
+  background-color: #e6f0ff;
+  border-color: #c2dbff;
+  color: #2e66e5;
+}
+
+
+.active {
+  background-color: #2e66e5;
+  color: #fff;
+  font-weight: 600;
+  border: 1px solid #2e66e5;
+  box-shadow: 0 0 0 2px rgba(46, 102, 229, 0.2); // 👈 nổi bật hơn
+}
+
+/* Tab inactive: giữ nhẹ nhàng */
+.inactive {
+  background-color: #f0f2f5;  // 👈 đổi từ trắng sang xám nhạt
+  color: #333;
+  border: 1px solid transparent;
+}

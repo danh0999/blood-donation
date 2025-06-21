@@ -17,7 +17,7 @@ const questions = [
 const DonateCheckup = () => {
   return (
     <div className={styles.container}>
-      <h2>Phiếu khảo sát trước hiến máu</h2>
+      <h2>Khảo sát trước hiến máu</h2>
       <form className={styles.form}>
         {questions.map((question, index) => (
           <div key={index} className={styles.questionItem}>
