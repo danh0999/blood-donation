@@ -9,7 +9,7 @@ import { Button } from "../../../components/Button/Button";
 const { Option } = Select;
 
 export const Schedule = () => {
-  const { container, title, formWrapper } = styles;
+  const { container, title, formWrapper, btn } = styles;
   const [form] = Form.useForm();
   const navigate = useNavigate();
 
@@ -84,8 +84,10 @@ export const Schedule = () => {
             </Select>
           </Form.Item>
         </Form>
-
-        <Button content="Tiếp tục" onClick={handleContinue} />
+        <div className={btn}>
+          <Button content="Quay lại" to="/user/history" />
+          <Button content="Tiếp tục" onClick={handleContinue} />
+        </div>
       </div>
     </div>
   );

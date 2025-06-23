@@ -25,6 +25,7 @@ import { History } from "../pages/History/History";
 import { Schedule } from "../pages/Donate/Schedule/Schedule";
 import DonateContainer from "../pages/Donate/DonateContainer";
 import DonateCheckup from "../pages/Donate/Checkup/DonateCheckup";
+import { Event } from "../pages/Event/Event";
 
 const routes = [
   {
@@ -48,6 +49,7 @@ const routes = [
       { path: "news/:id", element: <NewsDetail /> },
       { path: "contact", element: <Contact /> },
       { path: "*", element: <NotFound /> },
+      { path: "event", element: <Event /> },
     ],
   },
 
@@ -82,6 +84,7 @@ const routes = [
           { index: true, element: <Navigate to="schedule" /> },
         ],
       },
+      { path: "event", element: <Event /> },
     ],
   },
 
