@@ -11,6 +11,7 @@ import Profile from "../pages/Profile/Profile";
 import ProtectedRoute from "./ProtectedRoute";
 import { Contact } from "../pages/Contact/Contact";
 import AdminDashboard from "../pages/Admin/AdminDashboard";
+import ManageAccount from "../pages/Admin/ManageAccount"
 import AppHeader from "../layouts/components/Header/Header";
 import { Outlet, Navigate } from "react-router-dom";
 import AppFooter from "../layouts/components/Footer/Footer";
@@ -91,7 +92,18 @@ const routes = [
   {
     path: "admin",
     element: <ProtectedRoute allowedRoles={["ADMIN"]} />,
-    children: [{ index: true, element: <AdminDashboard /> }],
+    children: [
+      {
+        path: "",
+        element: <AdminDashboard />,
+        children: [
+          { index: true, element: <div>Welcome to Admin Dashboard</div> },
+          { path: "overview", element: <div>Overview tab</div>},
+          { path: "accounts", element: <ManageAccount />},
+          { path: "reports", element: <div>Report List</div> },
+        ],
+      },
+    ],
   },
 
   {
