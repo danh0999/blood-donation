@@ -1,16 +1,18 @@
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Outlet, useLocation, useNavigate } from "react-router-dom";
 import {
-  DashboardOutlined,
+  PieChartOutlined,
   FileSearchOutlined,
   PlusOutlined,
   EditOutlined,
   DeleteOutlined,
+  FileOutlined,
   TeamOutlined,
-  LoginOutlined,
+  LogoutOutlined,
 } from "@ant-design/icons";
-import { Breadcrumb, Layout, Menu, theme, message } from "antd";
+import { Layout, Menu, theme } from "antd";
 import styles from "./styles.module.scss";
+import { toast } from "react-toastify";
 
 const { Header, Content, Footer, Sider } = Layout;
 
@@ -23,34 +25,31 @@ function getItem(label, key, icon, children) {
   };
 }
 
+// Declare items that will be in the sidebar
+  const items = [
+    getItem("Tổng Quan", "overview", <PieChartOutlined />),
+    getItem("Tài Khoản", "accounts", <TeamOutlined />),
+    getItem("Báo Cáo", "reports", <FileOutlined />),
+    getItem("Logout", "logout", <LogoutOutlined />),
+  ];
+
 const AdminDashboard = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const [collapsed, setCollapsed] = useState(false);
   const {
     token: { colorBgContainer, borderRadiusLG },
   } = theme.useToken();
 
-  const [selectedMenuItem, setSelectedMenuItem] = useState("dashboard");
+  const selectedMenuItem = location.pathname.split("/")[2]
 
-  const items = [
-    getItem("Dashboard", "dashboard", <DashboardOutlined />),
-
-    getItem("Blood Requisition", "blood-requisition", <FileSearchOutlined />),
-
-    getItem("Emergency Donors", "emergency-donors", <TeamOutlined />),
-
-    getItem("Logout", "logout", <LoginOutlined />),
-  ];
-
+  // Handle when the items declared above is clicked
   const handleMenuClick = ({ key }) => {
     if (key === "logout") {
-      // Handle logout
-      message.success("Logged out successfully");
+      toast.success("Logged out successfully");
       navigate("/login");
     } else {
-      setSelectedMenuItem(key);
-      // Here you would add navigation to other routes if needed
-      // For example: navigate(`/admin/${key}`);
+      navigate(`/admin/${key}`);
     }
   };
 
@@ -71,21 +70,10 @@ const AdminDashboard = () => {
         />
       </Sider>
       <Layout>
-        <Header className= {styles.header}>
+        <Header className={styles.header}>
           <h1 className={styles.headerTitle}>Admin Dashboard</h1>
         </Header>
-        <Content style={{ margin: "0 16px" }}>
-          <Breadcrumb
-            style={{ margin: "16px 0" }}
-            items={[
-              { title: "Admin" },
-              {
-                title:
-                  items.find((item) => item.key === selectedMenuItem)?.label ||
-                  "Dashboard",
-              },
-            ]}
-          />
+        <Content style={{ margin: "0 16px" }}>       
           <div
             style={{
               padding: 24,
@@ -94,24 +82,7 @@ const AdminDashboard = () => {
               borderRadius: borderRadiusLG,
             }}
           >
-            {selectedMenuItem === "dashboard" && (
-              <h2>Welcome to Admin Dashboard</h2>
-            )}
-            {selectedMenuItem === "view-requests" && (
-              <div>Blood Requisition Requests List</div>
-            )}
-            {selectedMenuItem === "create-request" && (
-              <div>Create New Blood Requisition Form</div>
-            )}
-            {selectedMenuItem === "update-request" && (
-              <div>Update Blood Requisition Request</div>
-            )}
-            {selectedMenuItem === "delete-request" && (
-              <div>Delete Blood Requisition Request</div>
-            )}
-            {selectedMenuItem === "search-donors" && (
-              <div>Search Emergency Donors</div>
-            )}
+            <Outlet />
           </div>
         </Content>
         <Footer style={{ textAlign: "center" }}>

@@ -56,8 +56,14 @@ const routes = [
     element: <ProtectedRoute allowedRoles={["ADMIN"]} />,
     children: [
       {
-        index: true,
+        path: "",
         element: <AdminDashboard />,
+        children: [
+          { index: true, element: <div>Welcome to Admin Dashboard</div> },
+          { path: "overview", element: <div>Overview tab</div>},
+          { path: "accounts", element: <div>User List</div> },
+          { path: "reports", element: <div>Report List</div> },
+        ],
       },
     ],
   },
