@@ -11,6 +11,7 @@ import Profile from "../pages/Profile/Profile";
 import ProtectedRoute from "./ProtectedRoute";
 import { Contact } from "../pages/Contact/Contact";
 import AdminDashboard from "../pages/Admin/AdminDashboard";
+import ManageAccount from "../pages/Admin/ManageAccount"
 import AppHeader from "../layouts/components/Header/Header";
 import { Outlet, Navigate } from "react-router-dom";
 import AppFooter from "../layouts/components/Footer/Footer";
