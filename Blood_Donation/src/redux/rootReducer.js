@@ -1,6 +1,6 @@
 import { combineReducers } from "@reduxjs/toolkit";
 import useReducer from "./features/userSlice";
-import bloodHistoryReducer from "./features/BloodHistorySlice";
+import bloodHistoryReducer from "./features/BloodHistoryReducer";
 import accountSlice from "./features/accountSlice";
 
 const rootReducer = combineReducers({
