@@ -18,7 +18,7 @@ import BloodDonationForm from "../components/Blood-Form/Blood-Donation-Form/Bloo
 import BloodReceiveForm from "../components/Blood-Form/Blood-Receive-Form/BloodReceiveForm";
 import StaffDashboard from "../pages/Staff/StaffDashboard";
 import HospitalStaff_Dashboard from "../pages/Hospital_Staff/HospitalStaff_Dashboard";
-
+import ManageAccount from "../pages/Admin/ManageAccount";
 const routes = [
   {
     path: "",
@@ -61,7 +61,7 @@ const routes = [
         children: [
           { index: true, element: <div>Welcome to Admin Dashboard</div> },
           { path: "overview", element: <div>Overview tab</div>},
-          { path: "accounts", element: <div>User List</div> },
+          { path: "accounts", element: <ManageAccount />},
           { path: "reports", element: <div>Report List</div> },
         ],
       },
