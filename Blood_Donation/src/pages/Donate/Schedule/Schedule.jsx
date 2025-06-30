@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { DatePicker, Select, Form, message, Spin } from "antd";
 import { useNavigate } from "react-router-dom";
 import dayjs from "dayjs";
-import axios from "axios";
+import api from "../../../configs/axios";
 import styles from "./styles.module.scss";
 import { Button } from "../../../components/Button/Button";
 
@@ -25,12 +25,16 @@ export const Schedule = () => {
       const selectedDate = dayjs(values.date).format("YYYY-MM-DD");
 
       setLoading(true);
-      const res = await axios.get("/api/programs/search", {
+      const res = await api.get("programs/search", {
         params: {
           date: selectedDate,
           location: values.location,
         },
       });
+      console.log("Dữ liệu API trả về:", res.data);
+      if (!Array.isArray(res.data)) {
+        throw new Error("Kết quả trả về không hợp lệ!");
+      }
 
       if (res.data.length === 0) {
         message.warning("Không có lịch hiến máu nào trong ngày này.");
@@ -118,7 +122,7 @@ export const Schedule = () => {
             >
               {programs.map((program) => (
                 <Option key={program.id} value={program.id}>
-                  {program.name} - {program.address} ({program.timeRange})
+                  {program.proName} - {program.address} ({program.timeRange})
                 </Option>
               ))}
             </Select>
@@ -133,7 +137,7 @@ export const Schedule = () => {
               .map((p) => (
                 <div key={p.id}>
                   <p>
-                    <strong>Tên:</strong> {p.name}
+                    <strong>Tên:</strong> {p.proName}
                   </p>
                   <p>
                     <strong>Địa điểm:</strong> {p.address}
