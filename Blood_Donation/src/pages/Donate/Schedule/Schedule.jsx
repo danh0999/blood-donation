@@ -1,53 +1,68 @@
-// src/pages/Donate/Schedule/Schedule.jsx
-import React from "react";
-import { DatePicker, Select, Form, message } from "antd";
+import React, { useState } from "react";
+import { DatePicker, Select, Form, message, Spin } from "antd";
 import { useNavigate } from "react-router-dom";
 import dayjs from "dayjs";
+import axios from "axios";
 import styles from "./styles.module.scss";
 import { Button } from "../../../components/Button/Button";
 
 const { Option } = Select;
 
 export const Schedule = () => {
-  const { container, title, formWrapper, btn } = styles;
+  const { container, title, formWrapper, btn, programDetail } = styles;
   const [form] = Form.useForm();
   const navigate = useNavigate();
 
-  const disabledDate = (current) => {
-    return current && current < dayjs().startOf("day");
+  const [programs, setPrograms] = useState([]);
+  const [selectedProgramId, setSelectedProgramId] = useState(null);
+  const [loading, setLoading] = useState(false);
+
+  const disabledDate = (current) => current && current < dayjs().startOf("day");
+
+  const handleCheckSchedule = async () => {
+    try {
+      const values = await form.validateFields();
+      const selectedDate = dayjs(values.date).format("YYYY-MM-DD");
+
+      setLoading(true);
+      const res = await axios.get("/api/programs/search", {
+        params: {
+          date: selectedDate,
+          location: values.location,
+        },
+      });
+
+      if (res.data.length === 0) {
+        message.warning("Không có lịch hiến máu nào trong ngày này.");
+        setPrograms([]);
+        setSelectedProgramId(null);
+      } else {
+        setPrograms(res.data);
+        setSelectedProgramId(null);
+        message.success("Đã tìm thấy các chương trình hiến máu.");
+      }
+    } catch (error) {
+      console.log(error);
+      message.error("Lỗi khi kiểm tra lịch. Vui lòng thử lại.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleContinue = async () => {
-    try {
-      const values = await form.validateFields();
-
-      const selectedDate = dayjs(values.date);
-      if (selectedDate.isBefore(dayjs(), "day")) {
-        message.error("Không thể chọn ngày trong quá khứ.");
-        return;
-      }
-
-      console.log("Form values:", {
-        ...values,
-        date: selectedDate.format("DD/MM/YYYY"),
-      });
-
-      message.success("Lưu thông tin thành công!");
-      navigate("/user/donate/checkup");
-    } catch (error) {
-      if (error?.errorFields?.length > 0) {
-        const firstError = error.errorFields[0];
-        const { name, errors } = firstError;
-
-        if (errors.length > 0) {
-          message.warning(errors[0]);
-        }
-
-        form.scrollToField(name[0]);
-      } else {
-        message.error("Đã xảy ra lỗi. Vui lòng thử lại.");
-      }
+    const values = await form.getFieldsValue();
+    if (!selectedProgramId) {
+      message.warning("Vui lòng chọn chương trình hiến máu.");
+      return;
     }
+
+    navigate("/user/donate/checkup", {
+      state: {
+        date: dayjs(values.date).format("YYYY-MM-DD"),
+        location: values.location,
+        programId: selectedProgramId,
+      },
+    });
   };
 
   return (
@@ -69,6 +84,10 @@ export const Schedule = () => {
               format="DD/MM/YYYY"
               disabledDate={disabledDate}
               style={{ width: "100%" }}
+              onChange={() => {
+                setPrograms([]);
+                setSelectedProgramId(null);
+              }}
             />
           </Form.Item>
 
@@ -77,15 +96,61 @@ export const Schedule = () => {
             name="location"
             rules={[{ required: true, message: "Vui lòng chọn địa điểm" }]}
           >
-            <Select>
+            <Select
+              onChange={() => {
+                form.setFieldsValue({ date: null });
+                setPrograms([]);
+                setSelectedProgramId(null);
+              }}
+            >
               <Option value="Hồ Chí Minh">Hồ Chí Minh</Option>
               <Option value="Hà Nội">Hà Nội</Option>
               <Option value="Đà Nẵng">Đà Nẵng</Option>
             </Select>
           </Form.Item>
+
+          <Form.Item label="Chọn chương trình hiến máu">
+            <Select
+              placeholder="Vui lòng kiểm tra lịch để chọn"
+              onChange={(value) => setSelectedProgramId(value)}
+              disabled={programs.length === 0}
+              loading={loading}
+            >
+              {programs.map((program) => (
+                <Option key={program.id} value={program.id}>
+                  {program.name} - {program.address} ({program.timeRange})
+                </Option>
+              ))}
+            </Select>
+          </Form.Item>
         </Form>
+
+        {selectedProgramId && (
+          <div className={programDetail}>
+            <h3>Thông tin chương trình đã chọn</h3>
+            {programs
+              .filter((p) => p.id === selectedProgramId)
+              .map((p) => (
+                <div key={p.id}>
+                  <p>
+                    <strong>Tên:</strong> {p.name}
+                  </p>
+                  <p>
+                    <strong>Địa điểm:</strong> {p.address}
+                  </p>
+                  <p>
+                    <strong>Thời gian:</strong> {p.timeRange}
+                  </p>
+                  <p>
+                    <strong>Ghi chú:</strong> {p.description || "Không có"}
+                  </p>
+                </div>
+              ))}
+          </div>
+        )}
+
         <div className={btn}>
-          <Button content="Quay lại" to="/user/history" />
+          <Button content="Kiểm tra lịch" onClick={handleCheckSchedule} />
           <Button content="Tiếp tục" onClick={handleContinue} />
         </div>
       </div>
