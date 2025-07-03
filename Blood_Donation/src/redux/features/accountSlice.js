@@ -36,6 +36,20 @@ export const deleteAccountById = createAsyncThunk(
   }
 );
 
+// Async thunk to add a new account
+export const addAccount = createAsyncThunk(
+  "accounts/addAccount",
+  async (accountData, { rejectWithValue }) => {
+    try {
+      const response = await api.post("/admin/users", accountData);
+      // Add a 'key' property for AntD Table
+      return { ...response.data, key: response.data.userID };
+    } catch (err) {
+      return rejectWithValue(err.response?.data?.message || err.message);
+    }
+  }
+);
+
 const accountSlice = createSlice({
   name: "account", // name of the slice state, put this name in the rootReducer, before the ":"
   initialState: {
@@ -99,6 +113,23 @@ const accountSlice = createSlice({
         }
       })
       .addCase(deleteAccountById.rejected, (state, action) => {
+        state.selectedLoading = false;
+        state.selectedError = action.payload || action.error.message;
+      })
+      
+      // addAccount
+      .addCase(addAccount.pending, (state) => {
+        state.selectedLoading = true;
+        state.selectedError = null;
+      })
+      .addCase(addAccount.fulfilled, (state, action) => {
+        state.selectedLoading = false;
+        // Add the new account to the list
+        state.data.push(action.payload);
+        // Select the new account
+        state.selectedAccount = action.payload;
+      })
+      .addCase(addAccount.rejected, (state, action) => {
         state.selectedLoading = false;
         state.selectedError = action.payload || action.error.message;
       });

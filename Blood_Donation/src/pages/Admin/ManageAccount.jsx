@@ -1,6 +1,6 @@
 // Tag: for different colors of the boolean "enabled"
 // fetchAccounts: THE async thunk used to fetch API data
-import { Table, Tag, Space, Modal, Button } from "antd";
+import { Table, Tag, Space, Modal, Button, Form, Input, Select, Switch, DatePicker } from "antd";
 import {
   FileSearchOutlined,
   PlusOutlined,
@@ -8,9 +8,11 @@ import {
   DeleteOutlined,
 } from "@ant-design/icons";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchAccounts, deleteAccountById } from "../../redux/features/accountSlice";
+import { fetchAccounts, deleteAccountById, addAccount } from "../../redux/features/accountSlice";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import SearchBarV2 from "../../components/SearchBarV2/SearchBarV2";
+import AddAccountForm from "./AddAccountForm";
 
 function AccountTable() {
   const dispatch = useDispatch();
@@ -22,11 +24,22 @@ function AccountTable() {
   // this is just for clarity
   const { data: accounts, loading, error } = useSelector((state) => state.account);
 
+  // Local state for search/filter
+  const [selectedRole, setSelectedRole] = useState("All");
+  const [searchText, setSearchText] = useState("");
+
   // State for delete modal and countdown
   const [deleteModalVisible, setDeleteModalVisible] = useState(false);
   const [deleteTarget, setDeleteTarget] = useState(null);
   const [countdown, setCountdown] = useState(3);
   const [deleteBtnDisabled, setDeleteBtnDisabled] = useState(true);
+
+  // Get unique roles from accounts for the filter dropdown
+  const roles = Array.from(new Set(accounts.map(acc => acc.role)));
+
+  // State for add account modal and form
+  const [addModalVisible, setAddModalVisible] = useState(false);
+  const [showPersonal, setShowPersonal] = useState(false);
 
   useEffect(() => {
     dispatch(fetchAccounts());
@@ -61,6 +74,13 @@ function AccountTable() {
     await dispatch(deleteAccountById(deleteTarget.userID));
     setDeleteModalVisible(false);
   };
+
+  // Filter accounts based on selectedRole and searchText
+  const filteredAccounts = accounts.filter(acc => {
+    const matchRole = selectedRole === "All" || acc.role === selectedRole;
+    const matchName = (acc.fullName || "").toLowerCase().includes(searchText.toLowerCase());
+    return matchRole && matchName;
+  });
 
   // Columns of the displayed table
   // title: the header text display on the web
@@ -128,9 +148,50 @@ function AccountTable() {
   // Actual table return
   return (
     <>
-      <Table dataSource={accounts} columns={columns} />
-
+      <div style={{ display: "flex", alignItems: "flex-start", gap: "1rem", marginBottom: "0.5rem", justifyContent: "space-between" }}>
+        <SearchBarV2
+          roles={roles}
+          selectedRole={selectedRole}
+          onRoleChange={setSelectedRole}
+          searchText={searchText}
+          onSearchChange={setSearchText}
+        />
+        <div style={{ display: "flex", alignItems: "center", height: "100%" }}>
+          <Button type="primary" onClick={() => setAddModalVisible(true)}>
+            Thêm tài khoản
+          </Button>
+        </div>
+      </div>
+      <Table dataSource={filteredAccounts} columns={columns} />
+      
       {/* Modals */}
+      {/* Add Account Modal */}
+      <Modal
+        title="Thêm tài khoản mới"
+        open={addModalVisible}
+        onCancel={() => setAddModalVisible(false)}
+        footer={null}
+      >
+        <AddAccountForm
+          roles={roles}
+          showPersonal={showPersonal}
+          setShowPersonal={setShowPersonal}
+          onCancel={() => setAddModalVisible(false)}
+          onFinish={async (values) => {
+            // Convert birthdate to string if present
+            const payload = {
+              ...values,
+              birthdate: values.birthdate ? values.birthdate.format("YYYY-MM-DD") : undefined,
+            };
+            await dispatch(addAccount(payload));
+            setAddModalVisible(false);
+            dispatch(fetchAccounts()); // Refresh list
+          }}
+          initialRole={roles[0] || ''}
+        />
+      </Modal>
+
+      {/* Delete Account Modal */}
       <Modal
         title="Xác nhận xóa tài khoản"
         open={deleteModalVisible}
