@@ -15,7 +15,7 @@ export const fetchAccounts = createAsyncThunk(
 );
 
 const accountSlice = createSlice({
-  name: "account", // put this name in the rootReducer, before the ":"
+  name: "account", // name of the slice state, put this name in the rootReducer, before the ":"
   initialState: {
     data: [],
     loading: false,
@@ -26,6 +26,7 @@ const accountSlice = createSlice({
   // reducers used by Async thunk
   extraReducers: (builder) => {
     builder
+      // fetchAccounts
       .addCase(fetchAccounts.pending, (state) => {
         state.loading = true;
         state.error = null;

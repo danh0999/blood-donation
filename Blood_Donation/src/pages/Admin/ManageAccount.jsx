@@ -8,7 +8,7 @@ import { useEffect } from "react";
 function AccountTable() {
   const dispatch = useDispatch();
   // B1: declare the "state" var, assign it with state.accounts (the slice state), which returned by useSelector()
-  // B2: assign the "state" var to the 3 vars (accounts, loading, error) and use it through out this file
+  // B2: assign the "state" var to the 3 vars (accounts, loading, error) and use it throughout this file
 
   // note: "data: accounts" mean take the "data" property from accounts slice and assign it to a new var called "accounts"
   // this is just for clarity
@@ -22,7 +22,7 @@ function AccountTable() {
   // Columns of the displayed table
   // title: the header text display on the web
   // dataIndex: the key (field)'s name that the API return, specify the exact name to get the value
-  // key: used internally by Reac
+  // key: used internally by React
   const columns = [
     {
       title: "User ID",
