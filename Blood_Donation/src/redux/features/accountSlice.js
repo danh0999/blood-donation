@@ -14,12 +14,27 @@ export const fetchAccounts = createAsyncThunk(
   }
 );
 
+// Async thunk to fetch a specific account by ID
+export const fetchAccountById = createAsyncThunk(
+  "accounts/fetchAccountById",
+  async (id) => {
+    const response = await api.get(`/admin/users/${id}`);
+    return response.data;
+  }
+);
+
 const accountSlice = createSlice({
   name: "account", // name of the slice state, put this name in the rootReducer, before the ":"
   initialState: {
+    // state for account list
     data: [],
     loading: false,
     error: null,
+
+    // state for a specific account object
+    selectedAccount: null,
+    selectedLoading: false,
+    selectedError: null,
   },
   reducers: {},
 
@@ -38,6 +53,22 @@ const accountSlice = createSlice({
       .addCase(fetchAccounts.rejected, (state, action) => {
         state.loading = false;
         state.error = action.error.message;
+      })
+      
+      // fetchAccountById
+      .addCase(fetchAccountById.pending, (state) => {
+        state.selectedLoading = true;
+        state.selectedError = null;
+        state.selectedAccount = null;
+      })
+      .addCase(fetchAccountById.fulfilled, (state, action) => {
+        state.selectedLoading = false;
+        state.selectedAccount = action.payload;
+      })
+      .addCase(fetchAccountById.rejected, (state, action) => {
+        state.selectedLoading = false;
+        state.selectedError = action.error.message;
+        state.selectedAccount = null;
       });
   },
 });

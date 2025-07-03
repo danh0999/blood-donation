@@ -12,6 +12,7 @@ import ProtectedRoute from "./ProtectedRoute";
 import { Contact } from "../pages/Contact/Contact";
 import AdminDashboard from "../pages/Admin/Dashboard/AdminDashboard";
 import ManageAccount from "../pages/Admin/ManageAccount"
+import AccountDetail from "../pages/Admin/AccountDetail/AccountDetail";
 import AppHeader from "../layouts/components/Header/Header";
 import { Outlet, Navigate } from "react-router-dom";
 import AppFooter from "../layouts/components/Footer/Footer";
@@ -100,6 +101,7 @@ const routes = [
           { index: true, element: <div>Welcome to Admin Dashboard</div> },
           { path: "overview", element: <div>Overview tab</div>},
           { path: "accounts", element: <ManageAccount />},
+          { path: "accounts/:id", element: <AccountDetail /> },
           { path: "reports", element: <div>Report List</div> },
         ],
       },
