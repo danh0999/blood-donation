@@ -1,9 +1,15 @@
 // Tag: for different colors of the boolean "enabled"
 // fetchAccounts: THE async thunk used to fetch API data
-import { Table, Tag } from "antd";
+import { Table, Tag, Space, Modal } from "antd";
+import {
+  FileSearchOutlined,
+  PlusOutlined,
+  EditOutlined,
+  DeleteOutlined,
+} from "@ant-design/icons";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchAccounts } from "../../redux/features/accountSlice";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 
 function AccountTable() {
   const dispatch = useDispatch();
@@ -12,11 +18,29 @@ function AccountTable() {
 
   // note: "data: accounts" mean take the "data" property from accounts slice and assign it to a new var called "accounts"
   // this is just for clarity
-  const { data: accounts, loading, error} = useSelector((state) => state.account);
+  const { data: accounts, loading, error } = useSelector((state) => state.account);
 
   useEffect(() => {
     dispatch(fetchAccounts());
   }, [dispatch]);
+
+  // State for modal
+  const [isModalVisible, setIsModalVisible] = useState(false);
+  const [selectedRecord, setSelectedRecord] = useState(null);
+
+  useEffect(() => {
+    dispatch(fetchAccounts());
+  }, [dispatch]);
+
+  const showModal = (record) => {
+    setSelectedRecord(record);
+    setIsModalVisible(true);
+  };
+
+  const handleModalClose = () => {
+    setIsModalVisible(false);
+    setSelectedRecord(null);
+  };
 
 
   // Columns of the displayed table
@@ -25,7 +49,7 @@ function AccountTable() {
   // key: used internally by React
   const columns = [
     {
-      title: "User ID",
+      title: "UserID",
       dataIndex: "userID",
       key: "userID",
     },
@@ -35,7 +59,7 @@ function AccountTable() {
       key: "username",
     },
     {
-      title: "Full Name",
+      title: "Họ và Tên",
       dataIndex: "fullName",
       key: "fullName",
     },
@@ -45,19 +69,33 @@ function AccountTable() {
       key: "email",
     },
     {
-      title: "Role",
+      title: "Vai trò",
       dataIndex: "role",
       key: "role",
     },
     {
-      title: "Enabled",
+      title: "Trạng thái",
       dataIndex: "enabled",
       key: "enabled",
       render: (enabled) => enabled ? (
-        <Tag color="green">Yes</Tag>
-      ) : 
-      ( 
-        <Tag color="red">No</Tag>
+        <Tag color="green">Đang hoạt động</Tag>
+      ) :
+        (
+          <Tag color="red">Đã tắt</Tag>
+        ),
+    },
+    {
+      title: "Hành động",
+      key: "action",
+      render: (_, record) => (
+        <Space size="middle">
+          <FileSearchOutlined
+            style={{ cursor: "pointer" }}
+            onClick={() => showModal(record)}
+          />
+          <EditOutlined />
+          <DeleteOutlined />
+        </Space>
       ),
     },
   ];
@@ -67,7 +105,35 @@ function AccountTable() {
   if (error) return <div>Error: {error}</div>;
 
   // Actual table return
-  return <Table dataSource={accounts} columns={columns} />;
+  return (
+    <>
+      <Table dataSource={accounts} columns={columns} />
+      <Modal
+        title="Thông tin tài khoản"
+        open={isModalVisible}
+        onCancel={handleModalClose}
+        footer={null}
+      >
+        {selectedRecord && (
+          <div>
+            <p><b>UserID:</b> {selectedRecord.userID}</p>
+            <p><b>Username:</b> {selectedRecord.username}</p>
+            <p><b>Họ và Tên:</b> {selectedRecord.fullName}</p>
+            <p><b>Email:</b> {selectedRecord.email}</p>
+            <p><b>Số điện thoại:</b> {selectedRecord.phone}</p>
+            <p><b>Địa chỉ:</b> {selectedRecord.address}</p>
+            <p><b>CCCD:</b> {selectedRecord.cccd}</p>
+            <p><b>Nhóm máu:</b> {selectedRecord.typeBlood}</p>
+            <p><b>Vai trò:</b> {selectedRecord.role}</p>
+            <p><b>Giới tính:</b> {selectedRecord.gender}</p>
+            <p><b>Ngày sinh:</b> {selectedRecord.birthdate}</p>
+            <p><b>Trạng thái:</b> {selectedRecord.enabled ? "Đang hoạt động" : "Đã tắt"}</p>
+          </div>
+        )}
+      </Modal>
+    </>
+
+  );
 }
 
 export default AccountTable;

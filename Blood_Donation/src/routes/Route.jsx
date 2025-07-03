@@ -10,7 +10,7 @@ import NewsDetail from "../pages/NewsDetail/NewsDetail";
 import Profile from "../pages/Profile/Profile";
 import ProtectedRoute from "./ProtectedRoute";
 import { Contact } from "../pages/Contact/Contact";
-import AdminDashboard from "../pages/Admin/AdminDashboard";
+import AdminDashboard from "../pages/Admin/Dashboard/AdminDashboard";
 import ManageAccount from "../pages/Admin/ManageAccount"
 import AppHeader from "../layouts/components/Header/Header";
 import { Outlet, Navigate } from "react-router-dom";

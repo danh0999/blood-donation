@@ -2,10 +2,6 @@ import React, { useState } from "react";
 import { Outlet, useLocation, useNavigate } from "react-router-dom";
 import {
   PieChartOutlined,
-  FileSearchOutlined,
-  PlusOutlined,
-  EditOutlined,
-  DeleteOutlined,
   FileOutlined,
   TeamOutlined,
   LogoutOutlined,
