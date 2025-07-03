@@ -23,6 +23,19 @@ export const fetchAccountById = createAsyncThunk(
   }
 );
 
+// Async thunk to delete an account by ID
+export const deleteAccountById = createAsyncThunk(
+  "accounts/deleteAccountById",
+  async (id, { rejectWithValue }) => {
+    try {
+      await api.delete(`/admin/users/${id}`);
+      return id;
+    } catch (err) {
+      return rejectWithValue(err.response?.data?.message || err.message);
+    }
+  }
+);
+
 const accountSlice = createSlice({
   name: "account", // name of the slice state, put this name in the rootReducer, before the ":"
   initialState: {
@@ -69,6 +82,25 @@ const accountSlice = createSlice({
         state.selectedLoading = false;
         state.selectedError = action.error.message;
         state.selectedAccount = null;
+      })
+      
+      // deleteAccountById
+      .addCase(deleteAccountById.pending, (state) => {
+        state.selectedLoading = true;
+        state.selectedError = null;
+      })
+      .addCase(deleteAccountById.fulfilled, (state, action) => {
+        state.selectedLoading = false;
+        // Remove deleted account from list if present
+        state.data = state.data.filter(acc => acc.userID !== action.payload);
+        // If the deleted account is the selected one, clear it
+        if (state.selectedAccount && state.selectedAccount.userID === action.payload) {
+          state.selectedAccount = null;
+        }
+      })
+      .addCase(deleteAccountById.rejected, (state, action) => {
+        state.selectedLoading = false;
+        state.selectedError = action.payload || action.error.message;
       });
   },
 });

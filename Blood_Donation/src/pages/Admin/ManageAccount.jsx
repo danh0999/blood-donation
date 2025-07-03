@@ -1,6 +1,6 @@
 // Tag: for different colors of the boolean "enabled"
 // fetchAccounts: THE async thunk used to fetch API data
-import { Table, Tag, Space } from "antd";
+import { Table, Tag, Space, Modal, Button } from "antd";
 import {
   FileSearchOutlined,
   PlusOutlined,
@@ -8,8 +8,8 @@ import {
   DeleteOutlined,
 } from "@ant-design/icons";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchAccounts } from "../../redux/features/accountSlice";
-import { useEffect } from "react";
+import { fetchAccounts, deleteAccountById } from "../../redux/features/accountSlice";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 function AccountTable() {
@@ -22,9 +22,45 @@ function AccountTable() {
   // this is just for clarity
   const { data: accounts, loading, error } = useSelector((state) => state.account);
 
+  // State for delete modal and countdown
+  const [deleteModalVisible, setDeleteModalVisible] = useState(false);
+  const [deleteTarget, setDeleteTarget] = useState(null);
+  const [countdown, setCountdown] = useState(3);
+  const [deleteBtnDisabled, setDeleteBtnDisabled] = useState(true);
+
   useEffect(() => {
     dispatch(fetchAccounts());
   }, [dispatch]);
+
+  // Countdown logic for delete button
+  useEffect(() => {
+    let timer;
+    if (deleteModalVisible && deleteBtnDisabled) {
+      timer = setInterval(() => {
+        setCountdown((prev) => {
+          if (prev <= 1) {
+            setDeleteBtnDisabled(false);
+            clearInterval(timer);
+            return 0;
+          }
+          return prev - 1;
+        });
+      }, 1000);
+    }
+    return () => clearInterval(timer);
+  }, [deleteModalVisible, deleteBtnDisabled]);
+
+  const showDeleteModal = (record) => {
+    setDeleteTarget(record);
+    setDeleteModalVisible(true);
+    setCountdown(3);
+    setDeleteBtnDisabled(true);
+  };
+
+  const handleDelete = async () => {
+    await dispatch(deleteAccountById(deleteTarget.userID));
+    setDeleteModalVisible(false);
+  };
 
   // Columns of the displayed table
   // title: the header text display on the web
@@ -76,8 +112,10 @@ function AccountTable() {
             style={{ cursor: "pointer" }}
             onClick={() => navigate(`/admin/accounts/${record.userID}`)}
           />
-          <EditOutlined />
-          <DeleteOutlined />
+          <DeleteOutlined
+            style={{ color: "red", cursor: "pointer" }}
+            onClick={() => showDeleteModal(record)}
+          />
         </Space>
       ),
     },
@@ -89,7 +127,36 @@ function AccountTable() {
 
   // Actual table return
   return (
-    <Table dataSource={accounts} columns={columns} />
+    <>
+      <Table dataSource={accounts} columns={columns} />
+
+      {/* Modals */}
+      <Modal
+        title="Xác nhận xóa tài khoản"
+        open={deleteModalVisible}
+        onCancel={() => setDeleteModalVisible(false)}
+        footer={[
+          <Button key="cancel" onClick={() => setDeleteModalVisible(false)}>
+            Hủy
+          </Button>,
+          <Button
+            key="delete"
+            type="primary"
+            danger
+            disabled={deleteBtnDisabled}
+            onClick={handleDelete}
+          >
+            {deleteBtnDisabled ? `Xóa (${countdown})` : "Xóa"}
+          </Button>,
+        ]}
+      >
+        {deleteTarget && (
+          <>
+            Bạn có chắc chắn muốn xóa tài khoản <b>{deleteTarget.username}</b> (UserID: {deleteTarget.userID})? Hành động này không thể hoàn tác.
+          </>
+        )}
+      </Modal>
+    </>
   );
 }
 
