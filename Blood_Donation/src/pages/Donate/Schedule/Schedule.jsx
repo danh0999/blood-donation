@@ -24,14 +24,25 @@ export const Schedule = () => {
       const values = await form.validateFields();
       const selectedDate = dayjs(values.date).format("YYYY-MM-DD");
 
+
+      console.log("values", values);
+
+      if (!values.locationId) {
+        message.warning("Bạn chưa chọn địa điểm.");
+        return;
+      }
+
       setLoading(true);
+
       const res = await api.get("programs/search", {
         params: {
           date: selectedDate,
-          location: values.location,
+          locationId: values.locationId,
         },
       });
-      console.log("Dữ liệu API trả về:", res.data);
+
+      console.log("API response:", res.data);
+
       if (!Array.isArray(res.data)) {
         throw new Error("Kết quả trả về không hợp lệ!");
       }
@@ -46,12 +57,15 @@ export const Schedule = () => {
         message.success("Đã tìm thấy các chương trình hiến máu.");
       }
     } catch (error) {
-      console.log(error);
+
+      console.error("Lỗi:", error);
+
       message.error("Lỗi khi kiểm tra lịch. Vui lòng thử lại.");
     } finally {
       setLoading(false);
     }
   };
+
 
   const handleContinue = async () => {
     const values = await form.getFieldsValue();
@@ -97,19 +111,23 @@ export const Schedule = () => {
 
           <Form.Item
             label="Tỉnh/Thành phố"
-            name="location"
+
+            name="locationId"
             rules={[{ required: true, message: "Vui lòng chọn địa điểm" }]}
           >
             <Select
+              placeholder="Chọn tỉnh/thành phố"
+
               onChange={() => {
                 form.setFieldsValue({ date: null });
                 setPrograms([]);
                 setSelectedProgramId(null);
               }}
             >
-              <Option value="Hồ Chí Minh">Hồ Chí Minh</Option>
-              <Option value="Hà Nội">Hà Nội</Option>
-              <Option value="Đà Nẵng">Đà Nẵng</Option>
+
+              <Option value={1}>Hồ Chí Minh</Option>
+              <Option value={2}>Đà Nẵng</Option>
+              <Option value={3}>Hà Nội</Option>
             </Select>
           </Form.Item>
 
