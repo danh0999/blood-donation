@@ -11,6 +11,8 @@ import { Breadcrumb, Layout, Menu, theme } from "antd";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import styles from "./styles.module.scss";
+import { useDispatch } from "react-redux";
+import { logout } from "../../redux/features/userSlice";
 
 const { Header, Content, Footer, Sider } = Layout;
 
@@ -25,6 +27,7 @@ function getItem(label, key, icon, children) {
 
 const StaffDashboard = () => {
   const navigate = useNavigate();
+  const dispatch = useDispatch();
   const [collapsed, setCollapsed] = useState(false);
   const items = [
     getItem("Dashboard", "dashboard", <DashboardOutlined />),
@@ -43,6 +46,7 @@ const StaffDashboard = () => {
     if (key === "logout") {
       // Xử lý logout
       toast.success("Logged out successfully");
+      dispatch(logout());
       navigate("/login");
     } else {
       setSelectedMenuItem(key);
@@ -94,7 +98,10 @@ const StaffDashboard = () => {
             {selectedMenuItem === "dashboard" && (
               <div className={styles.dashboardCenterWrapper}>
                 <h2>Welcome to Staff Dashboard</h2>
-                <p>Please choose one of the following functions on the sidebar to start</p>
+                <p>
+                  Please choose one of the following functions on the sidebar to
+                  start
+                </p>
               </div>
             )}
             {selectedMenuItem === "blog" && <h2>Welcome to Blog Management</h2>}

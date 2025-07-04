@@ -10,6 +10,8 @@ import {
   LoginOutlined,
 } from "@ant-design/icons";
 import { Breadcrumb, Layout, Menu, theme, message } from "antd";
+import { useDispatch } from "react-redux";
+import { logout } from "../../redux/features/userSlice";
 
 const { Header, Content, Footer, Sider } = Layout;
 
@@ -24,6 +26,7 @@ function getItem(label, key, icon, children) {
 
 const HospitalStaffDashboard = () => {
   const navigate = useNavigate();
+  const dispatch = useDispatch();
   const [collapsed, setCollapsed] = useState(false);
   const {
     token: { colorBgContainer, borderRadiusLG },
@@ -45,6 +48,7 @@ const HospitalStaffDashboard = () => {
     if (key === "logout") {
       // Handle logout
       message.success("Logged out successfully");
+      dispatch(logout());
       navigate("/login");
     } else {
       setSelectedMenuItem(key);

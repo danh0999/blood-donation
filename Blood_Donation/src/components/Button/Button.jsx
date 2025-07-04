@@ -2,15 +2,15 @@ import React from "react";
 import styles from "./styles.module.scss";
 import { useNavigate } from "react-router-dom";
 
-export const Button = ({ content = "Tìm kiếm", to }) => {
+export const Button = ({ content = "Tìm kiếm", to, onClick }) => {
   const { buttonContainer, button } = styles;
   const navigate = useNavigate();
-
-  const handleClick = () => {
-    if (to) {
-      navigate(to);
+  const handleClick = async () => {
+    if (onClick) {
+      await onClick(); //  gọi logic từ ngoài (validate, điều hướng)
+    } else if (to) {
+      navigate(to); // chỉ fallback khi không có onClick
     }
-    // Nếu không có to thì không làm gì cả hoặc làm việc khác
   };
 
   return (

@@ -24,6 +24,7 @@ export const Schedule = () => {
       const values = await form.validateFields();
       const selectedDate = dayjs(values.date).format("YYYY-MM-DD");
 
+
       console.log("values", values);
 
       if (!values.locationId) {
@@ -56,7 +57,9 @@ export const Schedule = () => {
         message.success("Đã tìm thấy các chương trình hiến máu.");
       }
     } catch (error) {
+
       console.error("Lỗi:", error);
+
       message.error("Lỗi khi kiểm tra lịch. Vui lòng thử lại.");
     } finally {
       setLoading(false);
@@ -108,23 +111,25 @@ export const Schedule = () => {
 
           <Form.Item
             label="Tỉnh/Thành phố"
+
             name="locationId"
             rules={[{ required: true, message: "Vui lòng chọn địa điểm" }]}
           >
             <Select
               placeholder="Chọn tỉnh/thành phố"
+
               onChange={() => {
                 form.setFieldsValue({ date: null });
                 setPrograms([]);
                 setSelectedProgramId(null);
               }}
             >
+
               <Option value={1}>Hồ Chí Minh</Option>
               <Option value={2}>Đà Nẵng</Option>
               <Option value={3}>Hà Nội</Option>
             </Select>
           </Form.Item>
-
 
           <Form.Item label="Chọn chương trình hiến máu">
             <Select

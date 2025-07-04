@@ -3,12 +3,13 @@ import { DatePicker, Typography } from "antd";
 import { CalendarOutlined } from "@ant-design/icons";
 import styles from "../SearchBar/SearchBar.module.scss";
 import { Button } from "../../components/Button/Button";
+import { useNavigate } from "react-router-dom";
 const { RangePicker } = DatePicker;
 const { Text } = Typography;
 
 const SearchBar = ({ onSearch }) => {
   const [selectedRange, setSelectedRange] = React.useState(null);
-
+  const navigate = useNavigate();
   const handleRangeChange = (value, dateString) => {
     setSelectedRange(value);
     console.log("Formatted Selected Time: ", dateString);
@@ -20,6 +21,7 @@ const SearchBar = ({ onSearch }) => {
     } else {
       console.log("Please select a date range.");
     }
+    navigate("/event");
   };
 
   return (

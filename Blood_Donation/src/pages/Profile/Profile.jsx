@@ -1,30 +1,25 @@
 import React, { useState } from "react";
-import { useSelector } from "react-redux";
-import { Modal, Table, Button, Form, Input, Select } from "antd";
+import { useDispatch, useSelector } from "react-redux";
+import { Modal, Button, Form, Input, Select } from "antd";
 
 import styles from "./styles.module.scss";
 import { toast } from "react-toastify";
 import api from "../../configs/axios";
-
-const { Option } = Select;
+import { updateUser } from "../../redux/features/userSlice";
 
 const Profile = () => {
   const user = useSelector((state) => state.user);
-
+  const dispatch = useDispatch();
   const [isUpdateModalVisible, setUpdateModalVisible] = useState(false);
+  const [form] = Form.useForm();
+  const { Option } = Select;
 
   const bloodTypeOptions = [
-    { label: "A+", value: "A_POSITIVE" },
-    { label: "A-", value: "A_NEGATIVE" },
-    { label: "B+", value: "B_POSITIVE" },
-    { label: "B-", value: "B_NEGATIVE" },
-    { label: "AB+", value: "AB_POSITIVE" },
-    { label: "AB-", value: "AB_NEGATIVE" },
-    { label: "O+", value: "O_POSITIVE" },
-    { label: "O-", value: "O_NEGATIVE" },
+    { label: "A", value: "A" },
+    { label: "B", value: "B" },
+    { label: "AB", value: "AB" },
+    { label: "O", value: "O" },
   ];
-
-  const [form] = Form.useForm();
 
   if (!user) {
     return <p className={styles.notice}>Bạn chưa đăng nhập.</p>;
@@ -32,21 +27,20 @@ const Profile = () => {
 
   const handleUpdate = async (updatedData) => {
     try {
-      if (!user || !user.userID) {
-        toast.error("Không tìm thấy ID người dùng");
-        console.log("🧠 USER TỪ REDUX:", user);
-
-        return;
-      }
-      console.log("🧠 USER TỪ REDUX:", user);
-
-      console.log("📦 Updated data:", updatedData);
-      console.log("🆔 User ID:", user.userID);
-
-      const response = await api.put(`/users/${user.userID}`, updatedData);
-      console.log(response);
+      const response = await api.put(`/users/${user.userID}`, {
+        ...user,
+        ...updatedData,
+      });
 
       toast.success("Cập nhật thành công!");
+      dispatch(
+        updateUser({
+          ...user,
+          ...response.data,
+          token: user.token,
+        })
+      );
+      setUpdateModalVisible(false);
     } catch (error) {
       console.error("Lỗi cập nhật:", error.response?.data || error.message);
       toast.error("Cập nhật thất bại");
@@ -55,52 +49,64 @@ const Profile = () => {
 
   return (
     <div className={styles.profileContainer}>
-      <h2>Thông tin cá nhân</h2>
-      <p>
-        <strong>Fullname:</strong> {user.fullName}
-      </p>
-      <p>
-        <strong>Email:</strong> {user.email}
-      </p>
-      <p>
-        <strong>CCCD:</strong> {user.cccd}
-      </p>
-      <p>
-        <strong>Address:</strong> {user.address}
-      </p>
-      <p>
-        <strong>Số điện thoại:</strong> {user.phone}
-      </p>
-      <p>
-        <strong>Gender:</strong> {user.gender}
-      </p>
-      <p>
-        <strong>TypeBlood:</strong> {user.tyleBlood}
-      </p>
+      <div className={styles.sectionWrapper}>
+        {/* Thông tin cá nhân */}
+        <div className={styles.profileSection}>
+          <h3>🧍 Thông tin cá nhân</h3>
+          <p>
+            <strong>Họ tên :</strong> {user.fullName}
+          </p>
+          <p>
+            <strong>CCCD :</strong> {user.cccd}
+          </p>
+          <p>
+            <strong>Giới tính :</strong> {user.gender === "MALE" ? "Nam" : "Nữ"}
+          </p>
+          <p>
+            <strong>Nhóm máu :</strong>
+            {user.typeBlood}
+          </p>
+        </div>
 
-      <div className={styles.buttonGroup}>
-        <Button
-          type="dashed"
-          onClick={() => {
-            form.setFieldsValue({
-              email: user.email || "",
-              username: user.username || "",
-              cccd: user.cccd || "",
-              address: user.address || "",
-              phone: user.phone || "",
-              gender: user.gender || "",
-              typeBlood: user.typeBlood || "",
-            });
-            setUpdateModalVisible(true);
-          }}
-        >
-          Cập nhật thông tin
-        </Button>
+        {/* Thông tin liên hệ */}
+        <div className={styles.profileSection}>
+          <h3>📞 Thông tin liên hệ</h3>
+          <p>
+            <strong>Email :</strong> {user.email}
+          </p>
+          <p>
+            <strong>Địa chỉ :</strong> {user.address}
+          </p>
+          <p>
+            <strong>SĐT :</strong> {user.phone}
+          </p>
+
+          <div className={styles.editButtonWrapper}>
+            <Button
+              type="link"
+              onClick={() => {
+                form.setFieldsValue({
+                  fullName: user.fullName || "",
+                  email: user.email || "",
+                  username: user.username || "",
+                  cccd: user.cccd || "",
+                  address: user.address || "",
+                  phone: user.phone || "",
+                  gender: user.gender || "",
+                  typeBlood: user.typeBlood || "",
+                });
+                setUpdateModalVisible(true);
+              }}
+            >
+              Chỉnh sửa
+            </Button>
+          </div>
+        </div>
       </div>
 
-      {/* Update User Info Modal */}
+      {/* Modal cập nhật */}
       <Modal
-        title="Cập nhật thông tin cá nhân"
+        title="Cập nhật thông tin liên hệ"
         open={isUpdateModalVisible}
         onCancel={() => setUpdateModalVisible(false)}
         footer={null}
@@ -110,6 +116,7 @@ const Profile = () => {
           layout="vertical"
           onFinish={handleUpdate}
           initialValues={{
+            fullName: user.fullName,
             email: user.email,
             username: user.username,
             cccd: user.cccd,
@@ -119,6 +126,13 @@ const Profile = () => {
             bloodType: user.typeBlood,
           }}
         >
+          <Form.Item
+            name="fullName"
+            label="FullName"
+            rules={[{ required: true, message: "Vui lòng nhập fullName!" }]}
+          >
+            <Input placeholder="Tên bạn muốn hiển thị" />
+          </Form.Item>
           <Form.Item
             name="email"
             label="Email"
