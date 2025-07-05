@@ -39,7 +39,6 @@ function AccountTable() {
 
   // State for add account modal and form
   const [addModalVisible, setAddModalVisible] = useState(false);
-  const [showPersonal, setShowPersonal] = useState(false);
 
   useEffect(() => {
     dispatch(fetchAccounts());
@@ -148,6 +147,7 @@ function AccountTable() {
   // Actual table return
   return (
     <>
+    <div><b>To do: Update, validate remove the only admin account, validate account add information</b></div>
       <div style={{ display: "flex", alignItems: "flex-start", gap: "1rem", marginBottom: "0.5rem", justifyContent: "space-between" }}>
         <SearchBarV2
           roles={roles}
@@ -174,9 +174,8 @@ function AccountTable() {
       >
         <AddAccountForm
           roles={roles}
-          showPersonal={showPersonal}
-          setShowPersonal={setShowPersonal}
           onCancel={() => setAddModalVisible(false)}
+          // Ant Design Form submit button handling
           onFinish={async (values) => {
             // Convert birthdate to string if present
             const payload = {

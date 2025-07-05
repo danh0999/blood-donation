@@ -5,6 +5,7 @@ import {
   FileOutlined,
   TeamOutlined,
   LogoutOutlined,
+  ProfileOutlined,
 } from "@ant-design/icons";
 import { Layout, Menu, theme } from "antd";
 import styles from "./styles.module.scss";
@@ -25,8 +26,9 @@ function getItem(label, key, icon, children) {
   const items = [
     getItem("Tổng Quan", "overview", <PieChartOutlined />),
     getItem("Tài Khoản", "accounts", <TeamOutlined />),
+    getItem("Chương trình", "programs", <ProfileOutlined />),
     getItem("Báo Cáo", "reports", <FileOutlined />),
-    getItem("Logout", "logout", <LogoutOutlined />),
+    getItem("Đăng xuất", "logout", <LogoutOutlined />),
   ];
 
 const AdminDashboard = () => {

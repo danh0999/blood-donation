@@ -1,0 +1,131 @@
+import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
+import api from "../../configs/axios";
+
+// Async thunk to fetch programs from the API
+export const fetchPrograms = createAsyncThunk(
+  "programs/fetchPrograms",
+  async () => {
+    // TODO: Update endpoint
+    const response = await api.get("/admin/programs");
+    // Add a 'key' property for AntD Table
+    return response.data.map((program) => ({
+      ...program,
+      key: program.id, // TODO: update to correct id field
+    }));
+  }
+);
+
+// Async thunk to fetch a specific program by ID
+export const fetchProgramById = createAsyncThunk(
+  "programs/fetchProgramById",
+  async (id) => {
+    // TODO: Update endpoint
+    const response = await api.get(`/admin/programs/${id}`);
+    return response.data;
+  }
+);
+
+// Async thunk to delete a program by ID
+export const deleteProgramById = createAsyncThunk(
+  "programs/deleteProgramById",
+  async (id, { rejectWithValue }) => {
+    try {
+      // TODO: Update endpoint
+      await api.delete(`/admin/programs/${id}`);
+      return id;
+    } catch (err) {
+      return rejectWithValue(err.response?.data?.message || err.message);
+    }
+  }
+);
+
+// Async thunk to add a new program
+export const addProgram = createAsyncThunk(
+  "programs/addProgram",
+  async (programData, { rejectWithValue }) => {
+    try {
+      // TODO: Update endpoint
+      const response = await api.post("/admin/programs", programData);
+      // Add a 'key' property for AntD Table
+      return { ...response.data, key: response.data.id }; // TODO: update to correct id field
+    } catch (err) {
+      return rejectWithValue(err.response?.data?.message || err.message);
+    }
+  }
+);
+
+const programSlice = createSlice({
+  name: "program", // name of the slice state
+  initialState: {
+    data: [],
+    loading: false,
+    error: null,
+    selectedProgram: null,
+    selectedLoading: false,
+    selectedError: null,
+  },
+  reducers: {},
+  extraReducers: (builder) => {
+    builder
+      // fetchPrograms
+      .addCase(fetchPrograms.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(fetchPrograms.fulfilled, (state, action) => {
+        state.loading = false;
+        state.data = action.payload;
+      })
+      .addCase(fetchPrograms.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.error.message;
+      })
+      // fetchProgramById
+      .addCase(fetchProgramById.pending, (state) => {
+        state.selectedLoading = true;
+        state.selectedError = null;
+        state.selectedProgram = null;
+      })
+      .addCase(fetchProgramById.fulfilled, (state, action) => {
+        state.selectedLoading = false;
+        state.selectedProgram = action.payload;
+      })
+      .addCase(fetchProgramById.rejected, (state, action) => {
+        state.selectedLoading = false;
+        state.selectedError = action.error.message;
+        state.selectedProgram = null;
+      })
+      // deleteProgramById
+      .addCase(deleteProgramById.pending, (state) => {
+        state.selectedLoading = true;
+        state.selectedError = null;
+      })
+      .addCase(deleteProgramById.fulfilled, (state, action) => {
+        state.selectedLoading = false;
+        state.data = state.data.filter(program => program.id !== action.payload); // TODO: update to correct id field
+        if (state.selectedProgram && state.selectedProgram.id === action.payload) {
+          state.selectedProgram = null;
+        }
+      })
+      .addCase(deleteProgramById.rejected, (state, action) => {
+        state.selectedLoading = false;
+        state.selectedError = action.payload || action.error.message;
+      })
+      // addProgram
+      .addCase(addProgram.pending, (state) => {
+        state.selectedLoading = true;
+        state.selectedError = null;
+      })
+      .addCase(addProgram.fulfilled, (state, action) => {
+        state.selectedLoading = false;
+        state.data.push(action.payload);
+        state.selectedProgram = action.payload;
+      })
+      .addCase(addProgram.rejected, (state, action) => {
+        state.selectedLoading = false;
+        state.selectedError = action.payload || action.error.message;
+      });
+  },
+});
+
+export default programSlice.reducer;
