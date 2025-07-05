@@ -1,5 +1,6 @@
-import React, { useState } from "react";
-import { DatePicker, Select, Form, message, Spin } from "antd";
+// src/pages/Donate/Schedule/Schedule.jsx
+import React, { useState, useRef } from "react";
+import { DatePicker, Select, Form, message } from "antd";
 import { useNavigate } from "react-router-dom";
 import dayjs from "dayjs";
 import api from "../../../configs/axios";
@@ -17,15 +18,14 @@ export const Schedule = () => {
   const [selectedProgramId, setSelectedProgramId] = useState(null);
   const [loading, setLoading] = useState(false);
 
+  const programSelectRef = useRef(null);
+
   const disabledDate = (current) => current && current < dayjs().startOf("day");
 
   const handleCheckSchedule = async () => {
     try {
       const values = await form.validateFields();
       const selectedDate = dayjs(values.date).format("YYYY-MM-DD");
-
-
-      console.log("values", values);
 
       if (!values.locationId) {
         message.warning("Bạn chưa chọn địa điểm.");
@@ -41,31 +41,47 @@ export const Schedule = () => {
         },
       });
 
-      console.log("API response:", res.data);
-
-      if (!Array.isArray(res.data)) {
-        throw new Error("Kết quả trả về không hợp lệ!");
-      }
+      if (!Array.isArray(res.data)) throw new Error("Kết quả không hợp lệ!");
 
       if (res.data.length === 0) {
         message.warning("Không có lịch hiến máu nào trong ngày này.");
         setPrograms([]);
         setSelectedProgramId(null);
       } else {
-        setPrograms(res.data);
+        // Gọi API lấy label cho từng slotId
+        const enrichedPrograms = await Promise.all(
+          res.data.map(async (program) => {
+            const slotLabels = await Promise.all(
+              (program.slotIds || []).map(async (slotId) => {
+                try {
+                  const res = await api.get(`/slots/${slotId}`);
+                  return res.data.label || "Không rõ";
+                } catch (error) {
+                  console.log(error);
+
+                  return "Không rõ";
+                }
+              })
+            );
+
+            return {
+              ...program,
+              timeRange: slotLabels.join(", ") || "Không rõ thời gian",
+            };
+          })
+        );
+
+        setPrograms(enrichedPrograms);
         setSelectedProgramId(null);
         message.success("Đã tìm thấy các chương trình hiến máu.");
       }
     } catch (error) {
-
       console.error("Lỗi:", error);
-
       message.error("Lỗi khi kiểm tra lịch. Vui lòng thử lại.");
     } finally {
       setLoading(false);
     }
   };
-
 
   const handleContinue = async () => {
     const values = await form.getFieldsValue();
@@ -77,7 +93,7 @@ export const Schedule = () => {
     navigate("/user/donate/checkup", {
       state: {
         date: dayjs(values.date).format("YYYY-MM-DD"),
-        location: values.location,
+        locationId: values.locationId,
         programId: selectedProgramId,
       },
     });
@@ -88,11 +104,7 @@ export const Schedule = () => {
       <h2 className={title}>Đặt lịch hiến máu</h2>
 
       <div className={formWrapper}>
-        <Form
-          layout="vertical"
-          form={form}
-          initialValues={{ location: "Hồ Chí Minh" }}
-        >
+        <Form layout="vertical" form={form}>
           <Form.Item
             label="Chọn ngày hiến máu"
             name="date"
@@ -111,20 +123,17 @@ export const Schedule = () => {
 
           <Form.Item
             label="Tỉnh/Thành phố"
-
             name="locationId"
             rules={[{ required: true, message: "Vui lòng chọn địa điểm" }]}
           >
             <Select
               placeholder="Chọn tỉnh/thành phố"
-
               onChange={() => {
                 form.setFieldsValue({ date: null });
                 setPrograms([]);
                 setSelectedProgramId(null);
               }}
             >
-
               <Option value={1}>Hồ Chí Minh</Option>
               <Option value={2}>Đà Nẵng</Option>
               <Option value={3}>Hà Nội</Option>
@@ -133,16 +142,25 @@ export const Schedule = () => {
 
           <Form.Item label="Chọn chương trình hiến máu">
             <Select
-              placeholder="Vui lòng kiểm tra lịch để chọn"
+              ref={programSelectRef}
+              placeholder="Chọn chương trình"
               onChange={(value) => setSelectedProgramId(value)}
               disabled={programs.length === 0}
               loading={loading}
+              value={selectedProgramId || undefined}
+              className={styles.programSelect}
             >
-              {programs.map((program) => (
-                <Option key={program.id} value={program.id}>
-                  {program.proName} - {program.address} ({program.timeRange})
+              {programs.length === 0 ? (
+                <Option value="" disabled>
+                  Không có lịch hiến máu
                 </Option>
-              ))}
+              ) : (
+                programs.map((program) => (
+                  <Option key={program.id} value={program.id}>
+                    {`${program.proName}`}
+                  </Option>
+                ))
+              )}
             </Select>
           </Form.Item>
         </Form>
