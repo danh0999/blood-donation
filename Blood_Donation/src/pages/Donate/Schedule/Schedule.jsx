@@ -48,16 +48,16 @@ export const Schedule = () => {
         setPrograms([]);
         setSelectedProgramId(null);
       } else {
-        // Gọi API lấy label cho từng slotId
-        const enrichedPrograms = await Promise.all(
+        // Lấy thông tin slot label từ slotIds
+        const programsWithTime = await Promise.all(
           res.data.map(async (program) => {
             const slotLabels = await Promise.all(
               (program.slotIds || []).map(async (slotId) => {
                 try {
-                  const res = await api.get(`/slots/${slotId}`);
-                  return res.data.label || "Không rõ";
-                } catch (error) {
-                  console.log(error);
+                  const slotRes = await api.get(`/slots/${slotId}`);
+                  return slotRes.data.label;
+                } catch (e) {
+                  console.log(e);
 
                   return "Không rõ";
                 }
@@ -71,9 +71,13 @@ export const Schedule = () => {
           })
         );
 
-        setPrograms(enrichedPrograms);
+        setPrograms(programsWithTime);
         setSelectedProgramId(null);
         message.success("Đã tìm thấy các chương trình hiến máu.");
+
+        setTimeout(() => {
+          if (programSelectRef.current) programSelectRef.current.focus();
+        }, 200);
       }
     } catch (error) {
       console.error("Lỗi:", error);
