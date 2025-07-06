@@ -22,12 +22,13 @@ const DonateCheckup = () => {
   const [answers, setAnswers] = useState(
     Array(questions.length).fill({ answer: null, note: "" })
   );
+
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const location = useLocation();
   const user = useSelector((state) => state.user);
 
-  const { programId, date, location: province } = location.state || {};
+  const { programId, date, locationId } = location.state || {};
 
   const handleCheckboxChange = (index, value) => {
     const newAnswers = [...answers];
@@ -42,44 +43,53 @@ const DonateCheckup = () => {
   };
 
   const handleSubmit = async () => {
-    if (!programId || !user?.id) {
+    if (!programId || !user?.userID) {
       message.error("Thiếu thông tin người dùng hoặc chương trình.");
       return;
     }
 
     try {
-      // Lấy slotId đầu tiên (nếu bạn chưa có UI chọn slot, có thể gán cứng để test)
-      const selectedSlotId = 1; // TODO: thay bằng slotId thực tế được chọn
-
+      const selectedSlotId = 1; // TODO: slot thật sau
       const res = await api.post(
         "/appointments",
-        {},
+        {
+          slotId: selectedSlotId,
+          programId,
+          date,
+        },
         {
           params: {
-            userId: user.id,
-            slotId: selectedSlotId,
-            date,
-            programId,
+            userId: user.userID,
           },
         }
       );
 
       const appointment = res.data;
 
+      // 🔁 Gọi lại API lấy chi tiết đầy đủ
+      const appointmentDetailRes = await api.get(
+        `/appointments/${appointment.id}`
+      );
+      const appointmentDetail = appointmentDetailRes.data;
+      console.log("Set Redux với:", {
+        id: appointmentDetail.id,
+        address: appointmentDetail.address,
+        time: appointmentDetail.timeRange,
+      });
       dispatch(
         setDonationHistory([
           {
-            id: appointment.id,
-            address: appointment.address,
-            time: appointment.timeRange,
+            id: appointmentDetail.id,
+            address: appointmentDetail.address || "Không rõ địa điểm",
+            time: appointmentDetail.timeRange || "Không rõ thời gian",
           },
         ])
       );
 
       message.success("Đăng ký hiến máu thành công!");
-      navigate("/user/donate");
+      navigate("/user/bloodDonate");
     } catch (error) {
-      console.error(error);
+      console.error("Lỗi gửi appointment:", error);
       message.error("Lỗi khi đăng ký lịch hiến máu.");
     }
   };
