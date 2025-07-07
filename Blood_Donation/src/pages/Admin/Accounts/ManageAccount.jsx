@@ -1,10 +1,8 @@
 // Tag: for different colors of the boolean "enabled"
 // fetchAccounts: THE async thunk used to fetch API data
-import { Table, Tag, Space, Modal, Button, Form, Input, Select, Switch, DatePicker } from "antd";
+import { Table, Space, Modal, Button, } from "antd";
 import {
   FileSearchOutlined,
-  PlusOutlined,
-  EditOutlined,
   DeleteOutlined,
 } from "@ant-design/icons";
 import { useDispatch, useSelector } from "react-redux";
