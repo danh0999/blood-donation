@@ -50,6 +50,20 @@ export const addAccount = createAsyncThunk(
   }
 );
 
+// Async thunk to update an account by ID
+export const updateAccount = createAsyncThunk(
+  "accounts/updateAccount",
+  async ({ id, accountData }, { rejectWithValue }) => {
+    try {
+      const response = await api.put(`/admin/users/${id}`, accountData);
+      // Add a 'key' property for AntD Table
+      return { ...response.data, key: response.data.userID };
+    } catch (err) {
+      return rejectWithValue(err.response?.data?.message || err.message);
+    }
+  }
+);
+
 const accountSlice = createSlice({
   name: "account", // name of the slice state, put this name in the rootReducer, before the ":"
   initialState: {
@@ -130,6 +144,24 @@ const accountSlice = createSlice({
         state.selectedAccount = action.payload;
       })
       .addCase(addAccount.rejected, (state, action) => {
+        state.selectedLoading = false;
+        state.selectedError = action.payload || action.error.message;
+      })
+      // updateAccount
+      .addCase(updateAccount.pending, (state) => {
+        state.selectedLoading = true;
+        state.selectedError = null;
+      })
+      .addCase(updateAccount.fulfilled, (state, action) => {
+        state.selectedLoading = false;
+        // Update the account in the list
+        state.data = state.data.map(acc => acc.userID === action.payload.userID ? action.payload : acc);
+        // Update selectedAccount if it's the same
+        if (state.selectedAccount && state.selectedAccount.userID === action.payload.userID) {
+          state.selectedAccount = action.payload;
+        }
+      })
+      .addCase(updateAccount.rejected, (state, action) => {
         state.selectedLoading = false;
         state.selectedError = action.payload || action.error.message;
       });

@@ -5,6 +5,7 @@ import {
   FileOutlined,
   TeamOutlined,
   LogoutOutlined,
+  ProfileOutlined,
 } from "@ant-design/icons";
 import { Layout, Menu, theme } from "antd";
 import styles from "./styles.module.scss";
@@ -24,12 +25,13 @@ function getItem(label, key, icon, children) {
 }
 
 // Declare items that will be in the sidebar
-const items = [
-  getItem("Tổng Quan", "overview", <PieChartOutlined />),
-  getItem("Tài Khoản", "accounts", <TeamOutlined />),
-  getItem("Báo Cáo", "reports", <FileOutlined />),
-  getItem("Logout", "logout", <LogoutOutlined />),
-];
+  const items = [
+    getItem("Tổng Quan", "overview", <PieChartOutlined />),
+    getItem("Tài Khoản", "accounts", <TeamOutlined />),
+    getItem("Chương trình", "programs", <ProfileOutlined />),
+    getItem("Báo Cáo", "reports", <FileOutlined />),
+    getItem("Đăng xuất", "logout", <LogoutOutlined />),
+  ];
 
 const AdminDashboard = () => {
   const navigate = useNavigate();

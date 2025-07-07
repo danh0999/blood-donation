@@ -103,6 +103,7 @@ const routes = [
           { path: "accounts", element: <ManageAccount />},
           { path: "accounts/:id", element: <AccountDetail /> },
           { path: "reports", element: <div>Report List</div> },
+          { path: "programs", element: <div>Program List</div> },
         ],
       },
     ],
