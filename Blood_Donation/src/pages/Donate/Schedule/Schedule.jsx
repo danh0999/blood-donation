@@ -1,11 +1,16 @@
 // src/pages/Donate/Schedule/Schedule.jsx
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { DatePicker, Select, Form, message } from "antd";
 import { useNavigate } from "react-router-dom";
 import dayjs from "dayjs";
 import api from "../../../configs/axios";
 import styles from "./styles.module.scss";
 import { Button } from "../../../components/Button/Button";
+import { useSelector, useDispatch } from "react-redux";
+import {
+  clearDonationHistory,
+  setSelectedProgram,
+} from "../../../redux/features/bloodHistorySlice";
 
 const { Option } = Select;
 
@@ -14,6 +19,9 @@ export const Schedule = () => {
   const [form] = Form.useForm();
   const navigate = useNavigate();
 
+  const dispatch = useDispatch();
+  const { selectedProgram } = useSelector((state) => state.bloodHistory);
+
   const [programs, setPrograms] = useState([]);
   const [selectedProgramId, setSelectedProgramId] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -21,6 +29,40 @@ export const Schedule = () => {
   const programSelectRef = useRef(null);
 
   const disabledDate = (current) => current && current < dayjs().startOf("day");
+
+  useEffect(() => {
+    if (selectedProgram) {
+      // Set form fields
+      form.setFieldsValue({
+        date: dayjs(selectedProgram.startDate),
+        locationId: selectedProgram.locationId,
+      });
+
+      // Lấy slot label từ API
+      const fetchSlotLabels = async () => {
+        const slotLabels = await Promise.all(
+          (selectedProgram.slotIds || []).map(async (slotId) => {
+            try {
+              const res = await api.get(`/slots/${slotId}`);
+              return res.data.label;
+            } catch {
+              return "Không rõ";
+            }
+          })
+        );
+        const programWithTime = {
+          ...selectedProgram,
+          timeRange: slotLabels.join(", ") || "Không rõ thời gian",
+        };
+
+        setPrograms([programWithTime]);
+        setSelectedProgramId(programWithTime.id);
+        dispatch(clearDonationHistory());
+      };
+
+      fetchSlotLabels();
+    }
+  }, [selectedProgram]);
 
   const handleCheckSchedule = async () => {
     try {
@@ -48,7 +90,6 @@ export const Schedule = () => {
         setPrograms([]);
         setSelectedProgramId(null);
       } else {
-        // Lấy thông tin slot label từ slotIds
         const programsWithTime = await Promise.all(
           res.data.map(async (program) => {
             const slotLabels = await Promise.all(
@@ -56,9 +97,7 @@ export const Schedule = () => {
                 try {
                   const slotRes = await api.get(`/slots/${slotId}`);
                   return slotRes.data.label;
-                } catch (e) {
-                  console.log(e);
-
+                } catch {
                   return "Không rõ";
                 }
               })
@@ -89,11 +128,31 @@ export const Schedule = () => {
 
   const handleContinue = async () => {
     const values = await form.getFieldsValue();
+
+    // Nếu đã có selectedProgram từ Redux (luồng bấm từ EventDetail)
+    if (selectedProgram) {
+      // Giữ nguyên, dispatch vào Redux
+      dispatch(setSelectedProgram(selectedProgram));
+      navigate("/user/donate/checkup");
+      return;
+    }
+
+    // Nếu user tự tìm kiếm và chọn chương trình
     if (!selectedProgramId) {
       message.warning("Vui lòng chọn chương trình hiến máu.");
       return;
     }
 
+    const program = programs.find((p) => p.id === selectedProgramId);
+    if (!program) {
+      message.error("Không tìm thấy chương trình đã chọn.");
+      return;
+    }
+
+    // Lưu vào Redux
+    dispatch(setSelectedProgram(program));
+
+    // Điều hướng sang trang khảo sát
     navigate("/user/donate/checkup", {
       state: {
         date: dayjs(values.date).format("YYYY-MM-DD"),
@@ -161,7 +220,7 @@ export const Schedule = () => {
               ) : (
                 programs.map((program) => (
                   <Option key={program.id} value={program.id}>
-                    {`${program.proName}`}
+                    {program.proName}
                   </Option>
                 ))
               )}
