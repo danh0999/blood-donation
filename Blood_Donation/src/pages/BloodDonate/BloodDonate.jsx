@@ -2,22 +2,22 @@ import React from "react";
 import styles from "../BloodDonate/styles.module.scss";
 import { useSelector, useDispatch } from "react-redux";
 import { Button, Modal, message } from "antd";
-import { clearHistory } from "../../redux/features/bloodHistorySlice";
+import { clearDonationHistory } from "../../redux/features/BloodHistorySlice";
 import { useNavigate } from "react-router-dom";
+import api from "../../configs/axios";
 
 const BloodDonate = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
   const user = useSelector((state) => state.user);
-  const { donationHistory } = useSelector((state) => state.bloodHistory);
-  const historyItem = donationHistory?.[0];
+  const { history } = useSelector((state) => state.bloodHistory);
+  const historyItem = history?.[0]; // Lấy đơn gần nhất
 
   const handleRegister = () => {
-    // TODO: Gọi API đăng ký hiến máu tại đây
-    // message.success("Đăng ký hiến máu thành công!");
     navigate("/user/donate/schedule");
   };
+  console.log("Current appointment:", historyItem);
 
   const handleDelete = () => {
     Modal.confirm({
@@ -25,10 +25,29 @@ const BloodDonate = () => {
       content: "Bạn có chắc muốn xóa đơn đăng ký hiến máu này không?",
       okText: "Xác nhận",
       cancelText: "Hủy",
-      onOk: () => {
-        // TODO: Gọi API xóa đơn đăng ký
-        dispatch(clearHistory());
-        message.success("Xóa đơn đăng ký thành công!");
+      onOk: async () => {
+        try {
+          console.log("Gửi yêu cầu xóa appointment:", {
+            id: historyItem?.id,
+            username: user.username,
+          });
+
+          await api.delete(`/appointments/${historyItem.id}/with-permission`, {
+            params: {
+              username: user.username,
+            },
+          });
+
+          dispatch(clearDonationHistory());
+          message.success("Xóa đơn đăng ký thành công!");
+          navigate("/user/bloodDonate");
+        } catch (err) {
+          console.error(
+            "Lỗi xóa appointment:",
+            err.response?.data || err.message
+          );
+          message.error("Xóa đơn đăng ký thất bại.");
+        }
       },
     });
   };
@@ -42,19 +61,19 @@ const BloodDonate = () => {
         <div className={styles.card}>
           <h3>Thông tin cá nhân</h3>
           <p>
-            <strong>Họ và tên :</strong> {user?.fullName || "-"}
+            <strong>Họ và tên:</strong> {user?.fullName || "-"}
           </p>
           <p>
-            <strong>CCCD :</strong> {user?.cccd || "-"}
+            <strong>CCCD:</strong> {user?.cccd || "-"}
           </p>
           <p>
-            <strong>Ngày sinh :</strong> {user?.dob || "-"}
+            <strong>Ngày sinh:</strong> {user?.dob || "-"}
           </p>
           <p>
-            <strong>Giới tính :</strong> {user?.gender || "-"}
+            <strong>Giới tính:</strong> {user?.gender || "-"}
           </p>
           <p>
-            <strong>Nhóm máu :</strong> {user?.typeBlood || "-"}
+            <strong>Nhóm máu:</strong> {user?.typeBlood || "-"}
           </p>
         </div>
 
