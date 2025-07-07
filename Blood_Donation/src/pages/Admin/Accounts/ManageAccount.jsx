@@ -134,7 +134,15 @@ function AccountTable() {
   // Actual table return
   return (
     <>
-    <div><b>To do: Update, validate remove the only admin account, validate account add information</b></div>
+    <div>
+      <b>To do: validate form information:</b>
+      <ul>
+        <li>trùng username</li>
+        <li>sdt, cccd không phải 1234567..</li> 
+      </ul>
+      <b>Thêm field ngày sinh vào post, put api</b><br/>
+      <b>Validate acc bị xóa không phải acc admin duy nhất</b>
+    </div>
       <div style={{ display: "flex", alignItems: "flex-start", gap: "1rem", marginBottom: "0.5rem", justifyContent: "space-between" }}>
         <SearchBarV2
           roles={roles}

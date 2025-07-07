@@ -65,13 +65,13 @@ const UpdateAccountForm = ({
             <Input type="email" />
           </Form.Item>
           <Form.Item label="Số điện thoại" name="phone">
-            <Input />
+            <Input type="number" min="0" step="1" pattern="[0-9]*" inputMode="numeric" />
           </Form.Item>
           <Form.Item label="Địa chỉ" name="address">
             <Input />
           </Form.Item>
           <Form.Item label="CCCD" name="cccd">
-            <Input />
+            <Input type="number" min="0" step="1" pattern="[0-9]*" inputMode="numeric" />
           </Form.Item>
           <Form.Item label="Nhóm máu" name="typeBlood">
             <Select placeholder="Chọn nhóm máu">
@@ -81,7 +81,10 @@ const UpdateAccountForm = ({
             </Select>
           </Form.Item>
           <Form.Item label="Giới tính" name="gender">
-            <Input />
+            <Select placeholder="Chọn giới tính">
+              <Select.Option value="MALE">Nam</Select.Option>
+              <Select.Option value="FEMALE">Nữ</Select.Option>
+            </Select>
           </Form.Item>
           <Form.Item label="Ngày sinh" name="birthdate">
             <DatePicker style={{ width: "100%" }} format="YYYY-MM-DD" />
