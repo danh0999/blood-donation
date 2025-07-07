@@ -8,10 +8,10 @@ import {
   DeleteOutlined,
 } from "@ant-design/icons";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchAccounts, deleteAccountById, addAccount } from "../../redux/features/accountSlice";
+import { fetchAccounts, deleteAccountById, addAccount } from "../../../redux/features/accountSlice";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import SearchBarV2 from "../../components/SearchBarV2/SearchBarV2";
+import SearchBarV2 from "../../../components/SearchBarV2/SearchBarV2";
 import AddAccountForm from "./AddAccountForm";
 
 function AccountTable() {
@@ -110,17 +110,6 @@ function AccountTable() {
       title: "Vai trò",
       dataIndex: "role",
       key: "role",
-    },
-    {
-      title: "Trạng thái",
-      dataIndex: "enabled",
-      key: "enabled",
-      render: (enabled) => enabled ? (
-        <Tag color="green">Đang hoạt động</Tag>
-      ) :
-        (
-          <Tag color="red">Đã tắt</Tag>
-        ),
     },
     {
       title: "Hành động",
