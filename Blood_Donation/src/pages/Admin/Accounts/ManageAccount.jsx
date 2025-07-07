@@ -1,10 +1,8 @@
 // Tag: for different colors of the boolean "enabled"
 // fetchAccounts: THE async thunk used to fetch API data
-import { Table, Tag, Space, Modal, Button, Form, Input, Select, Switch, DatePicker } from "antd";
+import { Table, Space, Modal, Button, } from "antd";
 import {
   FileSearchOutlined,
-  PlusOutlined,
-  EditOutlined,
   DeleteOutlined,
 } from "@ant-design/icons";
 import { useDispatch, useSelector } from "react-redux";
@@ -136,7 +134,15 @@ function AccountTable() {
   // Actual table return
   return (
     <>
-    <div><b>To do: Update, validate remove the only admin account, validate account add information</b></div>
+    <div>
+      <b>To do: validate form information:</b>
+      <ul>
+        <li>trùng username</li>
+        <li>sdt, cccd không phải 1234567..</li> 
+      </ul>
+      <b>Thêm field ngày sinh vào post, put api</b><br/>
+      <b>Validate acc bị xóa không phải acc admin duy nhất</b>
+    </div>
       <div style={{ display: "flex", alignItems: "flex-start", gap: "1rem", marginBottom: "0.5rem", justifyContent: "space-between" }}>
         <SearchBarV2
           roles={roles}

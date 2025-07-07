@@ -10,32 +10,41 @@ const AddAccountForm = ({
   initialRole
 }) => {
   const [showPersonal, setShowPersonal] = useState(false);
+  const [form] = Form.useForm();
   return (
     <Form
+      form={form}
       layout="vertical"
       onFinish={onFinish}
       initialValues={{
         role: initialRole || roles[0] || "",
       }}
     >
+      <Form.Item 
+      label="Họ và Tên" 
+      name="fullName"
+      rules={[{ required: true, message: "Vui lòng nhập Họ và Tên" }]}
+      >
+        <Input />
+      </Form.Item>
       <Form.Item
         label="Username"
         name="username"
-        rules={[{ required: true, message: "Vui lòng nhập username!" }]}
+        rules={[{ required: true, message: "Vui lòng nhập username" }]}
       >
         <Input />
       </Form.Item>
       <Form.Item
         label="Password"
         name="password"
-        rules={[{ required: true, message: "Vui lòng nhập password!" }]}
+        rules={[{ required: true, message: "Vui lòng nhập password" }]}
       >
         <Input.Password />
       </Form.Item>
       <Form.Item
         label="Role"
         name="role"
-        rules={[{ required: true, message: "Vui lòng chọn vai trò!" }]}
+        rules={[{ required: true, message: "Vui lòng chọn vai trò" }]}
       >
         <Select>
           {roles.map((role) => (
@@ -45,25 +54,22 @@ const AddAccountForm = ({
           ))}
         </Select>
       </Form.Item>
-      <Form.Item label="Nhập thông tin cá nhân" style={{ marginBottom: 0 }}>
+      <Form.Item label="Bổ sung thông tin cá nhân" style={{ marginBottom: 0 }}>
         <Switch checked={showPersonal} onChange={setShowPersonal} />
       </Form.Item>
       {showPersonal && (
         <>
-          <Form.Item label="Họ và Tên" name="fullName">
-            <Input />
-          </Form.Item>
           <Form.Item label="Email" name="email">
             <Input type="email" />
           </Form.Item>
           <Form.Item label="Số điện thoại" name="phone">
-            <Input />
+            <Input type="number" min="0" step="1" pattern="[0-9]*" inputMode="numeric" />
           </Form.Item>
           <Form.Item label="Địa chỉ" name="address">
             <Input />
           </Form.Item>
           <Form.Item label="CCCD" name="cccd">
-            <Input />
+            <Input type="number" min="0" step="1" pattern="[0-9]*" inputMode="numeric" />
           </Form.Item>
           <Form.Item label="Nhóm máu" name="typeBlood">
             <Select placeholder="Chọn nhóm máu">
@@ -75,7 +81,10 @@ const AddAccountForm = ({
             </Select>
           </Form.Item>
           <Form.Item label="Giới tính" name="gender">
-            <Input />
+            <Select placeholder="Chọn giới tính">
+              <Select.Option value="MALE">Nam</Select.Option>
+              <Select.Option value="FEMALE">Nữ</Select.Option>
+            </Select>
           </Form.Item>
           <Form.Item label="Ngày sinh" name="birthdate">
             <DatePicker style={{ width: "100%" }} format="YYYY-MM-DD" />
