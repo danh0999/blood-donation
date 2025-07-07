@@ -1,29 +1,48 @@
 import React from "react";
-import { LockOutlined, SyncOutlined, UserOutlined } from "@ant-design/icons";
+import { LockOutlined, UserOutlined } from "@ant-design/icons";
 import { Button, Checkbox, Form, Input, Flex, Typography } from "antd";
-
-const { Title } = Typography;
-import { Link } from "react-router-dom";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import api from "../../configs/axios";
 import { toast } from "react-toastify";
 import { login } from "../../redux/features/userSlice";
 import { useDispatch } from "react-redux";
-// import redirectByRole from "../../hooks/redirectByRole";
+import { setDonationHistory } from "../../redux/features/BloodHistorySlice";
+
+const { Title } = Typography;
+
 const LoginForm = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
+
   const onFinish = async (values) => {
     try {
       const response = await api.post("login", values);
       const userData = response.data;
 
-      dispatch(login(userData));
+      dispatch(setDonationHistory([])); // 🧹 Clear lịch hẹn cũ
+      dispatch(login(userData)); // ✅ Cập nhật user mới
       localStorage.setItem("token", userData.token);
-
       toast.success("Đăng nhập thành công!");
 
-      // 👉 Phân quyền điều hướng theo role
+      // Lấy lịch hẹn
+      const appointmentRes = await api.get("/appointments/by-user", {
+        params: { userId: userData.userID },
+      });
+      const appointment = appointmentRes.data?.[0];
+
+      if (appointment) {
+        dispatch(
+          setDonationHistory([
+            {
+              id: appointment.id,
+              address: appointment.address,
+              time: appointment.timeRange,
+            },
+          ])
+        );
+      }
+
+      // Điều hướng
       switch (userData.role) {
         case "ADMIN":
           navigate("/admin");
@@ -70,7 +89,7 @@ const LoginForm = () => {
         <Form.Item
           name="username"
           label="Username"
-          rules={[{ required: true, message: "Please input your Username!" }]}
+          rules={[{ required: true, message: "Vui lòng nhập Username!" }]}
         >
           <Input prefix={<UserOutlined />} placeholder="Username" />
         </Form.Item>
@@ -78,7 +97,7 @@ const LoginForm = () => {
         <Form.Item
           name="password"
           label="Password"
-          rules={[{ required: true, message: "Please input your Password!" }]}
+          rules={[{ required: true, message: "Vui lòng nhập Password!" }]}
         >
           <Input.Password prefix={<LockOutlined />} placeholder="Password" />
         </Form.Item>
@@ -86,9 +105,9 @@ const LoginForm = () => {
         <Form.Item>
           <Flex justify="space-between" align="center">
             <Form.Item name="remember" valuePropName="checked" noStyle>
-              <Checkbox>Remember me</Checkbox>
+              <Checkbox>Nhớ tôi</Checkbox>
             </Form.Item>
-            <a href="">Forgot password</a>
+            <a href="">Quên mật khẩu?</a>
           </Flex>
         </Form.Item>
 
@@ -97,7 +116,7 @@ const LoginForm = () => {
             Đăng nhập
           </Button>
           <div style={{ textAlign: "center", marginTop: 12 }}>
-            or <Link to="/register">Đăng kí ngay!</Link>
+            hoặc <Link to="/register">Đăng ký ngay!</Link>
           </div>
         </Form.Item>
       </Form>

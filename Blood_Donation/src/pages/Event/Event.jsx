@@ -1,70 +1,75 @@
 // src/pages/Event/Event.jsx
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import styles from "./styles.module.scss";
-import { Card } from "antd";
+import { Card, message } from "antd";
 import { Button } from "../../components/Button/Button";
 import { IoMdTime } from "react-icons/io";
 import { CiLocationOn } from "react-icons/ci";
 import { MdOutlineDescription } from "react-icons/md";
 import { EventDetail } from "../../components/EventDetail/EventDetail";
+import { useLocation } from "react-router-dom";
+import api from "../../configs/axios";
 
 export const Event = () => {
   const { container, title, description, list, card, iconText } = styles;
   const [selectedEvent, setSelectedEvent] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [programs, setPrograms] = useState([]);
+  const [slots, setSlots] = useState([]);
+  const location = useLocation();
 
   const handleShowDetail = (event) => {
     setSelectedEvent(event);
     setIsModalOpen(true);
   };
 
-  const mockEvents = [
-    {
-      id: 1,
-      hospitalName: "Bệnh viện Chợ Rẫy",
-      date: "10/07/2025",
-      time: "8:00 - 11:30",
-      location: "201B Nguyễn Chí Thanh, Quận 5, TP.HCM",
-      description: "Chương trình hiến máu định kỳ tháng 7",
-      fullDescription:
-        "Sự kiện hiến máu định kỳ nhằm bổ sung ngân hàng máu và nâng cao ý thức cộng đồng về hiến máu nhân đạo.",
-      bloodTypes: "O+, A-",
-      registeredCount: 52,
-      contact: "Hotline: 1900 9090",
-      image:
-        "https://vienhuyethoc.vn/wp-content/uploads/2021/07/DSC_2194_zing.jpg",
-    },
-    {
-      id: 2,
-      hospitalName: "Bệnh viện 115",
-      date: "14/07/2025",
-      time: "13:30 - 16:00",
-      location: "527 Sư Vạn Hạnh, Quận 10, TP.HCM",
-      description: "Ngày hội giọt hồng yêu thương",
-      fullDescription:
-        "Sự kiện đặc biệt kết hợp với Hội Chữ thập đỏ nhằm kêu gọi hiến máu cộng đồng.",
-      bloodTypes: "B+, AB+",
-      registeredCount: 35,
-      contact: "Hotline: 1800 115",
-      image:
-        "https://suckhoedoisong.qltns.mediacdn.vn/thumb_w/640/324455921873985536/2022/10/6/1-16650233162571520539210.jpg",
-    },
-    {
-      id: 3,
-      hospitalName: "Bệnh viện Đà Nẵng",
-      date: "20/07/2025",
-      time: "9:00 - 12:00",
-      location: "124 Hải Phòng, Quận Hải Châu, Đà Nẵng",
-      description: "Hiến máu cứu người - Một nghĩa cử cao đẹp",
-      fullDescription:
-        "Chương trình kết hợp tuyên truyền giáo dục sức khỏe và hiến máu tự nguyện cho sinh viên.",
-      bloodTypes: "A+, O-",
-      registeredCount: 78,
-      contact: "Hotline: 0236 1022",
-      image:
-        "https://media.vov.vn/sites/default/files/styles/large_watermark/public/2024-02/can_bo_nhan_vien_y_te_benh_vien_da_nang_tham_gia_hien_mau_dau_xuan.nguoi_dan_da_nang_dang_ky_hien_mau_tai_benh_vien.nguoi_dan_da_nang_hien_mau_dau_xuan._.jpg",
-    },
-  ];
+  const fetchPrograms = async () => {
+    try {
+      const queryParams = new URLSearchParams(location.search);
+      const start = queryParams.get("startDate"); // ✅ Đổi thành startDate
+      const end = queryParams.get("endDate"); // ✅ Đổi thành endDate
+
+      let res;
+      if (start) {
+        res = await api.get(
+          `/programs/search-range?startDate=${start}&endDate=${end || ""}`
+        );
+      } else {
+        res = await api.get("/programs");
+      }
+      setPrograms(res.data);
+    } catch (error) {
+      console.log(error);
+      message.error("Lỗi khi tải danh sách chương trình");
+    }
+  };
+
+  const fetchSlots = async () => {
+    try {
+      const res = await api.get("/slots");
+      setSlots(res.data);
+    } catch (error) {
+      console.log(error);
+
+      message.error("Lỗi khi tải danh sách thời gian (slots)");
+    }
+  };
+
+  useEffect(() => {
+    fetchPrograms();
+    fetchSlots();
+  }, [location.search]);
+
+  // Lấy thời gian từ danh sách slot dựa trên program.slotIds
+  const getTimeRange = (slotIds) => {
+    const ranges = slotIds
+      .map((id) => {
+        const slot = slots.find((s) => s.slotID === id);
+        return slot ? `${slot.start} - ${slot.end}` : null;
+      })
+      .filter(Boolean);
+    return ranges.join(", ");
+  };
 
   return (
     <div className={container}>
@@ -75,28 +80,37 @@ export const Event = () => {
       </p>
 
       <div className={list}>
-        {mockEvents.map((event) => (
-          <Card key={event.id} title={event.hospitalName} className={card}>
+        {programs.map((event) => (
+          <Card key={event.id} title={event.proName} className={card}>
             <div className={iconText}>
               <span className={styles.label}>
                 <IoMdTime />
                 Thời gian:
               </span>
-              <span>{event.time}</span>
+              <span>{getTimeRange(event.slotIds)}</span>
+            </div>
+            <div className={iconText}>
+              <span className={styles.label}>📅 Ngày bắt đầu:</span>
+              <span>{event.startDate}</span>
+            </div>
+
+            <div className={iconText}>
+              <span className={styles.label}>🗓️ Ngày kết thúc:</span>
+              <span>{event.endDate}</span>
             </div>
             <div className={iconText}>
               <span className={styles.label}>
                 <CiLocationOn />
                 Địa điểm:
               </span>
-              <span>{event.location}</span>
+              <span>{event.address}</span>
             </div>
             <div className={iconText}>
               <span className={styles.label}>
                 <MdOutlineDescription />
                 Mô tả:
               </span>
-              <span>{event.description}</span>
+              <span>{event.proName}</span>
             </div>
 
             <Button
@@ -118,4 +132,3 @@ export const Event = () => {
     </div>
   );
 };
-// This code defines the Event component which displays a list of blood donation events.
