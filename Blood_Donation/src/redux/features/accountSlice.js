@@ -1,5 +1,6 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import api from "../../configs/axios";
+import { toast } from "react-toastify";
 
 // Async thunk to fetch accounts from the API
 export const fetchAccounts = createAsyncThunk(
@@ -142,10 +143,12 @@ const accountSlice = createSlice({
         state.data.push(action.payload);
         // Select the new account
         state.selectedAccount = action.payload;
+        toast.success("Tạo tài khoản thành công!")
       })
       .addCase(addAccount.rejected, (state, action) => {
         state.selectedLoading = false;
         state.selectedError = action.payload || action.error.message;
+        toast.error(`Tạo tài khoản thất bại (${action.error.message})`)
       })
       // updateAccount
       .addCase(updateAccount.pending, (state) => {
