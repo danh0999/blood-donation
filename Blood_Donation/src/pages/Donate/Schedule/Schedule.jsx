@@ -1,4 +1,3 @@
-// src/pages/Donate/Schedule/Schedule.jsx
 import React, { useState, useRef, useEffect } from "react";
 import { DatePicker, Select, Form, message } from "antd";
 import { useNavigate } from "react-router-dom";
@@ -18,27 +17,25 @@ export const Schedule = () => {
   const { container, title, formWrapper, btn, programDetail } = styles;
   const [form] = Form.useForm();
   const navigate = useNavigate();
-
   const dispatch = useDispatch();
   const { selectedProgram } = useSelector((state) => state.bloodHistory);
 
   const [programs, setPrograms] = useState([]);
   const [selectedProgramId, setSelectedProgramId] = useState(null);
+  const [slots, setSlots] = useState([]); // ✅
+  const [selectedSlotId, setSelectedSlotId] = useState(null); // ✅
   const [loading, setLoading] = useState(false);
-
   const programSelectRef = useRef(null);
 
   const disabledDate = (current) => current && current < dayjs().startOf("day");
 
   useEffect(() => {
     if (selectedProgram) {
-      // Set form fields
       form.setFieldsValue({
         date: dayjs(selectedProgram.startDate),
         locationId: selectedProgram.locationId,
       });
 
-      // Lấy slot label từ API
       const fetchSlotLabels = async () => {
         const slotLabels = await Promise.all(
           (selectedProgram.slotIds || []).map(async (slotId) => {
@@ -129,15 +126,19 @@ export const Schedule = () => {
   const handleContinue = async () => {
     const values = await form.getFieldsValue();
 
-    // Nếu đã có selectedProgram từ Redux (luồng bấm từ EventDetail)
     if (selectedProgram) {
-      // Giữ nguyên, dispatch vào Redux
       dispatch(setSelectedProgram(selectedProgram));
-      navigate("/user/donate/checkup");
+      navigate("/user/donate/checkup", {
+        state: {
+          date: dayjs(values.date).format("YYYY-MM-DD"),
+          locationId: values.locationId,
+          programId: selectedProgram.id,
+          slotId: selectedProgram.slotIds?.[0] || 1, // fallback
+        },
+      });
       return;
     }
 
-    // Nếu user tự tìm kiếm và chọn chương trình
     if (!selectedProgramId) {
       message.warning("Vui lòng chọn chương trình hiến máu.");
       return;
@@ -149,17 +150,35 @@ export const Schedule = () => {
       return;
     }
 
-    // Lưu vào Redux
+    if (!selectedSlotId) {
+      message.warning("Vui lòng chọn khung giờ.");
+      return;
+    }
+
     dispatch(setSelectedProgram(program));
 
-    // Điều hướng sang trang khảo sát
     navigate("/user/donate/checkup", {
       state: {
         date: dayjs(values.date).format("YYYY-MM-DD"),
         locationId: values.locationId,
         programId: selectedProgramId,
+        slotId: selectedSlotId, // ✅ truyền slot thật sự
       },
     });
+  };
+
+  const handleProgramChange = async (value) => {
+    setSelectedProgramId(value);
+    setSelectedSlotId(null);
+    try {
+      const res = await api.get("/slots", {
+        params: { programId: value },
+      });
+      setSlots(res.data || []);
+    } catch (err) {
+      console.error("Lỗi khi lấy slot:", err);
+      setSlots([]);
+    }
   };
 
   return (
@@ -207,7 +226,7 @@ export const Schedule = () => {
             <Select
               ref={programSelectRef}
               placeholder="Chọn chương trình"
-              onChange={(value) => setSelectedProgramId(value)}
+              onChange={handleProgramChange}
               disabled={programs.length === 0}
               loading={loading}
               value={selectedProgramId || undefined}
@@ -249,6 +268,31 @@ export const Schedule = () => {
                   </p>
                 </div>
               ))}
+
+            {slots.length > 0 && (
+              <Form layout="vertical">
+                <Form.Item
+                  label="Chọn khung giờ hiến máu"
+                  required
+                  validateStatus={!selectedSlotId ? "error" : ""}
+                  help={!selectedSlotId ? "Vui lòng chọn khung giờ." : ""}
+                >
+                  <Select
+                    placeholder="Chọn khung giờ"
+                    onChange={(value) => setSelectedSlotId(value)}
+                    value={selectedSlotId || undefined}
+                  >
+                    {slots
+                      .filter((slot) => slot?.slotID != null && slot?.label)
+                      .map((slot) => (
+                        <Option key={slot.slotID} value={slot.slotID}>
+                          {slot.label}
+                        </Option>
+                      ))}
+                  </Select>
+                </Form.Item>
+              </Form>
+            )}
           </div>
         )}
 
