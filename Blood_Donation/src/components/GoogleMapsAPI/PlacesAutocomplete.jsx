@@ -17,7 +17,7 @@ const PlacesAutocomplete = ({ value, onChange, placeholder = "Nhập địa ch�
   };
 
   return (
-    // wrap AutoComplete around Input so google can use the input content
+    // wrap Autocomplete around Input so it can be used to send google the input content
     // to search and display a list of suggested places
     <Autocomplete
       onLoad={ref => (autocompleteRef.current = ref)} // get reference to the Google Autocomplete instance

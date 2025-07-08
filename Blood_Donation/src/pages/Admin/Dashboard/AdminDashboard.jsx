@@ -25,13 +25,13 @@ function getItem(label, key, icon, children) {
 }
 
 // Declare items that will be in the sidebar
-  const items = [
-    getItem("Tổng Quan", "overview", <PieChartOutlined />),
-    getItem("Tài Khoản", "accounts", <TeamOutlined />),
-    getItem("Chương trình", "programs", <ProfileOutlined />),
-    getItem("Báo Cáo", "reports", <FileOutlined />),
-    getItem("Đăng xuất", "logout", <LogoutOutlined />),
-  ];
+const items = [
+  getItem("Tổng Quan", "overview", <PieChartOutlined />),
+  getItem("Tài Khoản", "accounts", <TeamOutlined />),
+  getItem("Chương trình", "programs", <ProfileOutlined />),
+  getItem("Báo Cáo", "reports", <FileOutlined />),
+  getItem("Đăng xuất", "logout", <LogoutOutlined />),
+];
 
 const AdminDashboard = () => {
   const navigate = useNavigate();
@@ -62,6 +62,14 @@ const AdminDashboard = () => {
         collapsed={collapsed}
         onCollapse={(value) => setCollapsed(value)}
         className={styles.sider}
+        style={{
+          position: "fixed",
+          left: 0,
+          top: 0,
+          bottom: 0,
+          height: "100vh",
+          zIndex: 100,
+        }}
       >
         <Menu
           theme="dark"
@@ -69,17 +77,18 @@ const AdminDashboard = () => {
           mode="inline"
           items={items}
           onClick={handleMenuClick}
+          style={{ height: "100vh", overflow: "auto" }}
         />
       </Sider>
-      <Layout>
+      <Layout style={{ marginLeft: collapsed ? 80 : 200 }}>
         <Header className={styles.header}>
           <h1 className={styles.headerTitle}>Admin Dashboard</h1>
         </Header>
         <Content style={{ margin: "0 16px" }}>
           <div
             style={{
-              padding: 24,
-              minHeight: 360,
+              padding: 0,
+              height: "100%",
               background: colorBgContainer,
               borderRadius: borderRadiusLG,
             }}

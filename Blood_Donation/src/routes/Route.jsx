@@ -11,7 +11,8 @@ import Profile from "../pages/Profile/Profile";
 import ProtectedRoute from "./ProtectedRoute";
 import { Contact } from "../pages/Contact/Contact";
 import AdminDashboard from "../pages/Admin/Dashboard/AdminDashboard";
-import ManageAccount from "../pages/Admin/Accounts/ManageAccount"
+import ManageAccount from "../pages/Admin/Accounts/ManageAccount";
+import ManageProgram from "../pages/Admin/Programs/ManageProgram";
 import AccountDetail from "../pages/Admin/Accounts/AccountDetail";
 import AppHeader from "../layouts/components/Header/Header";
 import { Outlet, Navigate } from "react-router-dom";
@@ -103,7 +104,7 @@ const routes = [
           { path: "accounts", element: <ManageAccount />},
           { path: "accounts/:id", element: <AccountDetail /> },
           { path: "reports", element: <div>Report List</div> },
-          { path: "programs", element: <div>Program List</div> },
+          { path: "programs", element: <ManageProgram /> },
         ],
       },
     ],
