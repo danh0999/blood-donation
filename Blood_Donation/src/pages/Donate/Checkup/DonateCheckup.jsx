@@ -1,15 +1,18 @@
 import React, { useState } from "react";
 import styles from "./styles.module.scss";
-import { Checkbox, Input, Button, message } from "antd";
+import { Checkbox, Input, Button, message, Modal } from "antd";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate, useLocation } from "react-router-dom";
-import { setDonationHistory } from "../../../redux/features/bloodHistorySlice";
+import {
+  setDonationHistory,
+  setCurrentAppointment,
+} from "../../../redux/features/bloodHistorySlice";
 import api from "../../../configs/axios";
 
 const questions = [
   "1. Anh/chị từng hiến máu chưa?",
   "2. Hiện tại, anh/ chị có mắc bệnh lý nào không?",
-  "3. Trước đây, anh/chị có từng mắc một trong các bệnh: viêm gan siêu vi B, C, HIV, vảy nến, phì đại tiền liệt tuyến, sốc phản vệ, tai biến mạch máu não, nhồi máu cơ tim, lupus ban đỏ, động kinh, ung thư, hen, được cấy ghép mô tạng?",
+  "3. Trước đây, anh/chị có từng mắc một trong các bệnh...?",
   "4. Trong 12 tháng gần đây, anh/chị có:",
   "5. Trong 06 tháng gần đây, anh/chị có:",
   "6. Trong 01 tháng gần đây, anh/chị có:",
@@ -28,7 +31,8 @@ const DonateCheckup = () => {
   const location = useLocation();
   const user = useSelector((state) => state.user);
 
-  const { programId, date, locationId } = location.state || {};
+  // ✅ Lấy đầy đủ thông tin truyền qua
+  const { programId, date, locationId, slotId } = location.state || {};
 
   const handleCheckboxChange = (index, value) => {
     const newAnswers = [...answers];
@@ -43,17 +47,16 @@ const DonateCheckup = () => {
   };
 
   const handleSubmit = async () => {
-    if (!programId || !user?.userID) {
-      message.error("Thiếu thông tin người dùng hoặc chương trình.");
+    if (!programId || !user?.userID || !slotId) {
+      message.error("Thiếu thông tin người dùng, chương trình hoặc khung giờ.");
       return;
     }
 
     try {
-      const selectedSlotId = 1; // TODO: slot thật sau
       const res = await api.post(
         "/appointments",
         {
-          slotId: selectedSlotId,
+          slotId, // ✅ Sử dụng đúng slot người dùng đã chọn
           programId,
           date,
         },
@@ -65,32 +68,83 @@ const DonateCheckup = () => {
       );
 
       const appointment = res.data;
+      const detailRes = await api.get(`/appointments/${appointment.id}`);
+      const detail = detailRes.data;
 
-      // 🔁 Gọi lại API lấy chi tiết đầy đủ
-      const appointmentDetailRes = await api.get(
-        `/appointments/${appointment.id}`
-      );
-      const appointmentDetail = appointmentDetailRes.data;
-      console.log("Set Redux với:", {
-        id: appointmentDetail.id,
-        address: appointmentDetail.address,
-        time: appointmentDetail.timeRange,
-      });
       dispatch(
         setDonationHistory([
           {
-            id: appointmentDetail.id,
-            address: appointmentDetail.address || "Không rõ địa điểm",
-            time: appointmentDetail.timeRange || "Không rõ thời gian",
+            id: detail.id,
+            address: detail.address || "Không rõ địa điểm",
+            time: detail.timeRange || "Không rõ thời gian",
           },
         ])
+      );
+
+      dispatch(
+        setCurrentAppointment({
+          id: detail.id,
+          address: detail.address || "Không rõ địa điểm",
+          time: detail.timeRange || "Không rõ thời gian",
+        })
       );
 
       message.success("Đăng ký hiến máu thành công!");
       navigate("/user/bloodDonate");
     } catch (error) {
       console.error("Lỗi gửi appointment:", error);
-      message.error("Lỗi khi đăng ký lịch hiến máu.");
+
+      if (
+        error.response?.data?.message?.includes(
+          "already have an appointment"
+        ) ||
+        error.response?.data?.error?.includes("already have")
+      ) {
+        Modal.error({
+          title: "Bạn chỉ có thể đăng ký 1 đơn hiến máu tại 1 thời điểm",
+          content: "Rất tiếc, bạn vừa hiến máu gần đây",
+          okText: "Xác nhận",
+          centered: true,
+        });
+
+        try {
+          const res = await api.get(`/appointments/by-user`, {
+            params: { userId: user.userID },
+          });
+
+          const appointment = res.data.find((a) => a.status === "PENDING");
+
+          if (appointment) {
+            const detailRes = await api.get(`/appointments/${appointment.id}`);
+            const detail = detailRes.data;
+
+            dispatch(
+              setDonationHistory([
+                {
+                  id: detail.id,
+                  address: detail.address || "Không rõ địa điểm",
+                  time: detail.timeRange || "Không rõ thời gian",
+                },
+              ])
+            );
+
+            dispatch(
+              setCurrentAppointment({
+                id: detail.id,
+                address: detail.address || "Không rõ địa điểm",
+                time: detail.timeRange || "Không rõ thời gian",
+              })
+            );
+
+            navigate("/user/bloodDonate");
+          }
+        } catch (err) {
+          console.error("Không thể lấy lại lịch hẹn:", err);
+          message.error("Không thể lấy lại lịch hẹn.");
+        }
+      } else {
+        message.error("Lỗi khi đăng ký lịch hiến máu.");
+      }
     }
   };
 
@@ -104,9 +158,7 @@ const DonateCheckup = () => {
             <Checkbox.Group
               className={styles.checkboxGroup}
               value={[answers[index].answer]}
-              onChange={(checkedValues) =>
-                handleCheckboxChange(index, checkedValues[0])
-              }
+              onChange={(vals) => handleCheckboxChange(index, vals[0])}
             >
               <Checkbox value="yes">Có</Checkbox>
               <Checkbox value="no">Không</Checkbox>

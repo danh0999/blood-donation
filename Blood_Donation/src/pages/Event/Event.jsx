@@ -19,7 +19,9 @@ export const Event = () => {
   const location = useLocation();
 
   const handleShowDetail = (event) => {
-    setSelectedEvent(event);
+    const matchedSlots = slots.filter((s) => event.slotIds?.includes(s.slotID));
+    const enrichedEvent = { ...event, slots: matchedSlots };
+    setSelectedEvent(enrichedEvent);
     setIsModalOpen(true);
   };
 
@@ -110,7 +112,7 @@ export const Event = () => {
                 <MdOutlineDescription />
                 Mô tả:
               </span>
-              <span>{event.proName}</span>
+              <span>{event.description}</span>
             </div>
 
             <Button
