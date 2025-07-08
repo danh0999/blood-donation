@@ -6,7 +6,7 @@ import api from "../../configs/axios";
 import { toast } from "react-toastify";
 import { login } from "../../redux/features/userSlice";
 import { useDispatch } from "react-redux";
-import { setDonationHistory } from "../../redux/features/BloodHistorySlice";
+import { setDonationHistory } from "../../redux/features/bloodHistorySlice";
 
 const { Title } = Typography;
 
@@ -25,21 +25,23 @@ const LoginForm = () => {
       toast.success("Đăng nhập thành công!");
 
       // Lấy lịch hẹn
-      const appointmentRes = await api.get("/appointments/by-user", {
-        params: { userId: userData.userID },
-      });
-      const appointment = appointmentRes.data?.[0];
+      if (userData.role === "MEMBER") {
+        const appointmentRes = await api.get("/appointments/by-user", {
+          params: { userId: userData.userID },
+        });
+        const appointment = appointmentRes.data?.[0];
 
-      if (appointment) {
-        dispatch(
-          setDonationHistory([
-            {
-              id: appointment.id,
-              address: appointment.address,
-              time: appointment.timeRange,
-            },
-          ])
-        );
+        if (appointment) {
+          dispatch(
+            setDonationHistory([
+              {
+                id: appointment.id,
+                address: appointment.address,
+                time: appointment.timeRange,
+              },
+            ])
+          );
+        }
       }
 
       // Điều hướng
