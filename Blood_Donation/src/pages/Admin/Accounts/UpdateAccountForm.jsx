@@ -1,6 +1,7 @@
 import React, { useEffect } from "react";
 import { Form, Input, Select, DatePicker, Button } from "antd";
 import dayjs from "dayjs";
+import PlacesAutocomplete from "../../../components/GoogleMapsAPI/PlacesAutocomplete";
 
 const bloodTypes = ["A", "B", "AB", "O"];
 const roleOptions = ["ADMIN", "STAFF", "HOSPITAL_STAFF"];
@@ -62,16 +63,16 @@ const UpdateAccountForm = ({
             <Input />
           </Form.Item>
           <Form.Item label="Email" name="email">
-            <Input type="email" />
+            <Input type="email" placeholder="example@gmail.com" />
           </Form.Item>
           <Form.Item label="Số điện thoại" name="phone">
-            <Input type="number" min="0" step="1" pattern="[0-9]*" inputMode="numeric" />
+            <Input type="number" min="0" step="1" pattern="[0-9]*" inputMode="numeric" placeholder="Nhập số điện thoại" />
           </Form.Item>
           <Form.Item label="Địa chỉ" name="address">
-            <Input />
+            <PlacesAutocomplete placeholder="Nhập địa chỉ" />
           </Form.Item>
           <Form.Item label="CCCD" name="cccd">
-            <Input type="number" min="0" step="1" pattern="[0-9]*" inputMode="numeric" />
+            <Input type="number" min="0" step="1" pattern="[0-9]*" inputMode="numeric" placeholder="Nhập số CCCD" />
           </Form.Item>
           <Form.Item label="Nhóm máu" name="typeBlood">
             <Select placeholder="Chọn nhóm máu">
@@ -87,7 +88,7 @@ const UpdateAccountForm = ({
             </Select>
           </Form.Item>
           <Form.Item label="Ngày sinh" name="birthdate">
-            <DatePicker style={{ width: "100%" }} format="YYYY-MM-DD" />
+            <DatePicker style={{ width: "100%" }} format="YYYY-MM-DD" placeholder="Chọn ngày sinh" />
           </Form.Item>
         </>
       )}
