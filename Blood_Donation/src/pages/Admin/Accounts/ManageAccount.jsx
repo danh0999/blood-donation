@@ -134,83 +134,85 @@ function AccountTable() {
   // Actual table return
   return (
     <>
-    <div>
-      <b>To do: validate form information:</b>
-      <ul>
-        <li>trùng username</li>
-        <li>sdt, cccd không phải 1234567..</li> 
-      </ul>
-      <b>Thêm field ngày sinh vào post, put api</b><br/>
-      <b>Validate acc bị xóa không phải acc admin duy nhất</b>
-    </div>
-      <div style={{ display: "flex", alignItems: "flex-start", gap: "1rem", marginBottom: "0.5rem", justifyContent: "space-between" }}>
-        <SearchBarV2
-          roles={roles}
-          selectedRole={selectedRole}
-          onRoleChange={setSelectedRole}
-          searchText={searchText}
-          onSearchChange={setSearchText}
-        />
-        <div style={{ display: "flex", alignItems: "center", height: "100%" }}>
-          <Button type="primary" onClick={() => setAddModalVisible(true)}>
-            Thêm tài khoản
-          </Button>
+      <div style={{ padding: 24 }}>
+        <div>
+          <b>To do: validate form information:</b>
+          <ul>
+            <li>trùng username</li>
+            <li>sdt, cccd không phải 1234567..</li>
+          </ul>
+          <b>Thêm field ngày sinh vào post, put api</b><br />
+          <b>Validate acc bị xóa không phải acc admin duy nhất</b>
         </div>
-      </div>
-      <Table dataSource={filteredAccounts} columns={columns} />
-      
-      {/* Modals */}
-      {/* Add Account Modal */}
-      <Modal
-        title="Thêm tài khoản mới"
-        open={addModalVisible}
-        onCancel={() => setAddModalVisible(false)}
-        footer={null}
-      >
-        <AddAccountForm
-          roles={roles}
-          onCancel={() => setAddModalVisible(false)}
-          // Ant Design Form submit button handling
-          onFinish={async (values) => {
-            // Convert birthdate to string if present
-            const payload = {
-              ...values,
-              birthdate: values.birthdate ? values.birthdate.format("YYYY-MM-DD") : undefined,
-            };
-            await dispatch(addAccount(payload));
-            setAddModalVisible(false);
-            dispatch(fetchAccounts()); // Refresh list
-          }}
-          initialRole={roles[0] || ''}
-        />
-      </Modal>
+        <div style={{ display: "flex", alignItems: "flex-start", gap: "1rem", marginBottom: "0.5rem", justifyContent: "space-between" }}>
+          <SearchBarV2
+            roles={roles}
+            selectedRole={selectedRole}
+            onRoleChange={setSelectedRole}
+            searchText={searchText}
+            onSearchChange={setSearchText}
+          />
+          <div style={{ display: "flex", alignItems: "center", height: "100%" }}>
+            <Button type="primary" onClick={() => setAddModalVisible(true)}>
+              Thêm tài khoản
+            </Button>
+          </div>
+        </div>
+        <Table dataSource={filteredAccounts} columns={columns} />
 
-      {/* Delete Account Modal */}
-      <Modal
-        title="Xác nhận xóa tài khoản"
-        open={deleteModalVisible}
-        onCancel={() => setDeleteModalVisible(false)}
-        footer={[
-          <Button key="cancel" onClick={() => setDeleteModalVisible(false)}>
-            Hủy
-          </Button>,
-          <Button
-            key="delete"
-            type="primary"
-            danger
-            disabled={deleteBtnDisabled}
-            onClick={handleDelete}
-          >
-            {deleteBtnDisabled ? `Xóa (${countdown})` : "Xóa"}
-          </Button>,
-        ]}
-      >
-        {deleteTarget && (
-          <>
-            Bạn có chắc chắn muốn xóa tài khoản <b>{deleteTarget.username}</b> (UserID: {deleteTarget.userID})? Hành động này không thể hoàn tác.
-          </>
-        )}
-      </Modal>
+        {/* Modals */}
+        {/* Add Account Modal */}
+        <Modal
+          title="Thêm tài khoản mới"
+          open={addModalVisible}
+          onCancel={() => setAddModalVisible(false)}
+          footer={null}
+        >
+          <AddAccountForm
+            roles={roles}
+            onCancel={() => setAddModalVisible(false)}
+            // Ant Design Form submit button handling
+            onFinish={async (values) => {
+              // Convert birthdate to string if present
+              const payload = {
+                ...values,
+                birthdate: values.birthdate ? values.birthdate.format("YYYY-MM-DD") : undefined,
+              };
+              await dispatch(addAccount(payload));
+              setAddModalVisible(false);
+              dispatch(fetchAccounts()); // Refresh list
+            }}
+            initialRole={roles[0] || ''}
+          />
+        </Modal>
+
+        {/* Delete Account Modal */}
+        <Modal
+          title="Xác nhận xóa tài khoản"
+          open={deleteModalVisible}
+          onCancel={() => setDeleteModalVisible(false)}
+          footer={[
+            <Button key="cancel" onClick={() => setDeleteModalVisible(false)}>
+              Hủy
+            </Button>,
+            <Button
+              key="delete"
+              type="primary"
+              danger
+              disabled={deleteBtnDisabled}
+              onClick={handleDelete}
+            >
+              {deleteBtnDisabled ? `Xóa (${countdown})` : "Xóa"}
+            </Button>,
+          ]}
+        >
+          {deleteTarget && (
+            <>
+              Bạn có chắc chắn muốn xóa tài khoản <b>{deleteTarget.username}</b> (UserID: {deleteTarget.userID})? Hành động này không thể hoàn tác.
+            </>
+          )}
+        </Modal>
+      </div>
     </>
   );
 }
