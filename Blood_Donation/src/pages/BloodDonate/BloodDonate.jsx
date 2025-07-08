@@ -2,7 +2,7 @@ import React from "react";
 import styles from "../BloodDonate/styles.module.scss";
 import { useSelector, useDispatch } from "react-redux";
 import { Button, Modal, message } from "antd";
-import { clearDonationHistory } from "../../redux/features/BloodHistorySlice";
+import { clearDonationHistory } from "../../redux/features/bloodHistorySlice";
 import { useNavigate } from "react-router-dom";
 import api from "../../configs/axios";
 

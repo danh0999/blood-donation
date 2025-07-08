@@ -2,6 +2,7 @@ import { createSlice } from "@reduxjs/toolkit";
 
 const initialState = {
   history: [],
+  selectedProgram: null, // 🔹 thêm selectedProgram vào state
 };
 
 const bloodHistorySlice = createSlice({
@@ -11,12 +12,23 @@ const bloodHistorySlice = createSlice({
     setDonationHistory: (state, action) => {
       state.history = action.payload;
     },
-    clearDonationHistory: (state) => {
-      state.history = []; // ✅ Phải có dòng này
+    clearDonationHistory: () => {
+      return initialState;
+    },
+    setSelectedProgram: (state, action) => {
+      state.selectedProgram = action.payload; // 🔹 set program đã chọn
+    },
+    clearSelectedProgram: (state) => {
+      state.selectedProgram = null; // 🔹 reset nếu cần
     },
   },
 });
 
-export const { setDonationHistory, clearDonationHistory } =
-  bloodHistorySlice.actions;
+export const {
+  setDonationHistory,
+  clearDonationHistory,
+  setSelectedProgram,
+  clearSelectedProgram,
+} = bloodHistorySlice.actions;
+
 export default bloodHistorySlice.reducer;

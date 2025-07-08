@@ -3,7 +3,7 @@ import styles from "./styles.module.scss";
 import { Checkbox, Input, Button, message } from "antd";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate, useLocation } from "react-router-dom";
-import { setDonationHistory } from "../../../redux/features/BloodHistorySlice";
+import { setDonationHistory } from "../../../redux/features/bloodHistorySlice";
 import api from "../../../configs/axios";
 
 const questions = [
