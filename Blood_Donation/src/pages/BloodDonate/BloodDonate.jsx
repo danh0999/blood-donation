@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import styles from "../BloodDonate/styles.module.scss";
 import { useSelector, useDispatch } from "react-redux";
 import { Button, Modal, message } from "antd";
@@ -9,47 +9,34 @@ import api from "../../configs/axios";
 const BloodDonate = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const [isModalVisible, setIsModalVisible] = useState(false);
 
   const user = useSelector((state) => state.user);
   const { history } = useSelector((state) => state.bloodHistory);
-  const historyItem = history?.[0]; // Lấy đơn gần nhất
+  const historyItem = history?.[0];
 
   const handleRegister = () => {
     navigate("/user/donate/schedule");
   };
-  console.log("Current appointment:", historyItem);
 
-  const handleDelete = () => {
-    Modal.confirm({
-      title: "Xác nhận hủy đăng ký",
-      content: "Bạn có chắc muốn xóa đơn đăng ký hiến máu này không?",
-      okText: "Xác nhận",
-      cancelText: "Hủy",
-      onOk: async () => {
-        try {
-          console.log("Gửi yêu cầu xóa appointment:", {
-            id: historyItem?.id,
-            username: user.username,
-          });
+  const handleDelete = async () => {
+    if (!historyItem) return;
 
-          await api.delete(`/appointments/${historyItem.id}/with-permission`, {
-            params: {
-              username: user.username,
-            },
-          });
+    try {
+      await api.delete(`/appointments/${historyItem.id}/with-permission`, {
+        params: {
+          username: user.username,
+        },
+      });
 
-          dispatch(clearDonationHistory());
-          message.success("Xóa đơn đăng ký thành công!");
-          navigate("/user/bloodDonate");
-        } catch (err) {
-          console.error(
-            "Lỗi xóa appointment:",
-            err.response?.data || err.message
-          );
-          message.error("Xóa đơn đăng ký thất bại.");
-        }
-      },
-    });
+      dispatch(clearDonationHistory());
+      message.success("Xóa đơn đăng ký thành công!");
+      setIsModalVisible(false);
+      navigate("/user/bloodDonate");
+    } catch (err) {
+      console.error("Lỗi xóa appointment:", err.response?.data || err.message);
+      message.error("Xóa đơn đăng ký thất bại.");
+    }
   };
 
   return (
@@ -57,7 +44,6 @@ const BloodDonate = () => {
       <h2>Thông tin đăng ký hiến máu</h2>
 
       <div className={styles.cardContainer}>
-        {/* Thông tin cá nhân */}
         <div className={styles.card}>
           <h3>Thông tin cá nhân</h3>
           <p>
@@ -77,7 +63,6 @@ const BloodDonate = () => {
           </p>
         </div>
 
-        {/* Lịch đăng ký hiến máu */}
         <div className={styles.card}>
           <h3>Phiếu đăng ký hiến máu</h3>
           {historyItem ? (
@@ -94,12 +79,29 @@ const BloodDonate = () => {
         </div>
       </div>
 
-      {/* Button */}
       <div className={styles.buttonWrapper}>
         {historyItem ? (
-          <Button danger type="primary" onClick={handleDelete}>
-            Xóa đơn đăng ký
-          </Button>
+          <>
+            <Button
+              danger
+              type="primary"
+              onClick={() => setIsModalVisible(true)}
+            >
+              Xóa đơn đăng ký
+            </Button>
+
+            <Modal
+              title="Xác nhận hủy đăng ký"
+              open={isModalVisible}
+              onOk={handleDelete}
+              onCancel={() => setIsModalVisible(false)}
+              okText="Xác nhận"
+              cancelText="Hủy"
+              centered
+            >
+              <p>Bạn có chắc muốn xóa đơn đăng ký hiến máu này không?</p>
+            </Modal>
+          </>
         ) : (
           <Button type="primary" onClick={handleRegister}>
             Đăng ký hiến máu
