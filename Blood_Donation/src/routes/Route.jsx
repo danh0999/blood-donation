@@ -29,6 +29,7 @@ import { Schedule } from "../pages/Donate/Schedule/Schedule";
 import DonateContainer from "../pages/Donate/DonateContainer";
 import DonateCheckup from "../pages/Donate/Checkup/DonateCheckup";
 import { Event } from "../pages/Event/Event";
+import FirebaseImageUploader from "../components/FirebaseImageUploader (experimental))";
 
 const routes = [
   {
@@ -100,7 +101,7 @@ const routes = [
         element: <AdminDashboard />,
         children: [
           { index: true, element: <div>Welcome to Admin Dashboard</div> },
-          { path: "overview", element: <div>Overview tab</div>},
+          { path: "overview", element: <FirebaseImageUploader />},
           { path: "accounts", element: <ManageAccount />},
           { path: "accounts/:id", element: <AccountDetail /> },
           { path: "reports", element: <div>Report List</div> },
