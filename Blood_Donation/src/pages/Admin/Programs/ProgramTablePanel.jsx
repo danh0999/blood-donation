@@ -1,6 +1,9 @@
-import React from "react";
-import { Table, Button, Space } from "antd";
-import SearchBarV2 from "../../../components/SearchBarV2/SearchBarV2";
+import React, { useState } from "react";
+import { Table, Button, Space, DatePicker, Input, Select } from "antd";
+import dayjs from "dayjs";
+import ProgramSearchBar from "./ProgramSearchBar";
+
+const { RangePicker } = DatePicker;
 
 const columns = [
   {
@@ -136,12 +139,53 @@ const data = [
   },
 ];
 
-const ProgramTable = () => {
+const ProgramTablePanel = () => {
+  // Search/filter state
+  const [category, setCategory] = useState("name");
+  const [searchText, setSearchText] = useState("");
+  // Store dateRange as string array for easier comparison
+  const [dateRange, setDateRange] = useState(["", ""]);
+
+  // Handler for date range change to get string values
+  const handleDateRangeChange = (value, dateString) => {
+    setDateRange(dateString);
+  };
+
+  // Filtering logic
+  const filteredData = data.filter((item) => {
+    if (category === "name") {
+      return item.name.toLowerCase().includes(searchText.toLowerCase());
+    } else if (category === "date") {
+      if (!dateRange[0] || !dateRange[1]) return true;
+      // Show programs whose startDate is within the selected range
+      return (
+        item.startDate >= dateRange[0] &&
+        item.startDate <= dateRange[1]
+      );
+    }
+    return true;
+  });
+
   return (
-    <>
-      <Table columns={columns} dataSource={data} pagination={true} />
-    </>
+    <div style={{ padding: 24 }}>
+      <div style={{ display: "flex", alignItems: "flex-start", gap: "1rem", marginBottom: "0.5rem", justifyContent: "space-between" }}>
+        <ProgramSearchBar
+          category={category}
+          onCategoryChange={setCategory}
+          searchText={searchText}
+          onSearchTextChange={setSearchText}
+          dateRange={dateRange[0] && dateRange[1] ? [dayjs(dateRange[0]), dayjs(dateRange[1])] : [null, null]}
+          onDateRangeChange={handleDateRangeChange}
+        />
+        <div style={{ display: "flex", alignItems: "center", height: "100%" }}>
+          <Button type="primary">
+            Thêm chương trình
+          </Button>
+        </div>
+      </div>
+      <Table columns={columns} dataSource={filteredData} pagination={true} />
+    </div>
   );
 };
 
-export default ProgramTable;
+export default ProgramTablePanel;
