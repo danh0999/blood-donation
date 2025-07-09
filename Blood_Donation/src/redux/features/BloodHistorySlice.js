@@ -1,42 +1,44 @@
-// features/bloodHistorySlice.js
 import { createSlice } from "@reduxjs/toolkit";
 
 const initialState = {
-  donationHistory: [],
-  receiveHistory: [],
-  loading: false,
-  error: null,
+  history: [],
+  selectedProgram: null,
+  currentAppointment: null, // ✅
 };
 
 const bloodHistorySlice = createSlice({
   name: "bloodHistory",
   initialState,
   reducers: {
-    setDonationHistory(state, action) {
-      state.donationHistory = action.payload;
+    setDonationHistory: (state, action) => {
+      state.history = action.payload;
     },
-    setReceiveHistory(state, action) {
-      state.receiveHistory = action.payload;
+    clearDonationHistory: () => {
+      return initialState;
     },
-    setLoading(state, action) {
-      state.loading = action.payload;
+    setSelectedProgram: (state, action) => {
+      state.selectedProgram = action.payload;
     },
-    setError(state, action) {
-      state.error = action.payload;
+    clearSelectedProgram: (state) => {
+      state.selectedProgram = null;
     },
-    clearHistory(state) {
-      state.donationHistory = [];
-      state.receiveHistory = [];
+    // ✅ Thêm 2 reducer dưới đây
+    setCurrentAppointment: (state, action) => {
+      state.currentAppointment = action.payload;
+    },
+    clearCurrentAppointment: (state) => {
+      state.currentAppointment = null;
     },
   },
 });
 
 export const {
   setDonationHistory,
-  setReceiveHistory,
-  setLoading,
-  setError,
-  clearHistory,
+  clearDonationHistory,
+  setSelectedProgram,
+  clearSelectedProgram,
+  setCurrentAppointment, // ✅ export
+  clearCurrentAppointment, // ✅ export
 } = bloodHistorySlice.actions;
 
 export default bloodHistorySlice.reducer;
