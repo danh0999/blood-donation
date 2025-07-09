@@ -9,21 +9,71 @@ import {
 } from "../../../redux/features/bloodHistorySlice";
 import api from "../../../configs/axios";
 
-const questions = [
-  "1. Anh/chị từng hiến máu chưa?",
-  "2. Hiện tại, anh/ chị có mắc bệnh lý nào không?",
-  "3. Trước đây, anh/chị có từng mắc một trong các bệnh...?",
-  "4. Trong 12 tháng gần đây, anh/chị có:",
-  "5. Trong 06 tháng gần đây, anh/chị có:",
-  "6. Trong 01 tháng gần đây, anh/chị có:",
-  "7. Trong 14 ngày gần đây, anh/chị có:",
-  "8. Trong 07 ngày gần đây, anh/chị có:",
-  "9. Câu hỏi dành cho phụ nữ:",
+const questionList = [
+  { text: "1. Anh/chị từng hiến máu chưa?", options: ["Có", "Không"] },
+  { text: "2. Hiện tại, anh/ chị có mắc bệnh lý nào không?", options: ["Có", "Không"], hasNote: true },
+  {
+    text: "3. Trước đây, anh/chị có từng mắc một trong các bệnh: viêm gan siêu vi B, C, HIV, vảy nến, phì đại tuyến giáp, sốc phản vệ, tai biến mạch máu não, nhồi máu cơ tim, lupus ban đỏ, động kinh, ung thư, hen, được cấy ghép mô/tạng?",
+    options: ["Có", "Không", "Bệnh khác"],
+    hasNote: true
+  },
+  {
+    text: "4. Trong 12 tháng gần đây, anh/chị có:",
+    options: [
+      "Khỏi bệnh sau khi mắc các bệnh: sốt rét, giang mai, lao, viêm não – màng não, uốn ván, phẫu thuật ngoại khoa?",
+      "Được truyền máu hoặc chế phẩm máu?",
+      "Tiêm Vắc-xin?",
+      "Không"
+    ],
+    hasNote: true
+  },
+  {
+    text: "5. Trong 06 tháng gần đây, anh/chị có:",
+    options: [
+      "Khỏi bệnh sau khi mắc bệnh nhiễm trùng, sốt xuất huyết, viêm xương, viêm tuỷ,...?",
+      "Sụt cân không rõ nguyên nhân?",
+      "Nổi hạch kéo dài?",
+      "Thực hiện thủ thuật y tế?",
+      "Xăm, xỏ tai, lỗ mũi?",
+      "Sử dụng ma tuý?",
+      "Tiếp xúc máu người bệnh?",
+      "Sống chung với người bị viêm gan siêu vi B?",
+      "Quan hệ với người mắc bệnh truyền nhiễm?",
+      "Quan hệ đồng giới?",
+      "Không"
+    ]
+  },
+  {
+    text: "6. Trong 01 tháng gần đây, anh/chị có:",
+    options: [
+      "Mắc bệnh viêm hô hấp, viêm da, viêm phế quản,...?",
+      "Đi vùng có dịch bệnh lưu hành (sốt rét, sốt xuất huyết, Zika,...)?",
+      "Không"
+    ]
+  },
+  {
+    text: "7. Trong 14 ngày gần đây, anh/chị có:",
+    options: ["Bị cúm, cảm lạnh, ho, nhức đầu, sốt, đau họng?", "Không", "Khác (cụ thể)"],
+    hasNote: true
+  },
+  {
+    text: "8. Trong 07 ngày gần đây, anh/chị có:",
+    options: ["Dùng thuốc kháng sinh, kháng viêm, Aspirin, Corticoid?", "Không", "Khác (cụ thể)"],
+    hasNote: true
+  },
+  {
+    text: "9. Câu hỏi dành cho phụ nữ:",
+    options: [
+      "Hiện chị đang mang thai hoặc nuôi con dưới 12 tháng tuổi?",
+      "Chấm dứt thai kỳ trong 12 tháng gần đây (sảy thai, phá thai, thai ngoài tử cung)?",
+      "Không"
+    ]
+  }
 ];
 
 const DonateCheckup = () => {
   const [answers, setAnswers] = useState(
-    Array(questions.length).fill({ answer: null, note: "" })
+    questionList.map(() => ({ answer: [], note: "" }))
   );
 
   const dispatch = useDispatch();
@@ -31,19 +81,23 @@ const DonateCheckup = () => {
   const location = useLocation();
   const user = useSelector((state) => state.user);
 
-  // ✅ Lấy đầy đủ thông tin truyền qua
-  const { programId, date, locationId, slotId } = location.state || {};
+  const { programId, date, cityId, slotId } = location.state || {};
 
-  const handleCheckboxChange = (index, value) => {
-    const newAnswers = [...answers];
-    newAnswers[index].answer = value;
-    setAnswers(newAnswers);
+  const handleCheckboxChange = (qIndex, option) => {
+    const updated = [...answers];
+    const selected = updated[qIndex].answer;
+    if (selected.includes(option)) {
+      updated[qIndex].answer = selected.filter((o) => o !== option);
+    } else {
+      updated[qIndex].answer = [...selected, option];
+    }
+    setAnswers(updated);
   };
 
-  const handleNoteChange = (index, e) => {
-    const newAnswers = [...answers];
-    newAnswers[index].note = e.target.value;
-    setAnswers(newAnswers);
+  const handleNoteChange = (qIndex, e) => {
+    const updated = [...answers];
+    updated[qIndex].note = e.target.value;
+    setAnswers(updated);
   };
 
   const handleSubmit = async () => {
@@ -52,58 +106,47 @@ const DonateCheckup = () => {
       return;
     }
 
+    const payload = {
+      slotId,
+      programId,
+      date,
+      answer1: answers[0].answer.join(", "),
+      answer2: answers[1].answer.join(", ") + (answers[1].note ? `: ${answers[1].note}` : ""),
+      answer3: answers[2].answer.join(", ") + (answers[2].note ? `: ${answers[2].note}` : ""),
+      answer4: answers[3].answer.join(", ") + (answers[3].note ? `: ${answers[3].note}` : ""),
+      answer5: answers[4].answer.join(", "),
+      answer6: answers[5].answer.join(", "),
+      answer7: answers[6].answer.join(", ") + (answers[6].note ? `: ${answers[6].note}` : ""),
+      answer8: answers[7].answer.join(", ") + (answers[7].note ? `: ${answers[7].note}` : ""),
+      answer9: answers[8].answer.join(", "),
+    };
+
     try {
-      const res = await api.post(
-        "/appointments",
-        {
-          slotId, // ✅ Sử dụng đúng slot người dùng đã chọn
-          programId,
-          date,
-        },
-        {
-          params: {
-            userId: user.userID,
-          },
-        }
-      );
+      const res = await api.post("/appointments", payload, {
+        params: { userId: user.userID },
+      });
 
-      const appointment = res.data;
-      const detailRes = await api.get(`/appointments/${appointment.id}`);
-      const detail = detailRes.data;
+      const detail = (await api.get(`/appointments/${res.data.id}`)).data;
 
-      dispatch(
-        setDonationHistory([
-          {
-            id: detail.id,
-            address: detail.address || "Không rõ địa điểm",
-            time: detail.timeRange || "Không rõ thời gian",
-          },
-        ])
-      );
+      const data = {
+        id: detail.id,
+        address: detail.address || "Không rõ địa điểm",
+        time: detail.timeRange || "Không rõ thời gian",
+      };
 
-      dispatch(
-        setCurrentAppointment({
-          id: detail.id,
-          address: detail.address || "Không rõ địa điểm",
-          time: detail.timeRange || "Không rõ thời gian",
-        })
-      );
+      dispatch(setDonationHistory([data]));
+      dispatch(setCurrentAppointment(data));
 
       message.success("Đăng ký hiến máu thành công!");
       navigate("/user/bloodDonate");
     } catch (error) {
-      console.error("Lỗi gửi appointment:", error);
-
       if (
-        error.response?.data?.message?.includes(
-          "already have an appointment"
-        ) ||
+        error.response?.data?.message?.includes("already have") ||
         error.response?.data?.error?.includes("already have")
       ) {
         Modal.error({
           title: "Bạn chỉ có thể đăng ký 1 đơn hiến máu tại 1 thời điểm",
           content: "Rất tiếc, bạn vừa hiến máu gần đây",
-          okText: "Xác nhận",
           centered: true,
         });
 
@@ -115,31 +158,19 @@ const DonateCheckup = () => {
           const appointment = res.data.find((a) => a.status === "PENDING");
 
           if (appointment) {
-            const detailRes = await api.get(`/appointments/${appointment.id}`);
-            const detail = detailRes.data;
+            const detail = (await api.get(`/appointments/${appointment.id}`)).data;
 
-            dispatch(
-              setDonationHistory([
-                {
-                  id: detail.id,
-                  address: detail.address || "Không rõ địa điểm",
-                  time: detail.timeRange || "Không rõ thời gian",
-                },
-              ])
-            );
+            const data = {
+              id: detail.id,
+              address: detail.address || "Không rõ địa điểm",
+              time: detail.timeRange || "Không rõ thời gian",
+            };
 
-            dispatch(
-              setCurrentAppointment({
-                id: detail.id,
-                address: detail.address || "Không rõ địa điểm",
-                time: detail.timeRange || "Không rõ thời gian",
-              })
-            );
-
+            dispatch(setDonationHistory([data]));
+            dispatch(setCurrentAppointment(data));
             navigate("/user/bloodDonate");
           }
-        } catch (err) {
-          console.error("Không thể lấy lại lịch hẹn:", err);
+        } catch {
           message.error("Không thể lấy lại lịch hẹn.");
         }
       } else {
@@ -152,23 +183,29 @@ const DonateCheckup = () => {
     <div className={styles.container}>
       <h2>Khảo sát trước hiến máu</h2>
       <form className={styles.form}>
-        {questions.map((question, index) => (
+        {questionList.map((q, index) => (
           <div key={index} className={styles.questionItem}>
-            <p className={styles.questionText}>{question}</p>
-            <Checkbox.Group
-              className={styles.checkboxGroup}
-              value={[answers[index].answer]}
-              onChange={(vals) => handleCheckboxChange(index, vals[0])}
-            >
-              <Checkbox value="yes">Có</Checkbox>
-              <Checkbox value="no">Không</Checkbox>
-            </Checkbox.Group>
-            <Input.TextArea
-              rows={2}
-              placeholder="Ghi chú (nếu có)"
-              value={answers[index].note}
-              onChange={(e) => handleNoteChange(index, e)}
-            />
+            <p className={styles.questionText}>{q.text}</p>
+            <div className={styles.checkboxGroup}>
+              {q.options.map((opt, optIdx) => (
+                <Checkbox
+                  key={optIdx}
+                  checked={answers[index].answer.includes(opt)}
+                  onChange={() => handleCheckboxChange(index, opt)}
+                >
+                  {opt}
+                </Checkbox>
+              ))}
+            </div>
+
+            {q.hasNote && (
+              <Input.TextArea
+                rows={2}
+                placeholder="Ghi chú thêm (nếu có)"
+                value={answers[index].note}
+                onChange={(e) => handleNoteChange(index, e)}
+              />
+            )}
           </div>
         ))}
 
