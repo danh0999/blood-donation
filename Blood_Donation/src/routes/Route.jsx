@@ -29,7 +29,7 @@ import { Schedule } from "../pages/Donate/Schedule/Schedule";
 import DonateContainer from "../pages/Donate/DonateContainer";
 import DonateCheckup from "../pages/Donate/Checkup/DonateCheckup";
 import { Event } from "../pages/Event/Event";
-import FirebaseImageUploader from "../components/FirebaseImageUploader (experimental))";
+import FirebaseImageUploader from "../components/FirebaseImageUploader (experimental)";
 
 const routes = [
   {
