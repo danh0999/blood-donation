@@ -2,7 +2,10 @@ import React, { useState } from "react";
 import styles from "../BloodDonate/styles.module.scss";
 import { useSelector, useDispatch } from "react-redux";
 import { Button, Modal, message } from "antd";
-import { clearDonationHistory } from "../../redux/features/bloodHistorySlice";
+import {
+  clearDonationHistory,
+  clearCurrentAppointment,
+} from "../../redux/features/bloodHistorySlice";
 import { useNavigate } from "react-router-dom";
 import api from "../../configs/axios";
 
@@ -12,8 +15,12 @@ const BloodDonate = () => {
   const [isModalVisible, setIsModalVisible] = useState(false);
 
   const user = useSelector((state) => state.user);
-  const { history } = useSelector((state) => state.bloodHistory);
-  const historyItem = history?.[0];
+  const { history, currentAppointment } = useSelector(
+    (state) => state.bloodHistory
+  );
+
+  // ✅ Ưu tiên currentAppointment nếu có
+  const historyItem = currentAppointment || history?.[0];
 
   const handleRegister = () => {
     navigate("/user/donate/schedule");
@@ -30,6 +37,7 @@ const BloodDonate = () => {
       });
 
       dispatch(clearDonationHistory());
+      dispatch(clearCurrentAppointment());
       message.success("Xóa đơn đăng ký thành công!");
       setIsModalVisible(false);
       navigate("/user/bloodDonate");
@@ -89,7 +97,6 @@ const BloodDonate = () => {
             >
               Xóa đơn đăng ký
             </Button>
-
             <Modal
               title="Xác nhận hủy đăng ký"
               open={isModalVisible}

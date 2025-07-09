@@ -1,4 +1,3 @@
-// src/components/EventDetail/EventDetail.jsx
 import React from "react";
 import { Modal, message } from "antd";
 import styles from "./styles.module.scss";
@@ -20,11 +19,25 @@ export const EventDetail = ({ open, onClose, event }) => {
 
   const handleRegister = async () => {
     try {
-      const res = await api.get(`/programs/${event.id}`); // 🔍 Gọi API lấy chi tiết
+      // Lấy chi tiết chương trình
+      const res = await api.get(`/programs/${event.id}`);
       const programDetail = res.data;
 
-      dispatch(setSelectedProgram(programDetail)); // ✅ Lưu vào Redux
-      navigate("/user/donate/schedule"); // 🔀 Điều hướng
+      // Gọi API lấy slot theo programId
+      const slotRes = await api.get("/slots", {
+        params: {
+          programId: event.id,
+        },
+      });
+
+      const slots = slotRes.data || [];
+      programDetail.slots = slots;
+
+      // Lưu chương trình đã chọn vào Redux
+      dispatch(setSelectedProgram(programDetail));
+
+      // Điều hướng đến trang đặt lịch
+      navigate("/user/donate/schedule");
     } catch (error) {
       console.error("Lỗi khi lấy chi tiết chương trình:", error);
       message.error("Không thể tải thông tin chi tiết chương trình.");
@@ -44,38 +57,52 @@ export const EventDetail = ({ open, onClose, event }) => {
     >
       <div className={styles.detailItem}>
         <FaCalendarAlt className={styles.icon} />
-        <strong>Ngày tổ chức:</strong> <span>{event.startDate}</span>
+        <strong>Ngày tổ chức:</strong>{" "}
+        <span>{event.startDate || "Chưa rõ"}</span>
       </div>
 
       <div className={styles.detailItem}>
         <IoMdTime className={styles.icon} />
-        <strong>Thời gian:</strong> <span>{event.time}</span>
+        <strong>Thời gian:</strong>{" "}
+        <span>
+          {event.slots && event.slots.length > 0
+            ? event.slots
+                .map((slot) => `${slot.start} - ${slot.end}`)
+                .join(", ")
+            : "Chưa có thông tin"}
+        </span>
       </div>
 
       <div className={styles.detailItem}>
         <CiLocationOn className={styles.icon} />
-        <strong>Địa điểm:</strong> <span>{event.address}</span>
+        <strong>Địa điểm:</strong>{" "}
+        <span>{event.address || "Không rõ địa điểm"}</span>
       </div>
 
       <div className={styles.detailItem}>
         <BsDropletHalf className={styles.icon} />
-        <strong>Loại máu:</strong> <span>{event.bloodTypes || "-"}</span>
+        <strong>Loại máu:</strong>{" "}
+        <span>{event.typeBlood || "Không giới hạn"}</span>
       </div>
 
       <div className={styles.detailItem}>
         <MdOutlineDescription className={styles.icon} />
-        <strong>Mô tả:</strong> <span>{event.fullDescription || "-"}</span>
+        <strong>Mô tả:</strong>{" "}
+        <span>{event.description || "Không có mô tả"}</span>
       </div>
 
       <div className={styles.detailItem}>
         <FiPhone className={styles.icon} />
-        <strong>Liên hệ:</strong> <span>{event.contact || "-"}</span>
+        <strong>Liên hệ:</strong>{" "}
+        <span>{event.contact || "Chưa có thông tin"}</span>
       </div>
 
-      <div className={styles.imageWrapper}>
-        <BsImage className={styles.icon} />
-        <img src={event.image} alt="Sự kiện" />
-      </div>
+      {event.imageUrl && (
+        <div className={styles.imageWrapper}>
+          <BsImage className={styles.icon} />
+          <img src={event.imageUrl} alt="Sự kiện" />
+        </div>
+      )}
 
       <div style={{ marginTop: 24, textAlign: "right" }}>
         <Button content="Đăng ký ngay" onClick={handleRegister} />
