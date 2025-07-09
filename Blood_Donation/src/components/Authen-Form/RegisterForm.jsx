@@ -87,10 +87,10 @@ const RegisterForm = () => {
         {/* //form theo swagger mentor */}
         <Form.Item
           name="fullName"
-          label="FullName"
-          rules={[{ required: true, message: "Vui lòng nhập fullName!" }]}
+          label="Họ và tên"
+          rules={[{ required: true, message: "Vui lòng nhập họ và tên!" }]}
         >
-          <Input placeholder="Tên bạn muốn hiển thị" />
+          <Input placeholder="Nguyễn Văn A" />
         </Form.Item>
 
         <Form.Item

@@ -81,7 +81,7 @@ const DonateCheckup = () => {
   const location = useLocation();
   const user = useSelector((state) => state.user);
 
-  const { programId, date, cityId, slotId } = location.state || {};
+  const { programId, date, locationId, slotId } = location.state || {};
 
   const handleCheckboxChange = (qIndex, option) => {
     const updated = [...answers];

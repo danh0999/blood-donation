@@ -1,5 +1,6 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import api from "../../configs/axios";
+import { toast } from "react-toastify";
 
 // Async thunk to fetch accounts from the API
 export const fetchAccounts = createAsyncThunk(
@@ -42,6 +43,20 @@ export const addAccount = createAsyncThunk(
   async (accountData, { rejectWithValue }) => {
     try {
       const response = await api.post("/admin/users", accountData);
+      // Add a 'key' property for AntD Table
+      return { ...response.data, key: response.data.userID };
+    } catch (err) {
+      return rejectWithValue(err.response?.data?.message || err.message);
+    }
+  }
+);
+
+// Async thunk to update an account by ID
+export const updateAccount = createAsyncThunk(
+  "accounts/updateAccount",
+  async ({ id, accountData }, { rejectWithValue }) => {
+    try {
+      const response = await api.put(`/admin/users/${id}`, accountData);
       // Add a 'key' property for AntD Table
       return { ...response.data, key: response.data.userID };
     } catch (err) {
@@ -128,8 +143,28 @@ const accountSlice = createSlice({
         state.data.push(action.payload);
         // Select the new account
         state.selectedAccount = action.payload;
+        toast.success("Tạo tài khoản thành công!")
       })
       .addCase(addAccount.rejected, (state, action) => {
+        state.selectedLoading = false;
+        state.selectedError = action.payload || action.error.message;
+        toast.error(`Tạo tài khoản thất bại (${action.error.message})`)
+      })
+      // updateAccount
+      .addCase(updateAccount.pending, (state) => {
+        state.selectedLoading = true;
+        state.selectedError = null;
+      })
+      .addCase(updateAccount.fulfilled, (state, action) => {
+        state.selectedLoading = false;
+        // Update the account in the list
+        state.data = state.data.map(acc => acc.userID === action.payload.userID ? action.payload : acc);
+        // Update selectedAccount if it's the same
+        if (state.selectedAccount && state.selectedAccount.userID === action.payload.userID) {
+          state.selectedAccount = action.payload;
+        }
+      })
+      .addCase(updateAccount.rejected, (state, action) => {
         state.selectedLoading = false;
         state.selectedError = action.payload || action.error.message;
       });

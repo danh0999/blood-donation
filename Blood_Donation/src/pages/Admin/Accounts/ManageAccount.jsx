@@ -1,17 +1,15 @@
 // Tag: for different colors of the boolean "enabled"
 // fetchAccounts: THE async thunk used to fetch API data
-import { Table, Tag, Space, Modal, Button, Form, Input, Select, Switch, DatePicker } from "antd";
+import { Table, Space, Modal, Button, } from "antd";
 import {
   FileSearchOutlined,
-  PlusOutlined,
-  EditOutlined,
   DeleteOutlined,
 } from "@ant-design/icons";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchAccounts, deleteAccountById, addAccount } from "../../redux/features/accountSlice";
+import { fetchAccounts, deleteAccountById, addAccount } from "../../../redux/features/accountSlice";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import SearchBarV2 from "../../components/SearchBarV2/SearchBarV2";
+import SearchBarV2 from "../../../components/SearchBarV2/SearchBarV2";
 import AddAccountForm from "./AddAccountForm";
 
 function AccountTable() {
@@ -39,7 +37,6 @@ function AccountTable() {
 
   // State for add account modal and form
   const [addModalVisible, setAddModalVisible] = useState(false);
-  const [showPersonal, setShowPersonal] = useState(false);
 
   useEffect(() => {
     dispatch(fetchAccounts());
@@ -113,17 +110,6 @@ function AccountTable() {
       key: "role",
     },
     {
-      title: "Trạng thái",
-      dataIndex: "enabled",
-      key: "enabled",
-      render: (enabled) => enabled ? (
-        <Tag color="green">Đang hoạt động</Tag>
-      ) :
-        (
-          <Tag color="red">Đã tắt</Tag>
-        ),
-    },
-    {
       title: "Hành động",
       key: "action",
       render: (_, record) => (
@@ -148,75 +134,85 @@ function AccountTable() {
   // Actual table return
   return (
     <>
-      <div style={{ display: "flex", alignItems: "flex-start", gap: "1rem", marginBottom: "0.5rem", justifyContent: "space-between" }}>
-        <SearchBarV2
-          roles={roles}
-          selectedRole={selectedRole}
-          onRoleChange={setSelectedRole}
-          searchText={searchText}
-          onSearchChange={setSearchText}
-        />
-        <div style={{ display: "flex", alignItems: "center", height: "100%" }}>
-          <Button type="primary" onClick={() => setAddModalVisible(true)}>
-            Thêm tài khoản
-          </Button>
+      <div style={{ padding: 24 }}>
+        <div>
+          <b>To do: validate form information:</b>
+          <ul>
+            <li>trùng username</li>
+            <li>sdt, cccd không phải 1234567..</li>
+          </ul>
+          <b>Thêm field ngày sinh vào post, put api</b><br />
+          <b>Validate acc bị xóa không phải acc admin duy nhất</b>
         </div>
-      </div>
-      <Table dataSource={filteredAccounts} columns={columns} />
-      
-      {/* Modals */}
-      {/* Add Account Modal */}
-      <Modal
-        title="Thêm tài khoản mới"
-        open={addModalVisible}
-        onCancel={() => setAddModalVisible(false)}
-        footer={null}
-      >
-        <AddAccountForm
-          roles={roles}
-          showPersonal={showPersonal}
-          setShowPersonal={setShowPersonal}
-          onCancel={() => setAddModalVisible(false)}
-          onFinish={async (values) => {
-            // Convert birthdate to string if present
-            const payload = {
-              ...values,
-              birthdate: values.birthdate ? values.birthdate.format("YYYY-MM-DD") : undefined,
-            };
-            await dispatch(addAccount(payload));
-            setAddModalVisible(false);
-            dispatch(fetchAccounts()); // Refresh list
-          }}
-          initialRole={roles[0] || ''}
-        />
-      </Modal>
+        <div style={{ display: "flex", alignItems: "flex-start", gap: "1rem", marginBottom: "0.5rem", justifyContent: "space-between" }}>
+          <SearchBarV2
+            roles={roles}
+            selectedRole={selectedRole}
+            onRoleChange={setSelectedRole}
+            searchText={searchText}
+            onSearchChange={setSearchText}
+          />
+          <div style={{ display: "flex", alignItems: "center", height: "100%" }}>
+            <Button type="primary" onClick={() => setAddModalVisible(true)}>
+              Thêm tài khoản
+            </Button>
+          </div>
+        </div>
+        <Table dataSource={filteredAccounts} columns={columns} />
 
-      {/* Delete Account Modal */}
-      <Modal
-        title="Xác nhận xóa tài khoản"
-        open={deleteModalVisible}
-        onCancel={() => setDeleteModalVisible(false)}
-        footer={[
-          <Button key="cancel" onClick={() => setDeleteModalVisible(false)}>
-            Hủy
-          </Button>,
-          <Button
-            key="delete"
-            type="primary"
-            danger
-            disabled={deleteBtnDisabled}
-            onClick={handleDelete}
-          >
-            {deleteBtnDisabled ? `Xóa (${countdown})` : "Xóa"}
-          </Button>,
-        ]}
-      >
-        {deleteTarget && (
-          <>
-            Bạn có chắc chắn muốn xóa tài khoản <b>{deleteTarget.username}</b> (UserID: {deleteTarget.userID})? Hành động này không thể hoàn tác.
-          </>
-        )}
-      </Modal>
+        {/* Modals */}
+        {/* Add Account Modal */}
+        <Modal
+          title="Thêm tài khoản mới"
+          open={addModalVisible}
+          onCancel={() => setAddModalVisible(false)}
+          footer={null}
+        >
+          <AddAccountForm
+            roles={roles}
+            onCancel={() => setAddModalVisible(false)}
+            // Ant Design Form submit button handling
+            onFinish={async (values) => {
+              // Convert birthdate to string if present
+              const payload = {
+                ...values,
+                birthdate: values.birthdate ? values.birthdate.format("YYYY-MM-DD") : undefined,
+              };
+              await dispatch(addAccount(payload));
+              setAddModalVisible(false);
+              dispatch(fetchAccounts()); // Refresh list
+            }}
+            initialRole={roles[0] || ''}
+          />
+        </Modal>
+
+        {/* Delete Account Modal */}
+        <Modal
+          title="Xác nhận xóa tài khoản"
+          open={deleteModalVisible}
+          onCancel={() => setDeleteModalVisible(false)}
+          footer={[
+            <Button key="cancel" onClick={() => setDeleteModalVisible(false)}>
+              Hủy
+            </Button>,
+            <Button
+              key="delete"
+              type="primary"
+              danger
+              disabled={deleteBtnDisabled}
+              onClick={handleDelete}
+            >
+              {deleteBtnDisabled ? `Xóa (${countdown})` : "Xóa"}
+            </Button>,
+          ]}
+        >
+          {deleteTarget && (
+            <>
+              Bạn có chắc chắn muốn xóa tài khoản <b>{deleteTarget.username}</b> (UserID: {deleteTarget.userID})? Hành động này không thể hoàn tác.
+            </>
+          )}
+        </Modal>
+      </div>
     </>
   );
 }

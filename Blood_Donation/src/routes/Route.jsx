@@ -11,8 +11,9 @@ import Profile from "../pages/Profile/Profile";
 import ProtectedRoute from "./ProtectedRoute";
 import { Contact } from "../pages/Contact/Contact";
 import AdminDashboard from "../pages/Admin/Dashboard/AdminDashboard";
-import ManageAccount from "../pages/Admin/ManageAccount"
-import AccountDetail from "../pages/Admin/AccountDetail/AccountDetail";
+import ManageAccount from "../pages/Admin/Accounts/ManageAccount";
+import ManageProgram from "../pages/Admin/Programs/ManageProgram";
+import AccountDetail from "../pages/Admin/Accounts/AccountDetail";
 import AppHeader from "../layouts/components/Header/Header";
 import { Outlet, Navigate } from "react-router-dom";
 import AppFooter from "../layouts/components/Footer/Footer";
@@ -28,6 +29,7 @@ import { Schedule } from "../pages/Donate/Schedule/Schedule";
 import DonateContainer from "../pages/Donate/DonateContainer";
 import DonateCheckup from "../pages/Donate/Checkup/DonateCheckup";
 import { Event } from "../pages/Event/Event";
+import FirebaseImageUploader from "../components/FirebaseImageUploader (experimental)";
 
 const routes = [
   {
@@ -99,10 +101,11 @@ const routes = [
         element: <AdminDashboard />,
         children: [
           { index: true, element: <div>Welcome to Admin Dashboard</div> },
-          { path: "overview", element: <div>Overview tab</div>},
+          { path: "overview", element: <FirebaseImageUploader />},
           { path: "accounts", element: <ManageAccount />},
           { path: "accounts/:id", element: <AccountDetail /> },
           { path: "reports", element: <div>Report List</div> },
+          { path: "programs", element: <ManageProgram /> },
         ],
       },
     ],

@@ -1,36 +1,50 @@
-import React from "react";
+import React, { useState } from "react";
 import styles from "../BloodDonate/styles.module.scss";
 import { useSelector, useDispatch } from "react-redux";
 import { Button, Modal, message } from "antd";
-import { clearHistory } from "../../redux/features/bloodHistorySlice";
+import {
+  clearDonationHistory,
+  clearCurrentAppointment,
+} from "../../redux/features/bloodHistorySlice";
 import { useNavigate } from "react-router-dom";
+import api from "../../configs/axios";
 
 const BloodDonate = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const [isModalVisible, setIsModalVisible] = useState(false);
 
   const user = useSelector((state) => state.user);
-  const { donationHistory } = useSelector((state) => state.bloodHistory);
-  const historyItem = donationHistory?.[0];
+  const { history, currentAppointment } = useSelector(
+    (state) => state.bloodHistory
+  );
+
+  // ✅ Ưu tiên currentAppointment nếu có
+  const historyItem = currentAppointment || history?.[0];
 
   const handleRegister = () => {
-    // TODO: Gọi API đăng ký hiến máu tại đây
-    // message.success("Đăng ký hiến máu thành công!");
     navigate("/user/donate/schedule");
   };
 
-  const handleDelete = () => {
-    Modal.confirm({
-      title: "Xác nhận hủy đăng ký",
-      content: "Bạn có chắc muốn xóa đơn đăng ký hiến máu này không?",
-      okText: "Xác nhận",
-      cancelText: "Hủy",
-      onOk: () => {
-        // TODO: Gọi API xóa đơn đăng ký
-        dispatch(clearHistory());
-        message.success("Xóa đơn đăng ký thành công!");
-      },
-    });
+  const handleDelete = async () => {
+    if (!historyItem) return;
+
+    try {
+      await api.delete(`/appointments/${historyItem.id}/with-permission`, {
+        params: {
+          username: user.username,
+        },
+      });
+
+      dispatch(clearDonationHistory());
+      dispatch(clearCurrentAppointment());
+      message.success("Xóa đơn đăng ký thành công!");
+      setIsModalVisible(false);
+      navigate("/user/bloodDonate");
+    } catch (err) {
+      console.error("Lỗi xóa appointment:", err.response?.data || err.message);
+      message.error("Xóa đơn đăng ký thất bại.");
+    }
   };
 
   return (
@@ -38,27 +52,25 @@ const BloodDonate = () => {
       <h2>Thông tin đăng ký hiến máu</h2>
 
       <div className={styles.cardContainer}>
-        {/* Thông tin cá nhân */}
         <div className={styles.card}>
           <h3>Thông tin cá nhân</h3>
           <p>
-            <strong>Họ và tên :</strong> {user?.fullName || "-"}
+            <strong>Họ và tên:</strong> {user?.fullName || "-"}
           </p>
           <p>
-            <strong>CCCD :</strong> {user?.cccd || "-"}
+            <strong>CCCD:</strong> {user?.cccd || "-"}
           </p>
           <p>
-            <strong>Ngày sinh :</strong> {user?.dob || "-"}
+            <strong>Ngày sinh:</strong> {user?.dob || "-"}
           </p>
           <p>
-            <strong>Giới tính :</strong> {user?.gender || "-"}
+            <strong>Giới tính:</strong> {user?.gender || "-"}
           </p>
           <p>
-            <strong>Nhóm máu :</strong> {user?.typeBlood || "-"}
+            <strong>Nhóm máu:</strong> {user?.typeBlood || "-"}
           </p>
         </div>
 
-        {/* Lịch đăng ký hiến máu */}
         <div className={styles.card}>
           <h3>Phiếu đăng ký hiến máu</h3>
           {historyItem ? (
@@ -75,12 +87,28 @@ const BloodDonate = () => {
         </div>
       </div>
 
-      {/* Button */}
       <div className={styles.buttonWrapper}>
         {historyItem ? (
-          <Button danger type="primary" onClick={handleDelete}>
-            Xóa đơn đăng ký
-          </Button>
+          <>
+            <Button
+              danger
+              type="primary"
+              onClick={() => setIsModalVisible(true)}
+            >
+              Xóa đơn đăng ký
+            </Button>
+            <Modal
+              title="Xác nhận hủy đăng ký"
+              open={isModalVisible}
+              onOk={handleDelete}
+              onCancel={() => setIsModalVisible(false)}
+              okText="Xác nhận"
+              cancelText="Hủy"
+              centered
+            >
+              <p>Bạn có chắc muốn xóa đơn đăng ký hiến máu này không?</p>
+            </Modal>
+          </>
         ) : (
           <Button type="primary" onClick={handleRegister}>
             Đăng ký hiến máu
