@@ -29,7 +29,7 @@ h2 {
 
 .checkboxGroup {
   display: flex;
-  align-items: center;
-  gap: 20px;
-  flex-wrap: wrap;
+  flex-direction: column;  
+  gap: 8px;                
 }
+
