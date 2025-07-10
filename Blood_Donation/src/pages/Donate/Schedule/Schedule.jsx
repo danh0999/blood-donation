@@ -6,10 +6,7 @@ import api from "../../../configs/axios";
 import styles from "./styles.module.scss";
 import { Button } from "../../../components/Button/Button";
 import { useSelector, useDispatch } from "react-redux";
-import {
-  clearDonationHistory,
-  setSelectedProgram,
-} from "../../../redux/features/bloodHistorySlice";
+import { setSelectedProgram } from "../../../redux/features/bloodHistorySlice";
 
 const { Option } = Select;
 
@@ -64,7 +61,9 @@ export const Schedule = () => {
         setPrograms([programWithTime]);
         setSelectedProgramId(programWithTime.id);
         setSlots(slotList); // ✅ Đặt slot để render dropdown
-        dispatch(clearDonationHistory());
+        // Không làm gì với Redux ở đây, chỉ xử lý local state
+        setPrograms([programWithTime]);
+        setSelectedProgramId(programWithTime.id);
       };
 
       fetchSlotLabels();
