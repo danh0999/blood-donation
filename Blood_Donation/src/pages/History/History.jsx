@@ -80,6 +80,31 @@ export const History = () => {
                   {statusLabel[item.status]}
                 </Tag>
               </div>
+
+              {/* 🎯 THÊM PHẦN NHẮC NHỞ / CẢM ƠN */}
+              {item.status === "APPROVED" && (
+                <p
+                  style={{
+                    color: "#faad14",
+                    fontStyle: "italic",
+                    marginTop: 8,
+                  }}
+                >
+                  ⚠️ Vui lòng đến đúng giờ để hoàn thành hiến máu.
+                </p>
+              )}
+              {item.status === "FULFILLED" && (
+                <p
+                  style={{
+                    color: "#52c41a",
+                    fontStyle: "italic",
+                    marginTop: 8,
+                  }}
+                >
+                  🎉 Cảm ơn bạn đã hiến máu! Hãy nghỉ ngơi và trở lại sau 10–14
+                  ngày nếu muốn tiếp tục đóng góp 💖
+                </p>
+              )}
             </div>
           ))}
         </div>

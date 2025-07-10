@@ -9,6 +9,7 @@ import {
 import { useNavigate } from "react-router-dom";
 import api from "../../configs/axios";
 import { toast } from "react-toastify"; // ✅ thêm import toast
+import { useEffect } from "react";
 
 const BloodDonate = () => {
   const dispatch = useDispatch();
@@ -21,6 +22,18 @@ const BloodDonate = () => {
   );
 
   const historyItem = currentAppointment || history?.[0];
+  // const isApproved = historyItem?.status === "APPROVED";
+  const isFulfilled = historyItem?.status === "FULFILLED";
+
+  // 👇 Xóa currentAppointment nếu đã hoàn thành
+  useEffect(() => {
+    if (isFulfilled) {
+      dispatch(clearCurrentAppointment());
+    }
+  }, [isFulfilled, dispatch]);
+
+  // 👇 Nếu appointment đã fulfilled thì không hiển thị lịch
+  const isValidAppointment = historyItem && historyItem.status !== "FULFILLED";
 
   const handleRegister = () => {
     navigate("/user/donate/schedule");
@@ -46,7 +59,6 @@ const BloodDonate = () => {
       toast.error("❌ Xóa đơn đăng ký thất bại.");
     }
   };
-
   return (
     <div className={styles.registrationWrapper}>
       <h2>Thông tin đăng ký hiến máu</h2>
@@ -73,7 +85,7 @@ const BloodDonate = () => {
 
         <div className={styles.card}>
           <h3>Phiếu đăng ký hiến máu</h3>
-          {historyItem ? (
+          {isValidAppointment ? (
             <>
               <p>Bạn đã đăng ký hiến máu tại:</p>
               <p className={styles.address}>{historyItem.address}</p>
@@ -88,7 +100,7 @@ const BloodDonate = () => {
       </div>
 
       <div className={styles.buttonWrapper}>
-        {historyItem ? (
+        {isValidAppointment ? (
           <>
             <Button
               danger
