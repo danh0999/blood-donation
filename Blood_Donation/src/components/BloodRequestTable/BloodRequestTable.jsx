@@ -1,17 +1,53 @@
 import React, { useEffect } from "react";
-import { Table, Tag } from "antd";
+import { Table, Tag, Tooltip } from "antd";
 import { useSelector, useDispatch } from "react-redux";
 import { fetchAllBloodRequests } from "../../redux/features/bloodRequestSlice";
 import styles from "./styles.module.scss";
 
-function BloodRequestTable() {
+function BloodRequestTable({ demoData = [] }) {
   const dispatch = useDispatch();
 //   const user = useSelector((state) => state.user);
+// dummy data
+const demoData2 = [
+  {
+    reqID: "REQ001",
+    isEmergency: "yes",
+    status: "PENDING",
+    reqCreateDate: new Date().toISOString(),
+    details: [
+      { bloodType: "A+", packCount: 2, packVolume: 450 },
+      { bloodType: "O-", packCount: 1, packVolume: 350 },
+    ],
+  },
+  {
+    reqID: "REQ002",
+    isEmergency: "no",
+    status: "APPROVED",
+    reqCreateDate: new Date().toISOString(),
+    details: [
+      { bloodType: "B+", packCount: 3, packVolume: 500 },
+    ],
+  },
+];
+
+  const statusDescriptions = {
+    PENDING: "PENDING: Trung tâm hiến máu đang xem xét yêu cầu của bạn. Vui lòng đợi.",
+    APPROVED: "APPROVED: Yêu cầu đã được phê duyệt. Các túi máu sẽ được giao trong vòng 3–5 ngày tới. Nếu có thắc mắc, vui lòng liên hệ: 0123 456 789.",
+    COMPLETED: "COMPLETED: Quá trình nhận máu đã hoàn tất. Cảm ơn bạn!",
+    REJECTED: "REJECTED: Yêu cầu đã bị từ chối. Vui lòng kiểm tra lại thông tin hoặc liên hệ hỗ trợ.",
+  };
+
   const { requestList, loading } = useSelector((state) => state.bloodRequest);
 
+    // useEffect(() => {
+    //     dispatch(fetchAllBloodRequests());
+    // }, [dispatch]);
+
     useEffect(() => {
-        dispatch(fetchAllBloodRequests());
-    }, [dispatch]);
+  if (!demoData || demoData.length === 0) {
+    dispatch(fetchAllBloodRequests());
+  }
+}, [dispatch, demoData]);
 
   const columns = [
   {
@@ -49,7 +85,11 @@ function BloodRequestTable() {
       else if (status === "APPROVED") color = "blue";
       else if (status === "COMPLETED") color = "green";
       else if (status === "REJECTED") color = "red";
-      return <Tag color={color}>{status}</Tag>;
+      return (
+      <Tooltip title={statusDescriptions[status]}>
+        <Tag color={color} style={{ cursor: "pointer" }}>{status}</Tag>
+      </Tooltip>
+    );
     },
   },
   {
@@ -65,7 +105,12 @@ function BloodRequestTable() {
       <h3 className={styles.title}>Danh sách yêu cầu máu</h3>
        <Table
         columns={columns}
-        dataSource={Array.isArray(requestList) ? requestList : []}
+        // dataSource={Array.isArray(requestList) ? requestList : demoData}
+        dataSource={
+          Array.isArray(requestList) && requestList.length > 0
+            ? requestList
+            : demoData
+        }
         rowKey="reqID"
         loading={loading}
         bordered

@@ -36,8 +36,20 @@ const HospitalStaffDashboard = () => {
   } = theme.useToken();
 
   const [selectedMenuItem, setSelectedMenuItem] = useState("dashboard");
-
+//setup test
   const [isModalVisible, setIsModalVisible] = useState(false);
+  const [localRequests, setLocalRequests] = useState([]);
+  const handleNewRequest = (newRequest) => {
+  const formatted = {
+    reqID: `REQ${Date.now()}`, // unique ID
+    reqCreateDate: new Date().toISOString(),
+    status: "PENDING",
+    ...newRequest,
+  };
+  setLocalRequests((prev) => [formatted, ...prev]);
+  setIsModalVisible(false); // close modal after submit
+};
+//end of setup test
   const showModal = () => {
     setIsModalVisible(true);
   };
@@ -115,9 +127,13 @@ const HospitalStaffDashboard = () => {
                   footer={null} 
                   width={800} 
                 >
-                  <BloodReceiveForm onFinishSuccess={() => setIsModalVisible(false)} />
+                  {/* original: <BloodReceiveForm onFinishSuccess={() => setIsModalVisible(false)} /> */}
+                  <BloodReceiveForm onFinishSuccess={handleNewRequest} />
+
                 </Modal>
-                <BloodRequestTable />
+                {/* <BloodRequestTable /> */}
+                <BloodRequestTable demoData={localRequests} />
+
               </>
             )}
 
