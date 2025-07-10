@@ -1,13 +1,14 @@
 import React, { useState } from "react";
 import styles from "../BloodDonate/styles.module.scss";
 import { useSelector, useDispatch } from "react-redux";
-import { Button, Modal, message } from "antd";
+import { Button, Modal } from "antd";
 import {
   clearDonationHistory,
   clearCurrentAppointment,
 } from "../../redux/features/bloodHistorySlice";
 import { useNavigate } from "react-router-dom";
 import api from "../../configs/axios";
+import { toast } from "react-toastify"; // ✅ thêm import toast
 
 const BloodDonate = () => {
   const dispatch = useDispatch();
@@ -19,7 +20,6 @@ const BloodDonate = () => {
     (state) => state.bloodHistory
   );
 
-  // ✅ Ưu tiên currentAppointment nếu có
   const historyItem = currentAppointment || history?.[0];
 
   const handleRegister = () => {
@@ -38,12 +38,12 @@ const BloodDonate = () => {
 
       dispatch(clearDonationHistory());
       dispatch(clearCurrentAppointment());
-      message.success("Xóa đơn đăng ký thành công!");
+      toast.success("🗑️ Xóa đơn đăng ký thành công!");
       setIsModalVisible(false);
       navigate("/user/bloodDonate");
     } catch (err) {
       console.error("Lỗi xóa appointment:", err.response?.data || err.message);
-      message.error("Xóa đơn đăng ký thất bại.");
+      toast.error("❌ Xóa đơn đăng ký thất bại.");
     }
   };
 
