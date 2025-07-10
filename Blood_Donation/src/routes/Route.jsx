@@ -118,9 +118,14 @@ const routes = [
   },
 
   {
-    path: "hospital",
-    element: <ProtectedRoute allowedRoles={["HOSPITAL_STAFF"]} />,
-    children: [{ index: true, element: <HospitalStaff_Dashboard /> }],
+     path: "hospital",
+    //  element: <HospitalStaff_Dashboard />,
+  element: (
+    <ProtectedRoute allowedRoles={["HOSPITAL_STAFF"]}>
+      <HospitalStaff_Dashboard />
+    </ProtectedRoute>
+  ),
+    children: [{ index: true, element: <div>Welcome to Hospital Staff Dashboard</div> }],
   },
 ];
 

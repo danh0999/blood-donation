@@ -1,20 +1,26 @@
 import React from "react";
-import { Form, Input, Button, Select, DatePicker, TimePicker } from "antd";
+import { Form, Input, Button, Select, Checkbox, TimePicker } from "antd";
 import styles from "../Blood-Receive-Form/styles.module.scss";
 import { useSelector } from "react-redux";
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
+import { useDispatch } from "react-redux";
+import { createBloodRequest } from "../../../redux/features/bloodRequestSlice"; 
+
 
 const { Option } = Select;
 
-function BloodReceiveForm() {
+function BloodReceiveForm( {onFinishSuccess} ) {
   const [form] = Form.useForm();
   const navigate = useNavigate();
+  const dispatch = useDispatch();
+
 
   // Lấy user từ Redux
   const user = useSelector((state) => state.user);
 
-  const handleSubmit = async () => {
+
+  const handleSubmit = async (values) => {
     if (!user) {
       toast.warning("Bạn cần đăng nhập để gửi thông tin nhận máu.");
       navigate("/login");
@@ -31,11 +37,31 @@ function BloodReceiveForm() {
       // Gửi API nếu có
       // await dispatch(registerReceive(formatted)).unwrap();
 
-      toast.success("Gửi yêu cầu nhận máu thành công!");
-      form.resetFields();
-    } catch (error) {
-      toast.error(error?.message || "Đã xảy ra lỗi khi gửi yêu cầu.");
-    }
+    //   toast.success("Gửi yêu cầu nhận máu thành công!");
+    //   form.resetFields();
+    //   if (onFinishSuccess) onFinishSuccess();
+    // } catch (error) {
+    //   toast.error(error?.message || "Đã xảy ra lỗi khi gửi yêu cầu.");
+    // }
+
+    const payload = {
+      isEmergency: values.isEmergency ? "yes" : "no", 
+      medId: user.userID, 
+      details: values.bloodRequestDetails.map((item) => ({
+        bloodType: item.bloodType,
+        packVolume: item.unitSize,
+        packCount: item.quantity,
+      })),
+    };
+
+    // await dispatch(createBloodRequest(payload)).unwrap();
+    toast.success("Gửi yêu cầu nhận máu thành công!");
+    form.resetFields();
+    // if (onFinishSuccess) onFinishSuccess();
+    if (onFinishSuccess) onFinishSuccess(payload);
+  } catch (error) {
+    toast.error(error || "Đã xảy ra lỗi khi gửi yêu cầu.");
+  }
   };
 
   return (
@@ -46,121 +72,117 @@ function BloodReceiveForm() {
         form={form}
         onFinish={handleSubmit}
         className={styles.form}
+        initialValues={{
+          fullName: user?.fullName,
+          phone: user?.phone,
+          email: user?.email,
+          hospital: user?.hospital
+        }}
       >
         <Form.Item
           label="Họ và tên"
           name="fullName"
-          rules={[{ required: true, message: "Vui lòng nhập họ và tên!" }]}
         >
-          <Input />
-        </Form.Item>
-
-        <Form.Item
-          name="cccd"
-          label="CCCD"
-          rules={[
-            { required: true, message: "Vui lòng nhập CCCD!" },
-            {
-              pattern: /^[0-9]{12}$/,
-              message: "CCCD phải gồm đúng 12 chữ số!",
-            },
-          ]}
-        >
-          <Input placeholder="012345678901" />
+          <Input disabled />
         </Form.Item>
 
         <Form.Item
           label="Số điện thoại"
           name="phone"
-          rules={[
-            { required: true, message: "Vui lòng nhập số điện thoại!" },
-            {
-              pattern: /^(0|\+84)[0-9]{9,10}$/,
-              message: "Số điện thoại không hợp lệ!",
-            },
-          ]}
         >
-          <Input />
+          <Input disabled/>
         </Form.Item>
 
         <Form.Item
           label="Email"
           name="email"
-          rules={[
-            { required: true, message: "Vui lòng nhập email!" },
-            { type: "email", message: "Email không hợp lệ!" },
-          ]}
         >
-          <Input placeholder="example@gmail.com" />
+          <Input disabled />
         </Form.Item>
 
         <Form.Item
-          label="Nhóm máu cần nhận"
-          name="bloodType"
-          rules={[{ required: true, message: "Vui lòng chọn nhóm máu!" }]}
+          label="Địa chỉ bệnh viện"
+          name="hospital"
         >
-          <Select placeholder="Chọn nhóm máu cần">
-            <Option value="A+">A+</Option>
-            <Option value="A-">A-</Option>
-            <Option value="B+">B+</Option>
-            <Option value="B-">B-</Option>
-            <Option value="AB+">AB+</Option>
-            <Option value="AB-">AB-</Option>
-            <Option value="O+">O+</Option>
-            <Option value="O-">O-</Option>
-          </Select>
+          <Input disabled />
         </Form.Item>
 
         <Form.Item
-          label="Lượng máu cần nhận (đơn vị: ml)"
-          name="amount"
-          rules={[{ required: true, message: "Vui lòng nhập lượng máu!" }]}
+          name="isEmergency"
+          valuePropName="checked"
+          initialValue={false}
         >
-          <Input type="number" min={100} step={50} placeholder="Ví dụ: 500" />
+          <Checkbox>Khẩn cấp</Checkbox>
         </Form.Item>
 
-        <Form.Item label="Lý do cần máu" name="reason">
-          <Input.TextArea rows={3} />
-        </Form.Item>
-
-        <Form.Item label="Địa chỉ bệnh viện/nhà">
-          <Form.Item
-            name="hospital"
+       <Form.Item label="Chi tiết yêu cầu máu">
+          <Form.List
+            name="bloodRequestDetails"
             rules={[
-              { required: true, message: "Nhập địa chỉ nơi cần nhận máu!" },
+              {
+                validator: async (_, names) => {
+                  if (!names || names.length < 1) {
+                    return Promise.reject(
+                      new Error("Vui lòng thêm ít nhất một yêu cầu máu!")
+                    );
+                  }
+                },
+              },
             ]}
-            style={{ marginBottom: 0 }}
           >
-            <Input placeholder="Tên bệnh viện hoặc địa chỉ cụ thể" />
-          </Form.Item>
-        </Form.Item>
+            {(fields, { add, remove }) => (
+              <>
+                {fields.map(({ key, name, ...restField }) => (
+                  <div key={key} style={{ display: "flex", gap: 8, marginBottom: 16 }}>
+                    <Form.Item
+                      {...restField}
+                      name={[name, "bloodType"]}
+                      rules={[{ required: true, message: "Chọn nhóm máu!" }]}
+                      style={{ flex: 1 }}
+                    >
+                      <Select placeholder="Nhóm máu">
+                        <Option value="A">A</Option>
+                        <Option value="B">B</Option>
+                        <Option value="AB">AB</Option>
+                        <Option value="O">O</Option>
+                      </Select>
+                    </Form.Item>
 
-        <Form.Item
-          label="Thời gian mong muốn nhận máu"
-          required
-          style={{ marginBottom: 0 }}
-        >
-          <Form.Item
-            name="receiveDate"
-            rules={[{ required: true, message: "Chọn ngày!" }]}
-            style={{ display: "inline-block", width: "calc(50% - 8px)" }}
-          >
-            <DatePicker style={{ width: "100%" }} />
-          </Form.Item>
-          <span
-            style={{
-              display: "inline-block",
-              width: "16px",
-              textAlign: "center",
-            }}
-          />
-          <Form.Item
-            name="receiveTime"
-            rules={[{ required: true, message: "Chọn giờ!" }]}
-            style={{ display: "inline-block", width: "calc(50% - 8px)" }}
-          >
-            <TimePicker format="HH:mm" style={{ width: "100%" }} />
-          </Form.Item>
+                    <Form.Item
+                      {...restField}
+                      name={[name, "unitSize"]}
+                      rules={[{ required: true, message: "Chọn đơn vị ml!" }]}
+                      style={{ flex: 1 }}
+                    >
+                      <Select placeholder="Đơn vị (ml)">
+                        <Option value={200}>200ml</Option>
+                        <Option value={350}>350ml</Option>
+                        <Option value={500}>500ml</Option>
+                      </Select>
+                    </Form.Item>
+
+                    <Form.Item
+                      {...restField}
+                      name={[name, "quantity"]}
+                      rules={[{ required: true, message: "Nhập số lượng!" }]}
+                      style={{ flex: 1 }}
+                    >
+                      <Input type="number" min={1} placeholder="Số lượng" />
+                    </Form.Item>
+
+                    <Button danger onClick={() => remove(name)}>
+                      Xoá
+                    </Button>
+                  </div>
+                ))}
+                <Form.Item>
+                  <Button type="dashed" onClick={() => add()} block>
+                    + Thêm yêu cầu máu
+                  </Button>
+                </Form.Item>
+              </>
+            )}
+          </Form.List>
         </Form.Item>
 
         <Form.Item>
