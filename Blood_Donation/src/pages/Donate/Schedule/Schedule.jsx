@@ -30,7 +30,7 @@ export const Schedule = () => {
     if (selectedProgram) {
       form.setFieldsValue({
         date: dayjs(selectedProgram.startDate),
-        locationId: selectedProgram.locationId,
+        cityId: selectedProgram.cityId,
       });
 
       const fetchSlotLabels = async () => {
@@ -75,7 +75,7 @@ export const Schedule = () => {
       const values = await form.validateFields();
       const selectedDate = dayjs(values.date).format("YYYY-MM-DD");
 
-      if (!values.locationId) {
+      if (!values.cityId) {
         message.warning("Bạn chưa chọn địa điểm.");
         return;
       }
@@ -85,7 +85,7 @@ export const Schedule = () => {
       const res = await api.get("programs/search", {
         params: {
           date: selectedDate,
-          locationId: values.locationId,
+          cityId: values.cityId,
         },
       });
 
@@ -135,24 +135,37 @@ export const Schedule = () => {
   const handleContinue = async () => {
     const values = await form.getFieldsValue();
 
+    if (!selectedProgramId && !selectedProgram) {
+      message.warning("Vui lòng chọn chương trình hiến máu.");
+      return;
+    }
+
+    // Nếu có selectedProgram từ Redux (tức đi từ EventDetail), slotId phải lấy từ user chọn
     if (selectedProgram) {
-      dispatch(setSelectedProgram(selectedProgram));
+      if (!selectedSlotId) {
+        message.warning("Vui lòng chọn khung giờ.");
+        return;
+      }
+
+      const updatedProgram = {
+        ...selectedProgram,
+        slotIds: [selectedSlotId], // Ghi đè lại slotId được chọn
+      };
+
+      dispatch(setSelectedProgram(updatedProgram));
+
       navigate("/user/donate/checkup", {
         state: {
           date: dayjs(values.date).format("YYYY-MM-DD"),
-          locationId: values.locationId,
+          cityId: values.cityId,
           programId: selectedProgram.id,
-          slotId: selectedProgram.slotIds?.[0] || 1, // fallback
+          slotId: selectedSlotId, // ✅ slot đã chọn
         },
       });
       return;
     }
 
-    if (!selectedProgramId) {
-      message.warning("Vui lòng chọn chương trình hiến máu.");
-      return;
-    }
-
+    // Nếu chọn từ danh sách chương trình
     const program = programs.find((p) => p.id === selectedProgramId);
     if (!program) {
       message.error("Không tìm thấy chương trình đã chọn.");
@@ -164,14 +177,19 @@ export const Schedule = () => {
       return;
     }
 
-    dispatch(setSelectedProgram(program));
+    const updatedProgram = {
+      ...program,
+      slotIds: [selectedSlotId],
+    };
+
+    dispatch(setSelectedProgram(updatedProgram));
 
     navigate("/user/donate/checkup", {
       state: {
         date: dayjs(values.date).format("YYYY-MM-DD"),
-        locationId: values.locationId,
+        cityId: values.cityId,
         programId: selectedProgramId,
-        slotId: selectedSlotId, // ✅ truyền slot thật sự
+        slotId: selectedSlotId,
       },
     });
   };
@@ -214,7 +232,7 @@ export const Schedule = () => {
 
           <Form.Item
             label="Tỉnh/Thành phố"
-            name="locationId"
+            name="cityId"
             rules={[{ required: true, message: "Vui lòng chọn địa điểm" }]}
           >
             <Select
