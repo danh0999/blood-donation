@@ -62,7 +62,6 @@ const LoginForm = () => {
           navigate("/");
       }
     } catch (e) {
-      console.error("Login error:", e);
       toast.error(e.response?.data || "Đăng nhập thất bại!");
     }
   };
