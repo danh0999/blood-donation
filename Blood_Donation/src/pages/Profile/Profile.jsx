@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { Modal, Button, Form, Input, Select } from "antd";
-
+import { Modal, Button, Form, Input, Select, DatePicker } from "antd";
+import dayjs from "dayjs";
 import styles from "./styles.module.scss";
 import { toast } from "react-toastify";
 import api from "../../configs/axios";
@@ -27,10 +27,14 @@ const Profile = () => {
 
   const handleUpdate = async (updatedData) => {
     try {
-      const response = await api.put(`/users/${user.userID}`, {
+      const formattedData = {
         ...user,
         ...updatedData,
-      });
+        birthdate: updatedData.birthdate?.format("YYYY-MM-DD"),
+      };
+
+      const response = await api.put(`/users/${user.userID}`, formattedData);
+      console.log("Gửi lên server:", formattedData);
 
       toast.success("Cập nhật thành công!");
       dispatch(
@@ -63,8 +67,10 @@ const Profile = () => {
             <strong>Giới tính :</strong> {user.gender === "MALE" ? "Nam" : "Nữ"}
           </p>
           <p>
-            <strong>Nhóm máu :</strong>
-            {user.typeBlood}
+            <strong>Ngày sinh :</strong> {user.birthdate}
+          </p>
+          <p>
+            <strong>Nhóm máu :</strong> {user.typeBlood}
           </p>
         </div>
 
@@ -94,6 +100,7 @@ const Profile = () => {
                   phone: user.phone || "",
                   gender: user.gender || "",
                   typeBlood: user.typeBlood || "",
+                  birthdate: user.birthdate ? dayjs(user.birthdate) : null,
                 });
                 setUpdateModalVisible(true);
               }}
@@ -123,16 +130,18 @@ const Profile = () => {
             address: user.address,
             phone: user.phone,
             gender: user.gender,
-            bloodType: user.typeBlood,
+            typeBlood: user.typeBlood,
+            birthdate: user.birthdate ? dayjs(user.birthdate) : null,
           }}
         >
           <Form.Item
             name="fullName"
-            label="FullName"
-            rules={[{ required: true, message: "Vui lòng nhập fullName!" }]}
+            label="Họ tên"
+            rules={[{ required: true, message: "Vui lòng nhập họ tên!" }]}
           >
             <Input placeholder="Tên bạn muốn hiển thị" />
           </Form.Item>
+
           <Form.Item
             name="email"
             label="Email"
@@ -146,10 +155,10 @@ const Profile = () => {
 
           <Form.Item
             name="username"
-            label="UserName"
-            rules={[{ required: true, message: "Vui lòng nhập UserName!" }]}
+            label="Tên đăng nhập"
+            rules={[{ required: true, message: "Vui lòng nhập Username!" }]}
           >
-            <Input placeholder="Tên bạn muốn hiển thị" />
+            <Input placeholder="Tên đăng nhập" />
           </Form.Item>
 
           <Form.Item
@@ -167,9 +176,17 @@ const Profile = () => {
           </Form.Item>
 
           <Form.Item
+            name="birthdate"
+            label="Ngày sinh"
+            rules={[{ required: true, message: "Vui lòng chọn ngày sinh!" }]}
+          >
+            <DatePicker style={{ width: "100%" }} format="YYYY-MM-DD" />
+          </Form.Item>
+
+          <Form.Item
             name="address"
-            label="Nơi cư trú"
-            rules={[{ required: true, message: "Vui lòng nhập nơi cư trú!" }]}
+            label="Địa chỉ"
+            rules={[{ required: true, message: "Vui lòng nhập địa chỉ!" }]}
           >
             <Input placeholder="Ví dụ: Quận 1, TP. Hồ Chí Minh" />
           </Form.Item>

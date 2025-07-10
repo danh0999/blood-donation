@@ -94,7 +94,7 @@ const DonateCheckup = () => {
   const location = useLocation();
   const user = useSelector((state) => state.user);
 
-  const { programId, date, locationId, slotId } = location.state || {};
+  const { programId, date, cityId, slotId } = location.state || {};
 
   const handleCheckboxChange = (qIndex, option) => {
     const updated = [...answers];
@@ -122,7 +122,7 @@ const DonateCheckup = () => {
     const payload = {
       slotId,
       programId,
-      locationId,
+      cityId,
       date,
       answer1: answers[0].answer.join(", "),
       answer2:
@@ -142,6 +142,7 @@ const DonateCheckup = () => {
       answer8:
         answers[7].answer.join(", ") +
         (answers[7].note ? `: ${answers[7].note}` : ""),
+
       answer9: answers[8].answer.join(", "),
     };
 
@@ -156,6 +157,7 @@ const DonateCheckup = () => {
         id: detail.id,
         address: detail.address || "Không rõ địa điểm",
         time: detail.timeRange || "Không rõ thời gian",
+        status: detail.status,
       };
 
       dispatch(setDonationHistory([data]));

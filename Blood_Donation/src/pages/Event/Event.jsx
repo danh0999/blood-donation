@@ -15,12 +15,18 @@ export const Event = () => {
   const [selectedEvent, setSelectedEvent] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [programs, setPrograms] = useState([]);
+  const [addresses, setAddresses] = useState([]);
   const [slots, setSlots] = useState([]);
   const location = useLocation();
 
   const handleShowDetail = (event) => {
     const matchedSlots = slots.filter((s) => event.slotIds?.includes(s.slotID));
-    const enrichedEvent = { ...event, slots: matchedSlots };
+    const addressName = getAddressName(event.addressId);
+    const enrichedEvent = {
+      ...event,
+      slots: matchedSlots,
+      address: addressName,
+    };
     setSelectedEvent(enrichedEvent);
     setIsModalOpen(true);
   };
@@ -28,8 +34,8 @@ export const Event = () => {
   const fetchPrograms = async () => {
     try {
       const queryParams = new URLSearchParams(location.search);
-      const start = queryParams.get("startDate"); // ✅ Đổi thành startDate
-      const end = queryParams.get("endDate"); // ✅ Đổi thành endDate
+      const start = queryParams.get("startDate");
+      const end = queryParams.get("endDate");
 
       let res;
       if (start) {
@@ -41,7 +47,7 @@ export const Event = () => {
       }
       setPrograms(res.data);
     } catch (error) {
-      console.log(error);
+      console.error(error);
       message.error("Lỗi khi tải danh sách chương trình");
     }
   };
@@ -51,18 +57,32 @@ export const Event = () => {
       const res = await api.get("/slots");
       setSlots(res.data);
     } catch (error) {
-      console.log(error);
-
+      console.error(error);
       message.error("Lỗi khi tải danh sách thời gian (slots)");
     }
+  };
+
+  const fetchAddresses = async () => {
+    try {
+      const res = await api.get("/addresses");
+      setAddresses(res.data);
+    } catch (error) {
+      console.error(error);
+      message.error("Không thể tải địa chỉ.");
+    }
+  };
+
+  const getAddressName = (addressId) => {
+    const found = addresses.find((a) => a.id === addressId);
+    return found?.name || "Không xác định";
   };
 
   useEffect(() => {
     fetchPrograms();
     fetchSlots();
+    fetchAddresses();
   }, [location.search]);
 
-  // Lấy thời gian từ danh sách slot dựa trên program.slotIds
   const getTimeRange = (slotIds) => {
     const ranges = slotIds
       .map((id) => {
@@ -105,7 +125,7 @@ export const Event = () => {
                 <CiLocationOn />
                 Địa điểm:
               </span>
-              <span>{event.address}</span>
+              <span>{getAddressName(event.addressId)}</span>
             </div>
             <div className={iconText}>
               <span className={styles.label}>
@@ -123,7 +143,6 @@ export const Event = () => {
         ))}
       </div>
 
-      {/* 🔍 Popup chi tiết sự kiện */}
       {selectedEvent && (
         <EventDetail
           open={isModalOpen}

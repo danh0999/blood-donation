@@ -8,8 +8,7 @@ import {
 } from "../../redux/features/bloodHistorySlice";
 import { useNavigate } from "react-router-dom";
 import api from "../../configs/axios";
-import { toast } from "react-toastify"; // ✅ thêm import toast
-import { useEffect } from "react";
+import { toast } from "react-toastify";
 
 const BloodDonate = () => {
   const dispatch = useDispatch();
@@ -17,37 +16,32 @@ const BloodDonate = () => {
   const [isModalVisible, setIsModalVisible] = useState(false);
 
   const user = useSelector((state) => state.user);
-  const { history, currentAppointment } = useSelector(
-    (state) => state.bloodHistory
+  const currentAppointment = useSelector(
+    (state) => state.bloodHistory.currentAppointment
   );
 
-  const historyItem = currentAppointment || history?.[0];
-  // const isApproved = historyItem?.status === "APPROVED";
-  const isFulfilled = historyItem?.status === "FULFILLED";
-
-  // 👇 Xóa currentAppointment nếu đã hoàn thành
-  useEffect(() => {
-    if (isFulfilled) {
-      dispatch(clearCurrentAppointment());
-    }
-  }, [isFulfilled, dispatch]);
-
-  // 👇 Nếu appointment đã fulfilled thì không hiển thị lịch
-  const isValidAppointment = historyItem && historyItem.status !== "FULFILLED";
+  // 👉 Check hợp lệ: chỉ hiển thị lịch nếu không phải FULFILLED hoặc CANCELLED
+  const isValidAppointment =
+    currentAppointment &&
+    currentAppointment.status !== "FULFILLED" &&
+    currentAppointment.status !== "CANCELLED";
 
   const handleRegister = () => {
     navigate("/user/donate/schedule");
   };
 
   const handleDelete = async () => {
-    if (!historyItem) return;
+    if (!currentAppointment) return;
 
     try {
-      await api.delete(`/appointments/${historyItem.id}/with-permission`, {
-        params: {
-          username: user.username,
-        },
-      });
+      await api.delete(
+        `/appointments/${currentAppointment.id}/with-permission`,
+        {
+          params: {
+            username: user.username,
+          },
+        }
+      );
 
       dispatch(clearDonationHistory());
       dispatch(clearCurrentAppointment());
@@ -56,9 +50,10 @@ const BloodDonate = () => {
       navigate("/user/bloodDonate");
     } catch (err) {
       console.error("Lỗi xóa appointment:", err.response?.data || err.message);
-      toast.error("❌ Xóa đơn đăng ký thất bại.");
+      toast.error("❌ Không thể xóa đơn đã hiến máu hoặc có lỗi xảy ra.");
     }
   };
+
   return (
     <div className={styles.registrationWrapper}>
       <h2>Thông tin đăng ký hiến máu</h2>
@@ -88,9 +83,9 @@ const BloodDonate = () => {
           {isValidAppointment ? (
             <>
               <p>Bạn đã đăng ký hiến máu tại:</p>
-              <p className={styles.address}>{historyItem.address}</p>
+              <p className={styles.address}>{currentAppointment.address}</p>
               <p>
-                <strong>Thời gian:</strong> {historyItem.time}
+                <strong>Thời gian:</strong> {currentAppointment.time}
               </p>
             </>
           ) : (

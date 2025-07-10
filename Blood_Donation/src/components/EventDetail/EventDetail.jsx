@@ -1,3 +1,4 @@
+// src/components/EventDetail/EventDetail.jsx
 import React from "react";
 import { Modal, message } from "antd";
 import styles from "./styles.module.scss";
@@ -28,10 +29,9 @@ export const EventDetail = ({ open, onClose, event }) => {
 
       const slots = slotRes.data || [];
       programDetail.slots = slots;
-      programDetail.slotIds = slots.map((slot) => slot.slotID); // ✅ Thêm dòng này
+      programDetail.slotIds = slots.map((slot) => slot.slotID);
 
       dispatch(setSelectedProgram(programDetail));
-
       navigate("/user/donate/schedule");
     } catch (error) {
       console.error("Lỗi khi lấy chi tiết chương trình:", error);

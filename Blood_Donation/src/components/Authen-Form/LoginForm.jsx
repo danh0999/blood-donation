@@ -18,6 +18,7 @@ const LoginForm = () => {
     try {
       const response = await api.post("login", values);
       const userData = response.data;
+      console.log("📦 Login response:", userData);
 
       dispatch(setDonationHistory([])); // 🧹 Clear lịch hẹn cũ
       dispatch(login(userData)); // ✅ Cập nhật user mới
