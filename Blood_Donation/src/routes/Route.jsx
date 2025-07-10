@@ -30,6 +30,7 @@ import DonateContainer from "../pages/Donate/DonateContainer";
 import DonateCheckup from "../pages/Donate/Checkup/DonateCheckup";
 import { Event } from "../pages/Event/Event";
 import FirebaseImageUploader from "../components/FirebaseImageUploader (experimental)";
+import AdminOverview from "../pages/Admin/AdminOverview";
 
 const routes = [
   {
@@ -101,7 +102,7 @@ const routes = [
         element: <AdminDashboard />,
         children: [
           { index: true, element: <div>Welcome to Admin Dashboard</div> },
-          { path: "overview", element: <FirebaseImageUploader />},
+          { path: "overview", element: <AdminOverview />},
           { path: "accounts", element: <ManageAccount />},
           { path: "accounts/:id", element: <AccountDetail /> },
           { path: "reports", element: <div>Report List</div> },
