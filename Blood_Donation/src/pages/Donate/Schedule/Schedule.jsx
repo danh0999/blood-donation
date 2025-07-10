@@ -37,16 +37,25 @@ export const Schedule = () => {
       });
 
       const fetchSlotLabels = async () => {
-        const slotLabels = await Promise.all(
-          (selectedProgram.slotIds || []).map(async (slotId) => {
-            try {
-              const res = await api.get(`/slots/${slotId}`);
-              return res.data.label;
-            } catch {
-              return "Không rõ";
-            }
-          })
-        );
+        let slotLabels = [];
+        let slotList = [];
+
+        if (selectedProgram.slots && selectedProgram.slots.length > 0) {
+          slotLabels = selectedProgram.slots.map((slot) => slot.label);
+          slotList = selectedProgram.slots;
+        } else if (selectedProgram.slotIds) {
+          slotLabels = await Promise.all(
+            selectedProgram.slotIds.map(async (slotId) => {
+              try {
+                const res = await api.get(`/slots/${slotId}`);
+                return res.data.label;
+              } catch {
+                return "Không rõ";
+              }
+            })
+          );
+        }
+
         const programWithTime = {
           ...selectedProgram,
           timeRange: slotLabels.join(", ") || "Không rõ thời gian",
@@ -54,6 +63,7 @@ export const Schedule = () => {
 
         setPrograms([programWithTime]);
         setSelectedProgramId(programWithTime.id);
+        setSlots(slotList); // ✅ Đặt slot để render dropdown
         dispatch(clearDonationHistory());
       };
 

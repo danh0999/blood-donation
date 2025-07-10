@@ -19,24 +19,19 @@ export const EventDetail = ({ open, onClose, event }) => {
 
   const handleRegister = async () => {
     try {
-      // Lấy chi tiết chương trình
       const res = await api.get(`/programs/${event.id}`);
       const programDetail = res.data;
 
-      // Gọi API lấy slot theo programId
       const slotRes = await api.get("/slots", {
-        params: {
-          programId: event.id,
-        },
+        params: { programId: event.id },
       });
 
       const slots = slotRes.data || [];
       programDetail.slots = slots;
+      programDetail.slotIds = slots.map((slot) => slot.slotID); // ✅ Thêm dòng này
 
-      // Lưu chương trình đã chọn vào Redux
       dispatch(setSelectedProgram(programDetail));
 
-      // Điều hướng đến trang đặt lịch
       navigate("/user/donate/schedule");
     } catch (error) {
       console.error("Lỗi khi lấy chi tiết chương trình:", error);
