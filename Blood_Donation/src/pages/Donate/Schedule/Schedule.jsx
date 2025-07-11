@@ -27,6 +27,12 @@ export const Schedule = () => {
   const disabledDate = (current) => current && current < dayjs().startOf("day");
 
   useEffect(() => {
+    form.resetFields();
+    dispatch(setSelectedProgram(null));
+    setSelectedProgramId(null);
+    setSlots([]);
+    setSelectedSlotId(null);
+    setPrograms([]);
     if (selectedProgram) {
       form.setFieldsValue({
         date: dayjs(selectedProgram.startDate),
