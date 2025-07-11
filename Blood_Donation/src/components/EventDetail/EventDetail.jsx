@@ -20,8 +20,8 @@ export const EventDetail = ({ open, onClose, event }) => {
 
   const handleRegister = async () => {
     try {
-      const res = await api.get(`/programs/${event.id}`);
-      const programDetail = res.data;
+      // Không cần fetch lại nếu đã truyền đủ từ Event.jsx
+      const programDetail = event;
 
       const slotRes = await api.get("/slots", {
         params: { programId: event.id },
@@ -32,7 +32,12 @@ export const EventDetail = ({ open, onClose, event }) => {
       programDetail.slotIds = slots.map((slot) => slot.slotID);
 
       dispatch(setSelectedProgram(programDetail));
-      navigate("/user/donate/schedule");
+      navigate("/user/donate/schedule", {
+        state: {
+          fromEventDetail: true,
+          selectedDate: event.selectedDate || event.startDate, // ✅ Ưu tiên ngày search
+        },
+      });
     } catch (error) {
       console.error("Lỗi khi lấy chi tiết chương trình:", error);
       message.error("Không thể tải thông tin chi tiết chương trình.");
