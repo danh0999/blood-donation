@@ -6,7 +6,7 @@ export const fetchPrograms = createAsyncThunk(
   "programs/fetchPrograms",
   async () => {
     // TODO: Update endpoint
-    const response = await api.get("/admin/programs");
+    const response = await api.get("/programs");
     // Add a 'key' property for AntD Table
     return response.data.map((program) => ({
       ...program,
@@ -15,13 +15,28 @@ export const fetchPrograms = createAsyncThunk(
   }
 );
 
+// Async thunk to fetch slot details by IDs (used only in program context)
+export const fetchSlotsByIds = createAsyncThunk(
+  "programs/fetchSlotsByIds",
+  async (slotIds) => {
+    // slotIds: array of slotID
+    const requests = slotIds.map(id => api.get(`/slots/${id}`));
+    const responses = await Promise.all(requests);
+    return responses.map(res => res.data);
+  }
+);
+
 // Async thunk to fetch a specific program by ID
 export const fetchProgramById = createAsyncThunk(
   "programs/fetchProgramById",
-  async (id) => {
-    // TODO: Update endpoint
-    const response = await api.get(`/admin/programs/${id}`);
-    return response.data;
+  async (id, { dispatch }) => {
+    const response = await api.get(`/programs/${id}`);
+    const program = response.data;
+    let slots = [];
+    if (program.slotIds && program.slotIds.length > 0) {
+      slots = await dispatch(fetchSlotsByIds(program.slotIds)).unwrap();
+    }
+    return { ...program, slots };
   }
 );
 
@@ -31,7 +46,7 @@ export const deleteProgramById = createAsyncThunk(
   async (id, { rejectWithValue }) => {
     try {
       // TODO: Update endpoint
-      await api.delete(`/admin/programs/${id}`);
+      await api.delete(`/programs/${id}`);
       return id;
     } catch (err) {
       return rejectWithValue(err.response?.data?.message || err.message);
@@ -45,7 +60,7 @@ export const addProgram = createAsyncThunk(
   async (programData, { rejectWithValue }) => {
     try {
       // TODO: Update endpoint
-      const response = await api.post("/admin/programs", programData);
+      const response = await api.post("/programs", programData);
       // Add a 'key' property for AntD Table
       return { ...response.data, key: response.data.id }; // TODO: update to correct id field
     } catch (err) {

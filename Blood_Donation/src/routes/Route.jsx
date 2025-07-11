@@ -31,6 +31,7 @@ import DonateCheckup from "../pages/Donate/Checkup/DonateCheckup";
 import { Event } from "../pages/Event/Event";
 import FirebaseImageUploader from "../components/FirebaseImageUploader (experimental)";
 import AdminOverview from "../pages/Admin/AdminOverview";
+import ProgramDetail from "../pages/Admin/Programs/ProgramDetail";
 
 const routes = [
   {
@@ -107,6 +108,7 @@ const routes = [
           { path: "accounts/:id", element: <AccountDetail /> },
           { path: "reports", element: <div>Report List</div> },
           { path: "programs", element: <ManageProgram /> },
+          { path: "programs/:id", element: <ProgramDetail /> },
         ],
       },
     ],

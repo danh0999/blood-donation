@@ -141,7 +141,8 @@ function AccountTable() {
             <li>trùng username</li>
             <li>sdt, cccd không phải 1234567..</li>
           </ul>
-          <b>Validate acc bị xóa không phải acc admin duy nhất</b>
+          <b>Validate acc bị xóa không phải acc admin duy nhất</b><br/>
+          <b>Add hospital info when creating hospital staff account</b>
         </div>
         <div style={{ display: "flex", alignItems: "flex-start", gap: "1rem", marginBottom: "0.5rem", justifyContent: "space-between" }}>
           <SearchBarV2

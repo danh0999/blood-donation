@@ -1,166 +1,119 @@
-import React, { useState } from "react";
-import { Table, Button, Space, DatePicker, Input, Select } from "antd";
+import { useState, useEffect } from "react";
+import { Table, Button, Space, Modal } from "antd";
 import dayjs from "dayjs";
 import ProgramSearchBar from "./ProgramSearchBar";
+import { FileSearchOutlined, DeleteOutlined } from "@ant-design/icons";
+import { useDispatch } from "react-redux";
+import { deleteProgramById } from "../../../redux/features/programSlice";
+import { useNavigate } from "react-router-dom";
 
-const { RangePicker } = DatePicker;
-
-const columns = [
-  {
-    title: "ProgramID",
-    dataIndex: "programID",
-    key: "programID",
-  },
-  {
-    title: "Name",
-    dataIndex: "name",
-    key: "name",
-  },
-  {
-    title: "Participants",
-    dataIndex: "participants",
-    key: "participants",
-    render: (text, record) => `${record.currentParticipants}/${record.maxParticipants}`,
-  },
-  {
-    title: "Start Date",
-    dataIndex: "startDate",
-    key: "startDate",
-  },
-  {
-    title: "End Date",
-    dataIndex: "endDate",
-    key: "endDate",
-  },
-  {
-    title: "Actions",
-    key: "actions",
-    render: (_, record) => (
-      <Space size="middle">
-        <Button type="link">View</Button>
-        <Button type="link">Edit</Button>
-        <Button type="link" danger>Delete</Button>
-      </Space>
-    ),
-  },
-];
-
-// Example data
-const data = [
-  {
-    key: 1,
-    programID: "P001",
-    name: "Blood Drive July",
-    currentParticipants: 50,
-    maxParticipants: 100,
-    startDate: "2025-07-01",
-    endDate: "2025-07-10",
-  },
-  {
-    key: 2,
-    programID: "P002",
-    name: "Summer Donation",
-    currentParticipants: 80,
-    maxParticipants: 120,
-    startDate: "2025-08-01",
-    endDate: "2025-08-15",
-  },
-  {
-    key: 3,
-    programID: "P002",
-    name: "Summer Donation",
-    currentParticipants: 80,
-    maxParticipants: 120,
-    startDate: "2025-08-01",
-    endDate: "2025-08-15",
-  },
-  {
-    key: 4,
-    programID: "P002",
-    name: "Summer Donation",
-    currentParticipants: 80,
-    maxParticipants: 120,
-    startDate: "2025-08-01",
-    endDate: "2025-08-15",
-  },
-  {
-    key: 5,
-    programID: "P002",
-    name: "Summer Donation",
-    currentParticipants: 80,
-    maxParticipants: 120,
-    startDate: "2025-08-01",
-    endDate: "2025-08-15",
-  },
-  {
-    key: 6,
-    programID: "P002",
-    name: "Summer Donation",
-    currentParticipants: 80,
-    maxParticipants: 120,
-    startDate: "2025-08-01",
-    endDate: "2025-08-15",
-  },
-  {
-    key: 7,
-    programID: "P002",
-    name: "Summer Donation",
-    currentParticipants: 80,
-    maxParticipants: 120,
-    startDate: "2025-08-01",
-    endDate: "2025-08-15",
-  },
-  {
-    key: 8,
-    programID: "P002",
-    name: "Summer Donation",
-    currentParticipants: 80,
-    maxParticipants: 120,
-    startDate: "2025-08-01",
-    endDate: "2025-08-15",
-  },
-  {
-    key: 9,
-    programID: "P002",
-    name: "Summer Donation",
-    currentParticipants: 80,
-    maxParticipants: 120,
-    startDate: "2025-08-01",
-    endDate: "2025-08-15",
-  },
-  {
-    key: 10,
-    programID: "P002",
-    name: "Summer Donation",
-    currentParticipants: 80,
-    maxParticipants: 120,
-    startDate: "2025-08-01",
-    endDate: "2025-08-15",
-  },
-];
-
-const ProgramTablePanel = () => {
+const ProgramTablePanel = ({ selectedProgram, onSelectProgram, programs, programsLoading, addresses, addressesLoading }) => {
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
   // Search/filter state
-  const [category, setCategory] = useState("name");
+  const [category, setCategory] = useState("name"); // default to "name" to match dropdown
   const [searchText, setSearchText] = useState("");
-  // Store dateRange as string array for easier comparison
-  const [dateRange, setDateRange] = useState(["", ""]);
+  const [dateRange, setDateRange] = useState([null, null]); // use null for moment compatibility
 
-  // Handler for date range change to get string values
-  const handleDateRangeChange = (value, dateString) => {
-    setDateRange(dateString);
+  // State for delete modal and countdown
+  const [deleteModalVisible, setDeleteModalVisible] = useState(false);
+  const [deleteTarget, setDeleteTarget] = useState(null);
+  const [countdown, setCountdown] = useState(3);
+  const [deleteBtnDisabled, setDeleteBtnDisabled] = useState(true);
+
+  // Countdown logic for delete button
+  useEffect(() => {
+    let timer;
+    if (deleteModalVisible && deleteBtnDisabled) {
+      timer = setInterval(() => {
+        setCountdown((prev) => {
+          if (prev <= 1) {
+            setDeleteBtnDisabled(false);
+            clearInterval(timer);
+            return 0;
+          }
+          return prev - 1;
+        });
+      }, 1000);
+    }
+    return () => clearInterval(timer);
+  }, [deleteModalVisible, deleteBtnDisabled]);
+
+  const showDeleteModal = (record) => {
+    setDeleteTarget(record);
+    setDeleteModalVisible(true);
+    setCountdown(3);
+    setDeleteBtnDisabled(true);
   };
 
+  const handleDelete = async () => {
+    await dispatch(deleteProgramById(deleteTarget.id));
+    setDeleteModalVisible(false);
+  };
+
+  const columns = [
+    {
+      title: "ProgramID",
+      dataIndex: "id",
+      key: "id",
+    },
+    {
+      title: "Name",
+      dataIndex: "proName",
+      key: "proName",
+    },
+    {
+      title: "Start Date",
+      dataIndex: "startDate",
+      key: "startDate",
+    },
+    {
+      title: "End Date",
+      dataIndex: "endDate",
+      key: "endDate",
+    },
+    {
+      title: "Actions",
+      key: "actions",
+      render: (_, record) => (
+        <Space size="middle">
+            <FileSearchOutlined
+              style={{ cursor: "pointer" }}
+              onClick={() => navigate(`/admin/programs/${record.id}`)}
+            />
+            
+            <DeleteOutlined
+              style={{ color: "red", cursor: "pointer" }}
+              onClick={() => showDeleteModal(record)}
+            />
+          </Space>
+      ),
+    },
+  ];
+
+  // Map addressId to address name for display
+  const getAddressName = (addressId) => {
+    const address = addresses.find(addr => addr.id === addressId);
+    return address ? address.name : "";
+  };
+
+  // Enrich program data with address name
+  const enrichedPrograms = programs.map(program => ({
+    ...program,
+    addressName: getAddressName(program.addressId)
+  }));
+
   // Filtering logic
-  const filteredData = data.filter((item) => {
+  const filteredData = enrichedPrograms.filter((item) => {
     if (category === "name") {
-      return item.name.toLowerCase().includes(searchText.toLowerCase());
+      return item.proName.toLowerCase().includes(searchText.toLowerCase());
     } else if (category === "date") {
-      if (!dateRange[0] || !dateRange[1]) return true;
+      if (!dateRange || !dateRange[0] || !dateRange[1]) return true;
       // Show programs whose startDate is within the selected range
+      const startDate = dayjs(item.startDate);
       return (
-        item.startDate >= dateRange[0] &&
-        item.startDate <= dateRange[1]
+        startDate.isAfter(dateRange[0].startOf('day')) &&
+        startDate.isBefore(dateRange[1].endOf('day'))
       );
     }
     return true;
@@ -174,8 +127,8 @@ const ProgramTablePanel = () => {
           onCategoryChange={setCategory}
           searchText={searchText}
           onSearchTextChange={setSearchText}
-          dateRange={dateRange[0] && dateRange[1] ? [dayjs(dateRange[0]), dayjs(dateRange[1])] : [null, null]}
-          onDateRangeChange={handleDateRangeChange}
+          dateRange={dateRange}
+          onDateRangeChange={(dates) => setDateRange(dates)}
         />
         <div style={{ display: "flex", alignItems: "center", height: "100%" }}>
           <Button type="primary">
@@ -183,7 +136,43 @@ const ProgramTablePanel = () => {
           </Button>
         </div>
       </div>
-      <Table columns={columns} dataSource={filteredData} pagination={true} />
+      <Table
+        columns={columns}
+        dataSource={filteredData}
+        loading={programsLoading || addressesLoading}
+        pagination={true}
+        onRow={(record) => ({
+          onClick: () => onSelectProgram(record),
+          style: selectedProgram && selectedProgram.id === record.id ? { background: '#e6f7ff' } : {},
+        })}
+      />
+
+      {/* Delete Program Modal */}
+      <Modal
+        title="Xác nhận xóa chương trình"
+        open={deleteModalVisible}
+        onCancel={() => setDeleteModalVisible(false)}
+        footer={[
+          <Button key="cancel" onClick={() => setDeleteModalVisible(false)}>
+            Hủy
+          </Button>,
+          <Button
+            key="delete"
+            type="primary"
+            danger
+            disabled={deleteBtnDisabled}
+            onClick={handleDelete}
+          >
+            {deleteBtnDisabled ? `Xóa (${countdown})` : "Xóa"}
+          </Button>,
+        ]}
+      >
+        {deleteTarget && (
+          <>
+            Bạn có chắc chắn muốn xóa chương trình <b>{deleteTarget.proName}</b> (ID: {deleteTarget.id})? Hành động này không thể hoàn tác.
+          </>
+        )}
+      </Modal>
     </div>
   );
 };

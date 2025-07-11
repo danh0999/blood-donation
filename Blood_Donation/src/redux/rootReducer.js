@@ -4,6 +4,7 @@ import bloodHistoryReducer from "./features/BloodHistorySlice";
 import accountSlice from "./features/accountSlice";
 import programSlice from "./features/programSlice";
 import bloodRequestReducer from "./features/bloodRequestSlice";
+import addressSlice from "./features/addressSlice";
 
 const rootReducer = combineReducers({
   user: useReducer,
@@ -11,6 +12,7 @@ const rootReducer = combineReducers({
   account: accountSlice,
   bloodRequest: bloodRequestReducer,
   program: programSlice,
+  address: addressSlice,
 });
 
 export default rootReducer;
