@@ -115,7 +115,7 @@ const AccountDetail = () => {
             <Descriptions.Item label="Địa chỉ">{selectedAccount.address}</Descriptions.Item>
             <Descriptions.Item label="CCCD">{selectedAccount.cccd}</Descriptions.Item>
             <Descriptions.Item label="Nhóm máu">{selectedAccount.typeBlood}</Descriptions.Item>
-            <Descriptions.Item label="Giới tính">{selectedAccount.gender}</Descriptions.Item>
+            <Descriptions.Item label="Giới tính">{selectedAccount.gender === "MALE" ? "Nam" : "Nữ"}</Descriptions.Item>
             <Descriptions.Item label="Ngày sinh">{selectedAccount.birthdate}</Descriptions.Item>
           </Descriptions>
         </Col>
