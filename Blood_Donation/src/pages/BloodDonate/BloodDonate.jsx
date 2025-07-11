@@ -27,13 +27,15 @@ const BloodDonate = () => {
           params: { userId: user.userID },
         });
 
-        const pending = res.data.find((item) => item.status === "PENDING");
+        const activeAppointment = res.data.find(
+          (item) => item.status === "PENDING" || item.status === "APPROVED"
+        );
 
-        if (pending) {
-          setAppointment(pending);
-          setStatus("PENDING");
+        if (activeAppointment) {
+          setAppointment(activeAppointment);
+          setStatus(activeAppointment.status); // PENDING hoặc APPROVED
         } else {
-          setStatus("FULFILLED");
+          setStatus("FULFILLED"); // Không có lịch đang chờ / duyệt
         }
       } catch (error) {
         console.error("Lỗi khi fetch history:", error);
@@ -58,7 +60,7 @@ const BloodDonate = () => {
     try {
       await api.delete(`/appointments/${appointment.id}/with-permission`, {
         params: {
-          username: user.username,
+          userID: user.userID,
         },
       });
 
@@ -70,7 +72,7 @@ const BloodDonate = () => {
       setStatus("FULFILLED"); // cho phép đăng ký mới
     } catch (err) {
       console.error("Lỗi xóa appointment:", err.response?.data || err.message);
-      toast.error("❌ Không thể xóa đơn đã hiến máu hoặc có lỗi xảy ra.");
+      toast.error(err.response?.data);
     }
   };
 
@@ -102,12 +104,20 @@ const BloodDonate = () => {
           <h3>Phiếu đăng ký hiến máu</h3>
           {loading ? (
             <p>Đang tải thông tin...</p>
-          ) : status === "PENDING" ? (
+          ) : status === "PENDING" || status === "APPROVED" ? (
             <>
               <p>Bạn đã đăng ký hiến máu tại:</p>
-              <p className={styles.address}>{appointment.address}</p>
+              <p className={styles.address}>{appointment?.address}</p>
               <p>
-                <strong>Thời gian:</strong> {appointment.time}
+                <strong>Trạng thái:</strong>{" "}
+                {status === "PENDING"
+                  ? "Đang chờ"
+                  : status === "APPROVED"
+                    ? "Đã duyệt"
+                    : "Không rõ"}
+              </p>
+              <p>
+                <strong>Thời gian:</strong> {appointment?.timeRange}
               </p>
             </>
           ) : (
@@ -117,7 +127,7 @@ const BloodDonate = () => {
       </div>
 
       <div className={styles.buttonWrapper}>
-        {!loading && status === "PENDING" ? (
+        {!loading && (status === "PENDING" || status === "APPROVED") ? (
           <>
             <Button
               danger
