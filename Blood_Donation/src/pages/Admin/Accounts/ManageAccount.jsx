@@ -141,7 +141,6 @@ function AccountTable() {
             <li>trùng username</li>
             <li>sdt, cccd không phải 1234567..</li>
           </ul>
-          <b>Thêm field ngày sinh vào post, put api</b><br />
           <b>Validate acc bị xóa không phải acc admin duy nhất</b>
         </div>
         <div style={{ display: "flex", alignItems: "flex-start", gap: "1rem", marginBottom: "0.5rem", justifyContent: "space-between" }}>
