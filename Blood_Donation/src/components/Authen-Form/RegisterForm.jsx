@@ -44,22 +44,16 @@ const RegisterForm = () => {
   const navigate = useNavigate();
   //call api
   const onFinish = async (values) => {
-    console.log("Success:", values);
-
-    // 400: bad request
-    // 200: success
     try {
-      // values: thông tin người dùng nhập
       await api.post("register", values);
       toast.success("Đăng kí thành công!");
       navigate("/login");
     } catch (e) {
-      console.log(e);
-      toast.error(e.response.data);
-
-      // show ra màn hình cho người dùng biết lỗi
+      console.log("Lỗi đăng ký:", e);
+      toast.error(e?.response?.data?.message || "Đăng ký thất bại!");
     }
   };
+
   return (
     <div
       style={{
@@ -122,7 +116,9 @@ const RegisterForm = () => {
         </Form.Item>
 
         <Form.Item
-          name="comfirmPassword"
+
+          name="confirmPassword"
+
           label="Xác nhận mật khẩu"
           dependencies={["password"]}
           hasFeedback
