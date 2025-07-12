@@ -128,7 +128,7 @@ function AccountTable() {
   ];
 
   // Loading and error state of the async thunk from redux
-  if (loading) return <div>Loading...</div>;
+  
   if (error) return <div>Error: {error}</div>;
 
   // Actual table return
@@ -158,7 +158,7 @@ function AccountTable() {
             </Button>
           </div>
         </div>
-        <Table dataSource={filteredAccounts} columns={columns} />
+        <Table dataSource={filteredAccounts} columns={columns} loading={loading}/>
 
         {/* Modals */}
         {/* Add Account Modal */}
