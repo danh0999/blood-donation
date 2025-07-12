@@ -103,8 +103,8 @@ const routes = [
         element: <AdminDashboard />,
         children: [
           { index: true, element: <div>Welcome to Admin Dashboard</div> },
-          { path: "overview", element: <AdminOverview />},
-          { path: "accounts", element: <ManageAccount />},
+          { path: "overview", element: <AdminOverview /> },
+          { path: "accounts", element: <ManageAccount /> },
           { path: "accounts/:id", element: <AccountDetail /> },
           { path: "reports", element: <div>Report List</div> },
           { path: "programs", element: <ManageProgram /> },
@@ -121,14 +121,16 @@ const routes = [
   },
 
   {
-     path: "hospital",
+    path: "hospital",
     //  element: <HospitalStaff_Dashboard />,
-  element: (
-    <ProtectedRoute allowedRoles={["HOSPITAL_STAFF"]}>
-      <HospitalStaff_Dashboard />
-    </ProtectedRoute>
-  ),
-    children: [{ index: true, element: <div>Welcome to Hospital Staff Dashboard</div> }],
+    element: (
+      <ProtectedRoute allowedRoles={["HOSPITAL_STAFF"]}>
+        <HospitalStaff_Dashboard />
+      </ProtectedRoute>
+    ),
+    children: [
+      { index: true, element: <div>Welcome to Hospital Staff Dashboard</div> },
+    ],
   },
 ];
 

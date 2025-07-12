@@ -197,7 +197,9 @@ const DonateCheckup = () => {
           toast.error("❌ Không thể lấy lại lịch hẹn.");
         }
       } else {
-        toast.error("Đã xảy ra lỗi khi gửi phiếu khảo sát.");
+        toast.error(
+          "Bạn chỉ được đặt lịch sau ít nhất 10 ngày kể từ lần hiến máu gần nhất"
+        );
       }
     }
   };
