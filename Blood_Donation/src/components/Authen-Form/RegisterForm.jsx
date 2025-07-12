@@ -122,7 +122,7 @@ const RegisterForm = () => {
         </Form.Item>
 
         <Form.Item
-          name="comfirmPassword"
+          name="confirm"
           label="Xác nhận mật khẩu"
           dependencies={["password"]}
           hasFeedback
