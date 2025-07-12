@@ -58,22 +58,41 @@ const ProgramTablePanel = ({ selectedProgram, onSelectProgram, programs, program
       key: "id",
     },
     {
-      title: "Name",
+      title: "Tên chương trình",
       dataIndex: "proName",
       key: "proName",
+      width: 300,
+
+      //set the Name column to be scrollable
+      render: (text) => (
+        <div style={{ 
+          maxWidth: '300px',
+          overflowX: 'auto',
+          whiteSpace: 'nowrap',
+
+          /* Hide scrollbar */
+          msOverflowStyle: 'none',  /* IE and Edge */
+          scrollbarWidth: 'none',   /* Firefox */
+          '&::-webkit-scrollbar': {
+            display: 'none'         /* Chrome, Safari and Opera */
+          }
+        }}>
+          {text}
+        </div>
+      ),
     },
     {
-      title: "Start Date",
+      title: "Ngày bắt đầu",
       dataIndex: "startDate",
       key: "startDate",
     },
     {
-      title: "End Date",
+      title: "Ngày kết thúc",
       dataIndex: "endDate",
       key: "endDate",
     },
     {
-      title: "Actions",
+      title: "Hành động",
       key: "actions",
       render: (_, record) => (
         <Space size="middle">

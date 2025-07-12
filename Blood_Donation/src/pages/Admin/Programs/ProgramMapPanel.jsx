@@ -1,13 +1,15 @@
-import { GoogleMap, useJsApiLoader, Marker, InfoWindow } from "@react-google-maps/api";
+import { GoogleMap, Marker, InfoWindow } from "@react-google-maps/api";
 import markerImg from "../../../assets/program-marker.png";
 import centerMarker from "../../../assets/headquarter.png";
+import { Spin } from "antd";
 
 const containerStyle = {
   width: "100%",
   height: "100%",
 };
 
-// our facility location
+// our facility location, re-declare it here in case the initial state is lost
+// so we can, reset map position to this through a button
 const center = {
   lat: 10.773477807259052,
   lng: 106.6598671630604,
@@ -17,19 +19,14 @@ const mapOptions = {
   disableDefaultUI: true, // disables all default map UI buttons
 };
 
-const MapFullScreen = ({ selectedProgram, setSelectedProgram, mapCenter, programs, programsLoading, addresses, addressesLoading }) => {
-  const { isLoaded } = useJsApiLoader({
-    googleMapsApiKey: import.meta.env.VITE_GOOGLE_MAPS_API_KEY,
-  });
+const ProgramMapPanel = ({ selectedProgram, setSelectedProgram, mapCenter, programs, programsLoading, addresses, addressesLoading }) => {
 
-  // Remove fetching logic, use props
-
-  if (!isLoaded) return <div>Loading map...</div>;
-  if (programsLoading || addressesLoading) return <div>Loading data...</div>;
+  // used the passed loading state here to render a spin
+  if (programsLoading || addressesLoading) return <Spin size="large" fullscreen/>;
 
   // Helper function to get address name
   const getAddressName = (addressId) => {
-    //search through array to find addr associated with the selected program
+    //search through the address list to find addr associated with the selected program
     const address = addresses.find(addr => addr.id === addressId);
     return address ? address.name : "Unknown location";
   };
@@ -41,6 +38,7 @@ const MapFullScreen = ({ selectedProgram, setSelectedProgram, mapCenter, program
       zoom={15}
       options={mapOptions}
     >
+      {/* Add a marker at our facility's address */}
       <Marker
         position={{ lat: center.lat, lng: center.lng }}
         icon={{
@@ -48,9 +46,9 @@ const MapFullScreen = ({ selectedProgram, setSelectedProgram, mapCenter, program
           scaledSize: { width: 40, height: 50 },
         }}
       />
+
       {/* Add markers for each program's address */}
-      {programs &&
-        addresses &&
+      {programs && addresses &&
         programs.map((program) => {
           const address = addresses.find(
             (addr) => addr.id === program.addressId
@@ -99,4 +97,4 @@ const MapFullScreen = ({ selectedProgram, setSelectedProgram, mapCenter, program
   );
 };
 
-export default MapFullScreen;
+export default ProgramMapPanel;

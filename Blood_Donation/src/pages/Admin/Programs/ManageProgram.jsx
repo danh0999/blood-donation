@@ -12,29 +12,32 @@ import { fetchPrograms } from "../../../redux/features/programSlice";
 import { fetchAddresses } from "../../../redux/features/addressSlice";
 
 export default function ManageProgram() {
+  // fetching datas (and their loading state)
   const dispatch = useDispatch();
-  const programs = useSelector(state => state.program.data);
-  const programsLoading = useSelector(state => state.program.loading);
-  const addresses = useSelector(state => state.address.data);
-  const addressesLoading = useSelector(state => state.address.loading);
-  const [selectedProgram, setSelectedProgram] = useState(null);
-  const [mapCenter, setMapCenter] = useState({
-    lat: 10.773477807259052,
-    lng: 106.6598671630604,
-  });
-
   useEffect(() => {
     dispatch(fetchPrograms());
     dispatch(fetchAddresses());
   }, [dispatch]);
 
-  // When the list of programs changes, check if the selected program still exists.
-  // If not, it means it was deleted, so we clear the selection.
+  const { data: programs, loading: programsLoading } = useSelector(state => state.program);
+  const { data: addresses, loading: addressesLoading } = useSelector(state => state.address);
+
+  // set initial states
+  const [selectedProgram, setSelectedProgram] = useState(null); // selected program through table row/marker
+  const [mapCenter, setMapCenter] = useState({ // initial map centered at our facility
+    lat: 10.773477807259052,
+    lng: 106.6598671630604,
+  });
+
+  
+
+  // when the list of programs changes, check if the selected program still exists.
+  // Ii not, it means it was deleted, so we clear the selection. Used by map to remove the info window
   useEffect(() => {
     if (selectedProgram && !programs.find(p => p.id === selectedProgram.id)) {
       setSelectedProgram(null);
     }
-  }, [programs, selectedProgram]);
+  }, [programs, selectedProgram]); // "run when these var change" part
 
   // When a program is selected, update map center to its address
   const handleSelectProgram = (program) => {
@@ -45,6 +48,7 @@ export default function ManageProgram() {
     }
   };
 
+  // render view, passing all the states two the child component so they can use it
   return (
     <div style={{ height: "100vh", width: "100%" }}>
       <PanelGroup direction="vertical">
