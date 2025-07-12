@@ -12,7 +12,6 @@ import { toast } from "react-toastify";
 import ScrollToTopButton from "../../../components/ScrollToTopButton/ScrollToTopButton";
 
 const questionList = [
-
   {
     text: "1. Anh/chị từng hiến máu chưa?",
     options: ["Có", "Không"],
@@ -32,7 +31,6 @@ const questionList = [
     hasNote: true,
     isSingle: true,
   },
-
 
   {
     text: "4. Trong 12 tháng gần đây, anh/chị có:",
@@ -160,7 +158,7 @@ const DonateCheckup = () => {
         (answers[6].note ? `: ${answers[6].note}` : ""),
       answer8:
         answers[7].answer.join(", ") +
-        (answers[7].note ? `: ${answers[7].note}` : "")
+        (answers[7].note ? `: ${answers[7].note}` : ""),
       answer9: answers[8].answer.join(", "),
     };
 
