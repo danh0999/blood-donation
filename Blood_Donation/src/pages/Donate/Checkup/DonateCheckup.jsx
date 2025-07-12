@@ -151,7 +151,42 @@ const DonateCheckup = () => {
       toast.success("🎉 Đăng ký hiến máu thành công!");
       navigate("/user/bloodDonate");
     } catch (error) {
-      toast.error("Đã xảy ra lỗi khi gửi phiếu khảo sát.");
+
+      if (
+        error.response?.data?.message?.includes("already have") ||
+        error.response?.data?.error?.includes("already have")
+      ) {
+        toast.error("Bạn chỉ có thể đăng ký 1 đơn hiến máu tại 1 thời điểm");
+
+        try {
+          const res = await api.get(`/appointments/by-user`, {
+            params: { userId: user.userID },
+          });
+
+          const appointment = res.data.find((a) => a.status === "PENDING");
+
+          if (appointment) {
+            const detail = (await api.get(`/appointments/${appointment.id}`))
+              .data;
+
+            const data = {
+              id: detail.id,
+              address: detail.address || "Không rõ địa điểm",
+              time: detail.timeRange || "Không rõ thời gian",
+            };
+
+            dispatch(setDonationHistory([data]));
+            dispatch(setCurrentAppointment(data));
+            navigate("/user/bloodDonate");
+          }
+        } catch {
+          toast.error("❌ Không thể lấy lại lịch hẹn.");
+        }
+      } else {
+        toast.error(
+          "Bạn chỉ được đặt lịch sau ít nhất 10 ngày kể từ lần hiến máu gần nhất"
+        );
+      }
     }
   };
 
