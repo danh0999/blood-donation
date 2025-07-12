@@ -150,7 +150,10 @@ const ProgramTablePanel = ({ selectedProgram, onSelectProgram, programs, program
           onDateRangeChange={(dates) => setDateRange(dates)}
         />
         <div style={{ display: "flex", alignItems: "center", height: "100%" }}>
-          <Button type="primary">
+          <Button 
+            type="primary"
+            onClick={() => navigate('/admin/programs/create')}
+          >
             Thêm chương trình
           </Button>
         </div>

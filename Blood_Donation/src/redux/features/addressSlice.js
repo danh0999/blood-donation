@@ -1,4 +1,4 @@
-  import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
+import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import api from "../../configs/axios";
 
 // Async thunk to fetch all addresses
@@ -19,6 +19,19 @@ export const fetchAddressById = createAsyncThunk(
   }
 );
 
+// Async thunk to create new address 
+export const createAddress = createAsyncThunk(
+  "addresses/createAddress",
+  async (addressData, { rejectWithValue }) => {
+    try {
+      const response = await api.post(`/addresses`, addressData);
+      return response.data;
+    } catch (err) {
+      return rejectWithValue(err.response?.data?.message || err.message)
+    }
+  }
+);
+
 const addressSlice = createSlice({
   name: "address",
   initialState: {
@@ -32,6 +45,7 @@ const addressSlice = createSlice({
   reducers: {},
   extraReducers: (builder) => {
     builder
+      // fetchAddresses
       .addCase(fetchAddresses.pending, (state) => {
         state.loading = true;
         state.error = null;
@@ -44,6 +58,8 @@ const addressSlice = createSlice({
         state.loading = false;
         state.error = action.error.message;
       })
+
+      // fetchAddressByID
       .addCase(fetchAddressById.pending, (state) => {
         state.selectedLoading = true;
         state.selectedError = null;
@@ -57,6 +73,20 @@ const addressSlice = createSlice({
         state.selectedLoading = false;
         state.selectedError = action.error.message;
         state.selectedAddress = null;
+      })
+
+      // createAddress
+      .addCase(createAddress.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(createAddress.fulfilled, (state, action) => {
+        state.loading = false;
+        state.data.push(action.payload);
+      })
+      .addCase(createAddress.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload || action.error.message;
       });
   },
 });

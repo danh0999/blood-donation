@@ -22,7 +22,7 @@ const mapOptions = {
 const ProgramMapPanel = ({ selectedProgram, setSelectedProgram, mapCenter, programs, programsLoading, addresses, addressesLoading }) => {
 
   // used the passed loading state here to render a spin
-  if (programsLoading || addressesLoading) return <Spin size="large" fullscreen/>;
+  if (programsLoading || addressesLoading) return <Spin size="large" fullscreen />;
 
   // Helper function to get address name
   const getAddressName = (addressId) => {
@@ -79,18 +79,26 @@ const ProgramMapPanel = ({ selectedProgram, setSelectedProgram, mapCenter, progr
           }}
           onCloseClick={() => setSelectedProgram(null)}
         >
-            <div style={{ flex: 1, minWidth: 0, maxWidth: 250 }}>
-              <h3 style={{ margin: '0 0 8px 0' }}>{selectedProgram.proName}</h3>
-              <p style={{ margin: '0 0 4px 0' }}>
-                <strong>Location:</strong> {getAddressName(selectedProgram.addressId)}
-              </p>
-              <p style={{ margin: '0 0 4px 0' }}>
-                <strong>Start Date:</strong> {selectedProgram.startDate}
-              </p>
-              <p style={{ margin: '0 0 0 0' }}>
-                <strong>End Date:</strong> {selectedProgram.endDate}
-              </p>
-            </div>
+          <div style={{ flex: 1, minWidth: 0, maxWidth: 250 }}>
+            <img src={selectedProgram.imageUrl} style={{
+              width: '100%',
+              height: '150px',
+              objectFit: 'cover',
+              borderRadius: '8px',
+              marginBottom: '8px'
+            }}
+              alt={selectedProgram.proName}></img>
+            <h3 style={{ margin: '0 0 8px 0' }}>{selectedProgram.proName}</h3>
+            <p style={{ margin: '0 0 4px 0' }}>
+              <strong>Location:</strong> {getAddressName(selectedProgram.addressId)}
+            </p>
+            <p style={{ margin: '0 0 4px 0' }}>
+              <strong>Start Date:</strong> {selectedProgram.startDate}
+            </p>
+            <p style={{ margin: '0 0 0 0' }}>
+              <strong>End Date:</strong> {selectedProgram.endDate}
+            </p>
+          </div>
         </InfoWindow>
       )}
     </GoogleMap>

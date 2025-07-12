@@ -32,6 +32,7 @@ import { Event } from "../pages/Event/Event";
 import FirebaseImageUploader from "../components/FirebaseImageUploader (experimental)";
 import AdminOverview from "../pages/Admin/AdminOverview";
 import ProgramDetail from "../pages/Admin/Programs/ProgramDetail";
+import CreateProgram from "../pages/Admin/Programs/CreateProgramRefactored";
 
 const routes = [
   {
@@ -109,6 +110,7 @@ const routes = [
           { path: "reports", element: <div>Report List</div> },
           { path: "programs", element: <ManageProgram /> },
           { path: "programs/:id", element: <ProgramDetail /> },
+          { path: "programs/create", element: <CreateProgram /> },
         ],
       },
     ],
