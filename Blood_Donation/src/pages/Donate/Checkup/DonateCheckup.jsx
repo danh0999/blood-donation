@@ -96,6 +96,7 @@ const questionList = [
       "Chấm dứt thai kỳ trong 12 tháng gần đây (sảy thai, phá thai, thai ngoài tử cung)?",
       "Không",
     ],
+
     isSingle: true,
   },
 ];
@@ -112,20 +113,13 @@ const DonateCheckup = () => {
 
   const { programId, date, cityId, slotId } = location.state || {};
 
-  /* ---- a. Xử lý khi tick ô ---- */
   const handleCheckboxChange = (qIndex, option) => {
     const updated = [...answers];
     const selected = updated[qIndex].answer;
-    const isSingle = questionList[qIndex].isSingle;
-
-    if (isSingle) {
-      // chỉ duy nhất 1 lựa chọn
-      updated[qIndex].answer = selected.includes(option) ? [] : [option];
+    if (selected.includes(option)) {
+      updated[qIndex].answer = selected.filter((o) => o !== option);
     } else {
-      // multi‑select
-      updated[qIndex].answer = selected.includes(option)
-        ? selected.filter((o) => o !== option)
-        : [...selected, option];
+      updated[qIndex].answer = [...selected, option];
     }
     setAnswers(updated);
   };
@@ -136,7 +130,6 @@ const DonateCheckup = () => {
     setAnswers(updated);
   };
 
-  /* ---- b. Gửi form ---- */
   const handleSubmit = async () => {
     if (!programId || !user?.userID || !slotId) {
       toast.error("Thiếu thông tin người dùng, chương trình hoặc khung giờ.");
@@ -170,10 +163,11 @@ const DonateCheckup = () => {
     };
 
     try {
-      const { data: res } = await api.post("/appointments", payload, {
+      const res = await api.post("/appointments", payload, {
         params: { userId: user.userID },
       });
-      const detail = (await api.get(`/appointments/${res.id}`)).data;
+
+      const detail = (await api.get(`/appointments/${res.data.id}`)).data;
 
       const data = {
         id: detail.id,
@@ -181,6 +175,7 @@ const DonateCheckup = () => {
         time: detail.timeRange || "Không rõ thời gian",
         status: detail.status,
       };
+
       dispatch(setDonationHistory([data]));
       dispatch(setCurrentAppointment(data));
 
@@ -225,17 +220,13 @@ const DonateCheckup = () => {
     }
   };
 
-  /* ---- c. Render ---- */
   return (
     <div className={styles.container}>
       <h2>Khảo sát trước hiến máu</h2>
-
       <form className={styles.form}>
         {questionList.map((q, index) => (
           <div key={index} className={styles.questionItem}>
             <p className={styles.questionText}>{q.text}</p>
-
-            {/* ô vuông luôn, nhưng giới hạn tick nếu isSingle */}
             <div className={styles.checkboxGroup}>
               {q.options.map((opt, optIdx) => (
                 <Checkbox
