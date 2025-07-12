@@ -5,10 +5,8 @@ import PlacesAutocomplete from "../../../components/GoogleMapsAPI/PlacesAutocomp
 const bloodTypes = ["A", "B", "AB", "O"];
 
 const AddAccountForm = ({
-  roles = [],
   onCancel,
   onFinish,
-  initialRole
 }) => {
   const [showPersonal, setShowPersonal] = useState(false);
   const [form] = Form.useForm();
@@ -18,13 +16,13 @@ const AddAccountForm = ({
       layout="vertical"
       onFinish={onFinish}
       initialValues={{
-        role: initialRole || roles[0] || "",
+        role: "STAFF",
       }}
     >
-      <Form.Item 
-      label="Họ và Tên" 
-      name="fullName"
-      rules={[{ required: true, message: "Vui lòng nhập Họ và Tên" }]}
+      <Form.Item
+        label="Họ và Tên"
+        name="fullName"
+        rules={[{ required: true, message: "Vui lòng nhập Họ và Tên" }]}
       >
         <Input />
       </Form.Item>
@@ -48,11 +46,9 @@ const AddAccountForm = ({
         rules={[{ required: true, message: "Vui lòng chọn vai trò" }]}
       >
         <Select>
-          {roles.map((role) => (
-            <Select.Option key={role} value={role}>
-              {role}
-            </Select.Option>
-          ))}
+          <Select.Option value="ADMIN">ADMIN</Select.Option>
+          <Select.Option value="STAFF">STAFF</Select.Option>
+          <Select.Option value="HOSPITAL_STAFF">HOSPITAL STAFF</Select.Option>
         </Select>
       </Form.Item>
       <Form.Item label="Bổ sung thông tin cá nhân" style={{ marginBottom: 0 }}>

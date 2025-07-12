@@ -169,7 +169,6 @@ function AccountTable() {
           footer={null}
         >
           <AddAccountForm
-            roles={roles}
             onCancel={() => setAddModalVisible(false)}
             // Ant Design Form submit button handling
             onFinish={async (values) => {
@@ -182,7 +181,6 @@ function AccountTable() {
               setAddModalVisible(false);
               dispatch(fetchAccounts()); // Refresh list
             }}
-            initialRole={roles[0] || ''}
           />
         </Modal>
 
