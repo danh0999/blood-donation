@@ -1,7 +1,7 @@
 import React from "react";
 import { Carousel } from "antd";
 import banner1 from "../../assets/banner1.jpg";
-import banner2 from "../../assets/Banner2.jpg";
+import banner2 from "../../assets/banner2.jpg";
 import styles from "../Banner/styles.module.scss"; // import SCSS module
 
 const Banner = () => (

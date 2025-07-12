@@ -9,20 +9,31 @@ import {
 } from "../../../redux/features/bloodHistorySlice";
 import api from "../../../configs/axios";
 import { toast } from "react-toastify";
+import ScrollToTopButton from "../../../components/ScrollToTopButton/ScrollToTopButton";
 
-/* ======================= 1. CÂU HỎI ======================= */
 const questionList = [
-  { text: "1. Anh/chị từng hiến máu chưa?", options: ["Có", "Không"] },
+
   {
-    text: "2. Hiện tại, anh/ chị có mắc bệnh lý nào không?",
+    text: "1. Anh/chị từng hiến máu chưa?",
+    options: ["Có", "Không"],
+    isSingle: true,
+  },
+
+  {
+    text: "2. Hiện tại, anh/chị có mắc bệnh lý nào không?",
     options: ["Có", "Không"],
     hasNote: true,
+    isSingle: true,
   },
+
   {
-    text: "3. Trước đây, anh/chị có từng mắc một trong các bệnh: viêm gan siêu vi B, C, HIV, vảy nến, phì đại tuyến giáp, sốc phản vệ, tai biến mạch máu não, nhồi máu cơ tim, lupus ban đỏ, động kinh, ung thư, hen, được cấy ghép mô/tạng?",
+    text: "3. Trước đây, anh/chị có từng mắc một trong các bệnh ...?",
     options: ["Có", "Không", "Bệnh khác"],
     hasNote: true,
+    isSingle: true,
   },
+
+
   {
     text: "4. Trong 12 tháng gần đây, anh/chị có:",
     options: [
@@ -33,6 +44,7 @@ const questionList = [
     ],
     hasNote: true,
   },
+
   {
     text: "5. Trong 06 tháng gần đây, anh/chị có:",
     options: [
@@ -49,6 +61,7 @@ const questionList = [
       "Không",
     ],
   },
+
   {
     text: "6. Trong 01 tháng gần đây, anh/chị có:",
     options: [
@@ -57,6 +70,7 @@ const questionList = [
       "Không",
     ],
   },
+
   {
     text: "7. Trong 14 ngày gần đây, anh/chị có:",
     options: [
@@ -66,6 +80,7 @@ const questionList = [
     ],
     hasNote: true,
   },
+
   {
     text: "8. Trong 07 ngày gần đây, anh/chị có:",
     options: [
@@ -75,6 +90,7 @@ const questionList = [
     ],
     hasNote: true,
   },
+
   {
     text: "9. Câu hỏi dành cho phụ nữ:",
     options: [
@@ -82,6 +98,8 @@ const questionList = [
       "Chấm dứt thai kỳ trong 12 tháng gần đây (sảy thai, phá thai, thai ngoài tử cung)?",
       "Không",
     ],
+
+    isSingle: true,
   },
 ];
 
@@ -142,8 +160,7 @@ const DonateCheckup = () => {
         (answers[6].note ? `: ${answers[6].note}` : ""),
       answer8:
         answers[7].answer.join(", ") +
-        (answers[7].note ? `: ${answers[7].note}` : ""),
-
+        (answers[7].note ? `: ${answers[7].note}` : "")
       answer9: answers[8].answer.join(", "),
     };
 
@@ -239,6 +256,7 @@ const DonateCheckup = () => {
           Gửi phiếu khảo sát
         </Button>
       </form>
+      <ScrollToTopButton />
     </div>
   );
 };

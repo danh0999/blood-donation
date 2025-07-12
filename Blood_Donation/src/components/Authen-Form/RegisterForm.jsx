@@ -116,7 +116,9 @@ const RegisterForm = () => {
         </Form.Item>
 
         <Form.Item
+
           name="confirmPassword"
+
           label="Xác nhận mật khẩu"
           dependencies={["password"]}
           hasFeedback
