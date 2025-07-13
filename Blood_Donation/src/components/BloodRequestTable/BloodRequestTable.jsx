@@ -8,27 +8,27 @@ function BloodRequestTable({ demoData = [] }) {
   const dispatch = useDispatch();
 //   const user = useSelector((state) => state.user);
 // dummy data
-const demoData2 = [
-  {
-    reqID: "REQ001",
-    isEmergency: "yes",
-    status: "PENDING",
-    reqCreateDate: new Date().toISOString(),
-    details: [
-      { bloodType: "A+", packCount: 2, packVolume: 450 },
-      { bloodType: "O-", packCount: 1, packVolume: 350 },
-    ],
-  },
-  {
-    reqID: "REQ002",
-    isEmergency: "no",
-    status: "APPROVED",
-    reqCreateDate: new Date().toISOString(),
-    details: [
-      { bloodType: "B+", packCount: 3, packVolume: 500 },
-    ],
-  },
-];
+// const demoData2 = [
+//   {
+//     reqID: "REQ001",
+//     isEmergency: "yes",
+//     status: "PENDING",
+//     reqCreateDate: new Date().toISOString(),
+//     details: [
+//       { bloodType: "A+", packCount: 2, packVolume: 450 },
+//       { bloodType: "O-", packCount: 1, packVolume: 350 },
+//     ],
+//   },
+//   {
+//     reqID: "REQ002",
+//     isEmergency: "no",
+//     status: "APPROVED",
+//     reqCreateDate: new Date().toISOString(),
+//     details: [
+//       { bloodType: "B+", packCount: 3, packVolume: 500 },
+//     ],
+//   },
+// ];
 
   const statusDescriptions = {
     PENDING: "PENDING: Trung tâm hiến máu đang xem xét yêu cầu của bạn. Vui lòng đợi.",
@@ -39,15 +39,15 @@ const demoData2 = [
 
   const { requestList, loading } = useSelector((state) => state.bloodRequest);
 
-    // useEffect(() => {
-    //     dispatch(fetchAllBloodRequests());
-    // }, [dispatch]);
-
     useEffect(() => {
-  if (!demoData || demoData.length === 0) {
-    dispatch(fetchAllBloodRequests());
-  }
-}, [dispatch, demoData]);
+        dispatch(fetchAllBloodRequests());
+    }, [dispatch]);
+
+//     useEffect(() => {
+//   if (!demoData || demoData.length === 0) {
+//     dispatch(fetchAllBloodRequests());
+//   }
+// }, [dispatch, demoData]);
 
   const columns = [
   {
@@ -105,12 +105,12 @@ const demoData2 = [
       <h3 className={styles.title}>Danh sách yêu cầu máu</h3>
        <Table
         columns={columns}
-        // dataSource={Array.isArray(requestList) ? requestList : demoData}
-        dataSource={
-          Array.isArray(requestList) && requestList.length > 0
-            ? requestList
-            : demoData
-        }
+        dataSource={Array.isArray(requestList) ? requestList : demoData}
+        // dataSource={
+        //   Array.isArray(requestList) && requestList.length > 0
+        //     ? requestList
+        //     : demoData
+        // }
         rowKey="reqID"
         loading={loading}
         bordered
