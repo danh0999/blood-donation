@@ -182,18 +182,21 @@ const DonateCheckup = () => {
       toast.success("🎉 Đăng ký hiến máu thành công!");
       navigate("/user/bloodDonate");
     } catch (error) {
-      if (
-        error.response?.data?.message?.includes("already have") ||
-        error.response?.data?.error?.includes("already have")
-      ) {
+      const errorMessage =
+        error.response?.data?.message || error.response?.data?.error || "";
+
+      if (errorMessage.includes("already have an active appointment")) {
         toast.error("Bạn chỉ có thể đăng ký 1 đơn hiến máu tại 1 thời điểm");
 
+        // Thử lấy lại lịch hẹn đang hoạt động
         try {
           const res = await api.get(`/appointments/by-user`, {
             params: { userId: user.userID },
           });
 
-          const appointment = res.data.find((a) => a.status === "PENDING");
+          const appointment = res.data.find(
+            (a) => a.status === "PENDING" || a.status === "APPROVED"
+          );
 
           if (appointment) {
             const detail = (await api.get(`/appointments/${appointment.id}`))
@@ -203,6 +206,7 @@ const DonateCheckup = () => {
               id: detail.id,
               address: detail.address || "Không rõ địa điểm",
               time: detail.timeRange || "Không rõ thời gian",
+              status: detail.status,
             };
 
             dispatch(setDonationHistory([data]));
@@ -210,12 +214,24 @@ const DonateCheckup = () => {
             navigate("/user/bloodDonate");
           }
         } catch {
-          toast.error("❌ Không thể lấy lại lịch hẹn.");
+          toast.error("❌ Không thể lấy lại lịch hẹn hiện tại.");
         }
-      } else {
+      } else if (errorMessage.includes("10 ngày")) {
         toast.error(
           "Bạn chỉ được đặt lịch sau ít nhất 10 ngày kể từ lần hiến máu gần nhất"
         );
+      } else if (errorMessage.includes("thông tin cá nhân")) {
+        toast.error(
+          "⚠️ Vui lòng cập nhật thông tin cá nhân trước khi đặt lịch."
+        );
+        navigate("/user/profile");
+      } else if (
+        errorMessage.includes("Program not found") ||
+        errorMessage.includes("Slot not found")
+      ) {
+        toast.error("Chương trình hoặc khung giờ không tồn tại.");
+      } else {
+        toast.error("Đăng ký thất bại. Vui lòng thử lại sau.");
       }
     }
   };
