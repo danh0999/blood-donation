@@ -6,7 +6,7 @@ export const createBloodRequest = createAsyncThunk(
   "bloodRequest/create",
   async (requestData, { rejectWithValue }) => {
     try {
-      const response = await api.post("/requests/medical", requestData);
+      const response = await api.post("/requests/hospital", requestData);
       toast.success("Tạo yêu cầu nhận máu thành công!");
       return response.data;
     } catch (err) {
@@ -20,7 +20,7 @@ export const fetchRequestsByMedId = createAsyncThunk(
   "bloodRequest/fetchByMedId",
   async (medId, { rejectWithValue }) => {
     try {
-      const response = await api.get(`/requests/medical/${medId}`);
+      const response = await api.get(`/requests/hospital/${medId}`);
       return response.data;
     } catch (err) {
       return rejectWithValue(err.response?.data?.message || err.message);
@@ -45,12 +45,26 @@ export const fetchAllBloodRequests = createAsyncThunk(
   async (_, { rejectWithValue }) => {
     try {
       const response = await api.get("/requests");
-      return response.data;
+      const transformed = response.data.map((item) => ({
+        reqID: item.reqID,
+        isEmergency: item.isEmergency,
+        status: item.status,
+        reqCreateDate: item.reqCreateDate,
+        details: item.details?.map((d) => ({
+          bloodType: d.bloodType,
+          packCount: d.packCount,
+          packVolume: d.packVolume,
+        })) ?? [],
+      }));
+
+      return transformed;
+
     } catch (err) {
       return rejectWithValue(err.response?.data?.message || err.message);
     }
   }
 );
+
 
 const bloodRequestSlice = createSlice({
   name: "bloodRequest",

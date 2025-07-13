@@ -54,11 +54,11 @@ function BloodReceiveForm( {onFinishSuccess} ) {
       })),
     };
 
-    // await dispatch(createBloodRequest(payload)).unwrap();
+    await dispatch(createBloodRequest(payload)).unwrap();
     toast.success("Gửi yêu cầu nhận máu thành công!");
     form.resetFields();
-    // if (onFinishSuccess) onFinishSuccess();
-    if (onFinishSuccess) onFinishSuccess(payload);
+    if (onFinishSuccess) onFinishSuccess();
+    // if (onFinishSuccess) onFinishSuccess(payload);
   } catch (error) {
     toast.error(error || "Đã xảy ra lỗi khi gửi yêu cầu.");
   }
