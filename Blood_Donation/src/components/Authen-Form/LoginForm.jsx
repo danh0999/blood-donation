@@ -109,7 +109,7 @@ const LoginForm = () => {
             <Form.Item name="remember" valuePropName="checked" noStyle>
               <Checkbox>Nhớ tôi</Checkbox>
             </Form.Item>
-            <a href="">Quên mật khẩu?</a>
+            <Link to="/forgot-password">Quên mật khẩu?</Link>
           </Flex>
         </Form.Item>
 
