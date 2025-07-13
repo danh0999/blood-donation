@@ -34,7 +34,7 @@ import AdminOverview from "../pages/Admin/AdminOverview";
 import ProgramDetail from "../pages/Admin/Programs/ProgramDetail";
 import CreateProgram from "../pages/Admin/Programs/CreateProgramRefactored";
 import ForgotPassword from "../pages/ForgotPassword/ForgotPassword";
-
+import CertPage from "../pages/CertPage/CertPage";
 const routes = [
   {
     path: "",
@@ -80,6 +80,7 @@ const routes = [
       { path: "profile", element: <Profile /> },
       { path: "bloodDonate", element: <BloodDonate /> },
       { path: "history", element: <History /> },
+      { path: "cert", element: <CertPage /> },
       { path: "information", element: <Information /> },
       { path: "news", element: <News /> },
       { path: "news/:id", element: <NewsDetail /> },

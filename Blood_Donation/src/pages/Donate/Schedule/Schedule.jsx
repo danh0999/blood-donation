@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { DatePicker, Select, Form, message } from "antd";
 import { useNavigate, useLocation } from "react-router-dom";
 import dayjs from "dayjs";
@@ -7,36 +7,34 @@ import styles from "./styles.module.scss";
 import { Button } from "../../../components/Button/Button";
 import { useSelector, useDispatch } from "react-redux";
 import { setSelectedProgram } from "../../../redux/features/bloodHistorySlice";
+import { toast } from "react-toastify";
 
 const { Option } = Select;
 
 export const Schedule = () => {
-  const { container, title, formWrapper, btn, programDetail } = styles;
   const [form] = Form.useForm();
   const navigate = useNavigate();
   const location = useLocation();
   const dispatch = useDispatch();
   const { selectedProgram } = useSelector((state) => state.bloodHistory);
+  const user = useSelector((state) => state.user);
 
   const [programs, setPrograms] = useState([]);
   const [selectedProgramId, setSelectedProgramId] = useState(null);
   const [slots, setSlots] = useState([]);
   const [selectedSlotId, setSelectedSlotId] = useState(null);
   const [loading, setLoading] = useState(false);
-  const programSelectRef = useRef(null);
-
   const cameFromEventDetail = !!location.state?.fromEventDetail;
 
   const disabledDate = (current) => current && current < dayjs().startOf("day");
 
   useEffect(() => {
     form.resetFields();
+    setPrograms([]);
     setSelectedProgramId(null);
     setSlots([]);
     setSelectedSlotId(null);
-    setPrograms([]);
 
-    // Chỉ reset Redux nếu không đi từ EventDetail
     if (!cameFromEventDetail) {
       dispatch(setSelectedProgram(null));
     }
@@ -48,24 +46,16 @@ export const Schedule = () => {
       });
 
       const fetchSlotLabels = async () => {
-        let slotLabels = [];
-        let slotList = [];
-
-        if (selectedProgram.slots && selectedProgram.slots.length > 0) {
-          slotLabels = selectedProgram.slots.map((slot) => slot.label);
-          slotList = selectedProgram.slots;
-        } else if (selectedProgram.slotIds) {
-          slotLabels = await Promise.all(
-            selectedProgram.slotIds.map(async (slotId) => {
-              try {
-                const res = await api.get(`/slots/${slotId}`);
-                return res.data.label;
-              } catch {
-                return "Không rõ";
-              }
-            })
-          );
-        }
+        const slotLabels = await Promise.all(
+          selectedProgram.slotIds.map(async (slotId) => {
+            try {
+              const res = await api.get(`/slots/${slotId}`);
+              return res.data.label;
+            } catch {
+              return "Không rõ";
+            }
+          })
+        );
 
         const programWithTime = {
           ...selectedProgram,
@@ -74,7 +64,7 @@ export const Schedule = () => {
 
         setPrograms([programWithTime]);
         setSelectedProgramId(programWithTime.id);
-        setSlots(slotList);
+        setSlots(selectedProgram.slots || []);
       };
 
       fetchSlotLabels();
@@ -86,13 +76,7 @@ export const Schedule = () => {
       const values = await form.validateFields();
       const selectedDate = dayjs(values.date).format("YYYY-MM-DD");
 
-      if (!values.cityId) {
-        message.warning("Bạn chưa chọn địa điểm.");
-        return;
-      }
-
       setLoading(true);
-
       const res = await api.get("programs/search", {
         params: {
           date: selectedDate,
@@ -103,11 +87,11 @@ export const Schedule = () => {
       if (!Array.isArray(res.data)) throw new Error("Kết quả không hợp lệ!");
 
       if (res.data.length === 0) {
-        message.warning("Không có lịch hiến máu nào trong ngày này.");
+        message.warning("Không có chương trình hiến máu nào trong ngày này.");
         setPrograms([]);
         setSelectedProgramId(null);
       } else {
-        const programsWithTime = await Promise.all(
+        const enrichedPrograms = await Promise.all(
           res.data.map(async (program) => {
             const slotLabels = await Promise.all(
               (program.slotIds || []).map(async (slotId) => {
@@ -120,71 +104,79 @@ export const Schedule = () => {
               })
             );
 
+            let addressName = "Không rõ";
+            try {
+              const addressRes = await api.get(
+                `/addresses/${program.addressId}`
+              );
+              addressName = addressRes.data.name || "Không rõ"; // ✅ Sửa tại đây
+            } catch (err) {
+              console.warn("Không lấy được địa chỉ:", err);
+            }
+
             return {
               ...program,
-              timeRange: slotLabels.join(", ") || "Không rõ thời gian",
+              addressName,
+              timeRange: slotLabels.join(", "),
             };
           })
         );
 
-        setPrograms(programsWithTime);
-        setSelectedProgramId(null);
-        message.success("Đã tìm thấy các chương trình hiến máu.");
-
-        setTimeout(() => {
-          if (programSelectRef.current) programSelectRef.current.focus();
-        }, 200);
+        setPrograms(enrichedPrograms);
+        message.success("Tìm thấy chương trình phù hợp.");
       }
-    } catch (error) {
-      console.error("Lỗi:", error);
-      message.error("Lỗi khi kiểm tra lịch. Vui lòng thử lại.");
+    } catch (err) {
+      console.error("Lỗi:", err);
+      message.error("Lỗi khi tìm kiếm chương trình.");
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleSelectProgram = async (program) => {
+    setSelectedProgramId(program.id);
+    setSelectedSlotId(null);
+    try {
+      const res = await api.get("/slots", {
+        params: { programId: program.id },
+      });
+      setSlots(res.data || []);
+    } catch (err) {
+      console.error("Lỗi khi lấy slot:", err);
+      setSlots([]);
     }
   };
 
   const handleContinue = async () => {
     const values = await form.getFieldsValue();
 
-    if (!selectedProgramId && !selectedProgram) {
-      message.warning("Vui lòng chọn chương trình hiến máu.");
-      return;
-    }
-
-    if (selectedProgram && cameFromEventDetail) {
-      if (!selectedSlotId) {
-        message.warning("Vui lòng chọn khung giờ.");
-        return;
-      }
-
-      const updatedProgram = {
-        ...selectedProgram,
-        slotIds: [selectedSlotId],
-      };
-
-      dispatch(setSelectedProgram(updatedProgram));
-
-      navigate("/user/donate/checkup", {
-        state: {
-          date: dayjs(values.date).format("YYYY-MM-DD"),
-          cityId: values.cityId,
-          programId: selectedProgram.id,
-          slotId: selectedSlotId,
-        },
-      });
-      return;
-    }
-
-    const program = programs.find((p) => p.id === selectedProgramId);
-    if (!program) {
-      message.error("Không tìm thấy chương trình đã chọn.");
-      return;
+    if (!selectedProgramId) {
+      return message.warning("Vui lòng chọn chương trình hiến máu.");
     }
 
     if (!selectedSlotId) {
-      message.warning("Vui lòng chọn khung giờ.");
+      return message.warning("Vui lòng chọn khung giờ.");
+    }
+
+    const requiredFields = [
+      "fullName",
+      "typeBlood",
+      "phone",
+      "cccd",
+      "birthdate",
+      "gender",
+    ];
+    const missingFields = requiredFields.filter((field) => !user?.[field]);
+
+    if (missingFields.length > 0) {
+      toast.error(
+        "⚠️ Vui lòng cập nhật đầy đủ thông tin cá nhân trước khi đặt lịch."
+      );
+      navigate("/user/profile");
       return;
     }
+    const program = programs.find((p) => p.id === selectedProgramId);
+    if (!program) return message.error("Không tìm thấy chương trình.");
 
     const updatedProgram = {
       ...program,
@@ -197,145 +189,125 @@ export const Schedule = () => {
       state: {
         date: dayjs(values.date).format("YYYY-MM-DD"),
         cityId: values.cityId,
-        programId: selectedProgramId,
+        programId: program.id,
         slotId: selectedSlotId,
       },
     });
   };
 
-  const handleProgramChange = async (value) => {
-    setSelectedProgramId(value);
-    setSelectedSlotId(null);
-    try {
-      const res = await api.get("/slots", {
-        params: { programId: value },
-      });
-      setSlots(res.data || []);
-    } catch (err) {
-      console.error("Lỗi khi lấy slot:", err);
-      setSlots([]);
-    }
-  };
-
   return (
-    <div className={container}>
-      <h2 className={title}>Đặt lịch hiến máu</h2>
+    <div className={styles.container}>
+      <h2 className={styles.title}>Đặt lịch hiến máu</h2>
 
-      <div className={formWrapper}>
-        <Form layout="vertical" form={form}>
-          <Form.Item
-            label="Chọn ngày hiến máu"
-            name="date"
-            rules={[{ required: true, message: "Vui lòng chọn ngày" }]}
-          >
-            <DatePicker
-              format="DD/MM/YYYY"
-              disabledDate={disabledDate}
-              style={{ width: "100%" }}
-              onChange={() => {
-                setPrograms([]);
-                setSelectedProgramId(null);
-              }}
-            />
-          </Form.Item>
-
-          <Form.Item
-            label="Tỉnh/Thành phố"
-            name="cityId"
-            rules={[{ required: true, message: "Vui lòng chọn địa điểm" }]}
-          >
-            <Select
-              placeholder="Chọn tỉnh/thành phố"
-              onChange={() => {
-                form.setFieldsValue({ date: null });
-                setPrograms([]);
-                setSelectedProgramId(null);
-              }}
+      <div className={styles.layoutWrapper}>
+        {/* Form bên trái */}
+        <div className={styles.formSection}>
+          <Form form={form} layout="vertical">
+            <Form.Item
+              label="Chọn ngày hiến máu"
+              name="date"
+              rules={[{ required: true, message: "Vui lòng chọn ngày" }]}
             >
-              <Option value={1}>Hồ Chí Minh</Option>
-              <Option value={2}>Đà Nẵng</Option>
-              <Option value={3}>Hà Nội</Option>
-            </Select>
-          </Form.Item>
+              <DatePicker
+                style={{ width: "100%" }}
+                format="DD/MM/YYYY"
+                disabledDate={disabledDate}
+              />
+            </Form.Item>
 
-          <Form.Item label="Chọn chương trình hiến máu">
-            <Select
-              ref={programSelectRef}
-              placeholder="Chọn chương trình"
-              onChange={handleProgramChange}
-              disabled={programs.length === 0}
-              loading={loading}
-              value={selectedProgramId || undefined}
-              className={styles.programSelect}
+            <Form.Item
+              label="Tỉnh/Thành phố"
+              name="cityId"
+              rules={[{ required: true, message: "Vui lòng chọn địa điểm" }]}
             >
-              {programs.length === 0 ? (
-                <Option value="" disabled>
-                  Không có lịch hiến máu
-                </Option>
-              ) : (
-                programs.map((program) => (
-                  <Option key={program.id} value={program.id}>
-                    {program.proName}
-                  </Option>
-                ))
-              )}
-            </Select>
-          </Form.Item>
-        </Form>
+              <Select placeholder="Chọn tỉnh/thành phố">
+                <Option value={1}>Hồ Chí Minh</Option>
+                <Option value={2}>Đà Nẵng</Option>
+                <Option value={3}>Hà Nội</Option>
+              </Select>
+            </Form.Item>
 
-        {selectedProgramId && (
-          <div className={programDetail}>
-            <h3>Thông tin chương trình đã chọn</h3>
-            {programs
-              .filter((p) => p.id === selectedProgramId)
-              .map((p) => (
-                <div key={p.id}>
-                  <p>
-                    <strong>Tên:</strong> {p.proName}
-                  </p>
-                  <p>
-                    <strong>Địa điểm:</strong> {p.address}
-                  </p>
-                  <p>
-                    <strong>Thời gian:</strong> {p.timeRange}
-                  </p>
-                  <p>
-                    <strong>Ghi chú:</strong> {p.description || "Không có"}
-                  </p>
-                </div>
-              ))}
+            <div className={styles.btn}>
+              <Button content="Kiểm tra lịch" onClick={handleCheckSchedule} />
+              <Button content="Tiếp tục" onClick={handleContinue} />
+            </div>
+          </Form>
+        </div>
 
-            {slots.length > 0 && (
-              <Form layout="vertical">
-                <Form.Item
-                  label="Chọn khung giờ hiến máu"
-                  required
-                  validateStatus={!selectedSlotId ? "error" : ""}
-                  help={!selectedSlotId ? "Vui lòng chọn khung giờ." : ""}
-                >
-                  <Select
-                    placeholder="Chọn khung giờ"
-                    onChange={(value) => setSelectedSlotId(value)}
-                    value={selectedSlotId || undefined}
-                  >
-                    {slots
-                      .filter((slot) => slot?.slotID != null && slot?.label)
-                      .map((slot) => (
-                        <Option key={slot.slotID} value={slot.slotID}>
-                          {slot.label}
-                        </Option>
-                      ))}
-                  </Select>
-                </Form.Item>
-              </Form>
-            )}
+        {/* Danh sách chương trình bên phải */}
+        {programs.length > 0 && (
+          <div className={styles.programListSection}>
+            <h3>Danh sách chương trình phù hợp</h3>
+            {programs.map((program) => (
+              <div
+                key={program.id}
+                className={styles.programDetail}
+                style={{
+                  border: "1px solid #ccc",
+                  padding: "12px",
+                  borderRadius: "8px",
+                  marginBottom: "16px",
+                  backgroundColor:
+                    selectedProgramId === program.id ? "#e6f7ff" : "#fff",
+                }}
+              >
+                <p>
+                  <strong>Tên:</strong> {program.proName}
+                </p>
+                {program.imageUrl && (
+                  <img
+                    src={program.imageUrl}
+                    alt="Hình ảnh chương trình"
+                    style={{
+                      width: 100,
+                      height: "auto",
+                      borderRadius: 8,
+                      marginBottom: 8,
+                    }}
+                  />
+                )}
+
+                <p>
+                  <strong>Địa điểm:</strong> {program.addressName || "Không rõ"}
+                </p>
+                <p>
+                  <strong>Thời gian:</strong> {program.timeRange}
+                </p>
+                <p>
+                  <strong>Ghi chú:</strong> {program.description || "Không có"}
+                </p>
+
+                <Button
+                  content="Chọn chương trình này"
+                  onClick={() => handleSelectProgram(program)}
+                />
+
+                {selectedProgramId === program.id && slots.length > 0 && (
+                  <Form layout="vertical" style={{ marginTop: 16 }}>
+                    <Form.Item
+                      label="Chọn khung giờ"
+                      required
+                      validateStatus={!selectedSlotId ? "error" : ""}
+                      help={!selectedSlotId ? "Vui lòng chọn khung giờ." : ""}
+                    >
+                      <Select
+                        placeholder="Chọn khung giờ"
+                        onChange={(value) => setSelectedSlotId(value)}
+                        value={selectedSlotId || undefined}
+                      >
+                        {slots.map((slot) => (
+                          <Option key={slot.slotID} value={slot.slotID}>
+                            {slot.label}
+                          </Option>
+                        ))}
+                      </Select>
+                    </Form.Item>
+                  </Form>
+                )}
+              </div>
+            ))}
           </div>
         )}
-
-        <div className={btn}>
-          <Button content="Kiểm tra lịch" onClick={handleCheckSchedule} />
-          <Button content="Tiếp tục" onClick={handleContinue} />
-        </div>
       </div>
     </div>
   );

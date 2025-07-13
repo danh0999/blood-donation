@@ -97,13 +97,6 @@ export const EventDetail = ({ open, onClose, event }) => {
         <span>{event.contact || "Chưa có thông tin"}</span>
       </div>
 
-      {event.imageUrl && (
-        <div className={styles.imageWrapper}>
-          <BsImage className={styles.icon} />
-          <img src={event.imageUrl} alt="Sự kiện" />
-        </div>
-      )}
-
       <div style={{ marginTop: 24, textAlign: "right" }}>
         <Button content="Đăng ký ngay" onClick={handleRegister} />
       </div>

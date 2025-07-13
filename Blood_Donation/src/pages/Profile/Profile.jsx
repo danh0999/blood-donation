@@ -63,24 +63,54 @@ const Profile = () => {
 
   return (
     <div className={styles.profileContainer}>
+      <div className={styles.editButtonWrapper}>
+        <Button
+          type="link"
+          onClick={() => {
+            form.setFieldsValue({
+              fullName: user.fullName || "",
+              email: user.email || "",
+              username: user.username || "",
+              cccd: user.cccd || "",
+              address: user.address?.name || "", // cập nhật
+              latitude: user.address?.latitude || user.latitude || null,
+              longitude: user.address?.longitude || user.longitude || null,
+              phone: user.phone || "",
+              gender: user.gender || "",
+              typeBlood: user.typeBlood || "",
+              birthdate: user.birthdate ? dayjs(user.birthdate) : null,
+            });
+
+            setAddress(user.address || "");
+            setCoordinates({
+              lat: user.latitude || null,
+              lng: user.longitude || null,
+            });
+
+            setUpdateModalVisible(true);
+          }}
+        >
+          Chỉnh sửa
+        </Button>
+      </div>
       <div className={styles.sectionWrapper}>
         {/* Thông tin cá nhân */}
         <div className={styles.profileSection}>
           <h3>🧍 Thông tin cá nhân</h3>
           <p>
-            <strong>Họ tên :</strong> {user.fullName}
+            <strong>Họ tên :</strong> {user.fullName || "-"}
           </p>
           <p>
-            <strong>CCCD :</strong> {user.cccd}
+            <strong>CCCD :</strong> {user.cccd || "-"}
           </p>
           <p>
-            <strong>Giới tính :</strong> {user.gender === "MALE" ? "Nam" : "Nữ"}
+            <strong>Giới tính :</strong> {user.gender || "-"}
           </p>
           <p>
-            <strong>Ngày sinh :</strong> {user.birthdate}
+            <strong>Ngày sinh :</strong> {user.birthdate || "-"}
           </p>
           <p>
-            <strong>Nhóm máu :</strong> {user.typeBlood}
+            <strong>Nhóm máu :</strong> {user.typeBlood || "-"}
           </p>
         </div>
 
@@ -88,45 +118,14 @@ const Profile = () => {
         <div className={styles.profileSection}>
           <h3>📞 Thông tin liên hệ</h3>
           <p>
-            <strong>Email :</strong> {user.email}
+            <strong>Email :</strong> {user.email || "-"}
           </p>
           <p>
-            <strong>Địa chỉ :</strong> {user.address?.name || "Chưa có"}
+            <strong>Địa chỉ :</strong> {user.address?.name || "-"}
           </p>
           <p>
-            <strong>SĐT :</strong> {user.phone}
+            <strong>SĐT :</strong> {user.phone || "-"}
           </p>
-
-          <div className={styles.editButtonWrapper}>
-            <Button
-              type="link"
-              onClick={() => {
-                form.setFieldsValue({
-                  fullName: user.fullName || "",
-                  email: user.email || "",
-                  username: user.username || "",
-                  cccd: user.cccd || "",
-                  address: user.address?.name || "", // cập nhật
-                  latitude: user.address?.latitude || user.latitude || null,
-                  longitude: user.address?.longitude || user.longitude || null,
-                  phone: user.phone || "",
-                  gender: user.gender || "",
-                  typeBlood: user.typeBlood || "",
-                  birthdate: user.birthdate ? dayjs(user.birthdate) : null,
-                });
-
-                setAddress(user.address || "");
-                setCoordinates({
-                  lat: user.latitude || null,
-                  lng: user.longitude || null,
-                });
-
-                setUpdateModalVisible(true);
-              }}
-            >
-              Chỉnh sửa
-            </Button>
-          </div>
         </div>
       </div>
 
@@ -199,7 +198,13 @@ const Profile = () => {
             label="Ngày sinh"
             rules={[{ required: true, message: "Vui lòng chọn ngày sinh!" }]}
           >
-            <DatePicker style={{ width: "100%" }} format="YYYY-MM-DD" />
+            <DatePicker
+              style={{ width: "100%" }}
+              format="YYYY-MM-DD"
+              disabledDate={(current) =>
+                current && current > dayjs().endOf("day")
+              }
+            />
           </Form.Item>
 
           <Form.Item
@@ -260,7 +265,7 @@ const Profile = () => {
           <Form.Item
             name="typeBlood"
             label="Nhóm máu"
-            rules={[{ required: true, message: "Vui lòng chọn nhóm máu!" }]}
+            rules={[{ required: false, message: "Vui lòng chọn nhóm máu!" }]}
           >
             <Select placeholder="Chọn nhóm máu">
               {bloodTypeOptions.map((option) => (
