@@ -1,9 +1,22 @@
 import React, { useState, useEffect } from "react";
-import { Table, Tag, Button, Modal, Tabs, Tooltip, message } from "antd";
+import {
+  Table,
+  Tag,
+  Button,
+  Modal,
+  Tabs,
+  Tooltip,
+  message,
+  Form,
+  Input,
+  DatePicker,
+  Select
+} from "antd";
 import { useSelector, useDispatch } from "react-redux";
 import {
   fetchAllAppointments,
   updateAppointmentStatus,
+  createDonationDetail,
 } from "../../redux/features/donationFormSlice";
 import styles from "./styles.module.scss";
 
@@ -12,18 +25,22 @@ const { TabPane } = Tabs;
 function DonationFormTable({ demoData = [] }) {
   const dispatch = useDispatch();
   const { appointments, loading } = useSelector((state) => state.donationForm);
+  const user = useSelector((state) => state.user);
 
   const [selectedForm, setSelectedForm] = useState(null);
   const [modalVisible, setModalVisible] = useState(false);
+  const [donationModalVisible, setDonationModalVisible] = useState(false);
+  const [donationForm] = Form.useForm();
 
-    useEffect(() => {
-        dispatch(fetchAllAppointments());
-    }, [dispatch]);
+  useEffect(() => {
+    dispatch(fetchAllAppointments());
+  }, [dispatch]);
 
   const statusColors = {
     PENDING: "gold",
     APPROVED: "green",
     REJECTED: "red",
+    FULFILLED: "blue",
   };
 
   const handleViewForm = (record) => {
@@ -41,6 +58,23 @@ function DonationFormTable({ demoData = [] }) {
       .catch(() => {
         message.error("Có lỗi xảy ra khi cập nhật trạng thái");
       });
+  };
+
+  const handleSubmitDonation = (values) => {
+    const payload = {
+      ...values,
+      appointmentId: selectedForm.id,
+      staffId: user.userID,
+    };
+
+    dispatch(createDonationDetail(payload))
+      .unwrap()
+      .then(() => {
+        message.success("Lưu thông tin hiến máu thành công!");
+        setDonationModalVisible(false);
+        donationForm.resetFields();
+      })
+      .catch(() => message.error("Lỗi khi lưu thông tin hiến máu"));
   };
 
   const appointmentColumns = [
@@ -72,9 +106,22 @@ function DonationFormTable({ demoData = [] }) {
       title: "Hành Động",
       key: "actions",
       render: (_, record) => (
-        <Button type="link" onClick={() => handleViewForm(record)}>
-          Xem phiếu
-        </Button>
+        <>
+          <Button type="link" onClick={() => handleViewForm(record)}>
+            Xem phiếu
+          </Button>
+          {record.status === "APPROVED" && (
+            <Button
+              type="link"
+              onClick={() => {
+                setSelectedForm(record);
+                setDonationModalVisible(true);
+              }}
+            >
+              Nhập thông tin hiến máu
+            </Button>
+          )}
+        </>
       ),
     },
   ];
@@ -89,16 +136,12 @@ function DonationFormTable({ demoData = [] }) {
             dataSource={
               Array.isArray(appointments) && appointments.length > 0
                 ? [...appointments].sort((a, b) => {
-                  // 1. Show PENDING first
-                  if (a.status === "PENDING" && b.status !== "PENDING") return -1;
-                  if (b.status === "PENDING" && a.status !== "PENDING") return 1;
-
-                  // 2. Within same status, sort by farthest date first
-                  return new Date(b.date) - new Date(a.date);
-                })
+                    if (a.status === "PENDING" && b.status !== "PENDING") return -1;
+                    if (b.status === "PENDING" && a.status !== "PENDING") return 1;
+                    return new Date(b.date) - new Date(a.date);
+                  })
                 : demoData
             }
-
             rowKey="id"
             loading={loading}
             bordered
@@ -107,7 +150,6 @@ function DonationFormTable({ demoData = [] }) {
         </TabPane>
 
         <TabPane tab="Chi tiết hiến máu" key="2">
-          {/* Content for Donation Detail Tab (to be implemented) */}
           <p>Chưa có dữ liệu.</p>
         </TabPane>
       </Tabs>
@@ -137,39 +179,66 @@ function DonationFormTable({ demoData = [] }) {
       >
         {selectedForm ? (
           <div>
-            {[
-              "1. Anh/chị từng hiến máu chưa?",
-              "2. Hiện tại, anh/chị có mắc bệnh lý nào không?",
-              "3. Trước đây, anh/chị có từng mắc một trong các bệnh ...?",
-              "4. Trong 12 tháng gần đây, anh/chị có:",
-              "5. Trong 06 tháng gần đây, anh/chị có:",
-              "6. Trong 01 tháng gần đây, anh/chị có:",
-              "7. Trong 14 ngày gần đây, anh/chị có:",
-              "8. Trong 07 ngày gần đây, anh/chị có:",
-              "9. Câu hỏi dành cho phụ nữ:",
-            ].map((question, i) => (
+            {[...Array(9)].map((_, i) => (
               <div key={i} style={{ marginBottom: 8 }}>
-                <b>{question}</b>
+                <b>{`${i + 1}. Câu hỏi khảo sát`}</b>
                 <p style={{ margin: "4px 0 0 12px" }}>
                   {selectedForm[`answer${i + 1}`] || "Không có câu trả lời"}
                 </p>
               </div>
             ))}
-
             <hr style={{ margin: "16px 0" }} />
-
-            <p>
-              <b>Địa chỉ:</b> {selectedForm.address || "Không rõ"}
-            </p>
-            <p>
-              <b>Khung giờ:</b> {selectedForm.timeRange || "Không rõ"}
-            </p>
+            <p><b>Địa chỉ:</b> {selectedForm.address || "Không rõ"}</p>
+            <p><b>Khung giờ:</b> {selectedForm.timeRange || "Không rõ"}</p>
           </div>
         ) : (
           <p>Không có dữ liệu phiếu.</p>
         )}
       </Modal>
 
+      <Modal
+        title={`Nhập thông tin hiến máu - Mã lịch hẹn #${selectedForm?.id}`}
+        open={donationModalVisible}
+        onCancel={() => setDonationModalVisible(false)}
+        onOk={() => donationForm.submit()}
+        okText="Lưu"
+      >
+        <Form layout="vertical" form={donationForm} onFinish={handleSubmitDonation}>
+          <Form.Item
+            label="Số lượng (ml)"
+            name="donAmount"
+            rules={[{ required: true, message: "Nhập số lượng hiến máu" }]}
+          >
+            <Select placeholder="Chọn đơn vị (ml)">
+              <Option value={200}>200ml</Option>
+              <Option value={350}>350ml</Option>
+              <Option value={500}>500ml</Option>
+            </Select>
+          </Form.Item>
+
+          <Form.Item
+            label="Ngày hiến máu"
+            name="donDate"
+            rules={[{ required: true, message: "Chọn ngày hiến máu" }]}
+          >
+            <DatePicker format="YYYY-MM-DD" style={{ width: "100%" }} />
+          </Form.Item>
+
+          <Form.Item
+            label="Nhóm máu"
+            name="bloodType"
+            rules={[{ required: true, message: "Chọn nhóm máu" }]}
+          >
+            <Select placeholder="Nhóm máu">
+              <Option value={1}>A</Option>
+              <Option value={2}>B</Option>
+              <Option value={3}>AB</Option>
+              <Option value={4}>O</Option>
+            </Select>
+          </Form.Item>
+        </Form>
+
+      </Modal>
     </div>
   );
 }

@@ -32,6 +32,19 @@ export const updateAppointmentStatus = createAsyncThunk(
   }
 );
 
+export const createDonationDetail = createAsyncThunk(
+  "donationForm/createDonationDetail",
+  async (payload, { rejectWithValue }) => {
+    try {
+      const response = await api.post("/donation-details", payload);
+      return response.data;
+    } catch (err) {
+      return rejectWithValue(err.response?.data?.message || err.message);
+    }
+  }
+);
+
+
 
 const donationFormSlice = createSlice({
   name: "donationForm",
