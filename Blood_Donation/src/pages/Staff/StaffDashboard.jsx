@@ -13,6 +13,9 @@ import { toast } from "react-toastify";
 import styles from "./styles.module.scss";
 import { useDispatch } from "react-redux";
 import { logout } from "../../redux/features/userSlice";
+import DonationFormTable from "../../components/Donation-Form-Table/DonationFormTable";
+import BlogList from "../../components/Blog-Page/BlogList";
+import BlogCreateModal from "../../components/Blog-Page/BlogCreateModal";
 
 const { Header, Content, Footer, Sider } = Layout;
 
@@ -104,14 +107,21 @@ const StaffDashboard = () => {
                 </p>
               </div>
             )}
-            {selectedMenuItem === "blog" && <h2>Welcome to Blog Management</h2>}
+            {selectedMenuItem === "blog" && (
+              <>
+                <BlogCreateModal />
+                <BlogList />
+              </>
+            )}
             {selectedMenuItem === "blood-requests" && (
               <>
                 <BloodRequestTable />
               </>
             )}
             {selectedMenuItem === "donation-forms" && (
-              <h2>Welcome to Donation Forms</h2>
+              <>
+                <DonationFormTable />
+              </>
             )}
             {selectedMenuItem === "blood-inventory" && (
               <h2>Welcome to Blood Inventory</h2>
