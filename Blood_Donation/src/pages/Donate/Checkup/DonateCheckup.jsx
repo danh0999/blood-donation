@@ -135,6 +135,21 @@ const DonateCheckup = () => {
       toast.error("Thiếu thông tin người dùng, chương trình hoặc khung giờ.");
       return;
     }
+    // Kiểm tra các câu hỏi cần ghi chú nếu chọn Có hoặc Khác
+    for (let i = 0; i < questionList.length; i++) {
+      const question = questionList[i];
+      const answer = answers[i];
+
+      if (question.hasNote) {
+        const requireNote = answer.answer.some((opt) =>
+          ["có", "khác", "Bệnh khác"].includes(opt.toLowerCase())
+        );
+        if (requireNote && !answer.note.trim()) {
+          toast.error(`❗ Câu hỏi ${i + 1}: Vui lòng ghi rõ thông tin cụ thể.`);
+          return;
+        }
+      }
+    }
 
     const payload = {
       slotId,
@@ -248,7 +263,15 @@ const DonateCheckup = () => {
                 <Checkbox
                   key={optIdx}
                   checked={answers[index].answer.includes(opt)}
-                  onChange={() => handleCheckboxChange(index, opt)}
+                  onChange={() => {
+                    if (q.isSingle) {
+                      const updated = [...answers];
+                      updated[index].answer = [opt]; // chỉ chọn duy nhất
+                      setAnswers(updated);
+                    } else {
+                      handleCheckboxChange(index, opt);
+                    }
+                  }}
                 >
                   {opt}
                 </Checkbox>
@@ -257,6 +280,7 @@ const DonateCheckup = () => {
 
             {q.hasNote && (
               <Input.TextArea
+                id={`note-${index}`}
                 rows={2}
                 placeholder="Ghi chú thêm (nếu có)"
                 value={answers[index].note}
