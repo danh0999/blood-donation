@@ -33,6 +33,7 @@ import FirebaseImageUploader from "../components/FirebaseImageUploader (experime
 import AdminOverview from "../pages/Admin/AdminOverview";
 import ProgramDetail from "../pages/Admin/Programs/ProgramDetail";
 import CreateProgram from "../pages/Admin/Programs/CreateProgramRefactored";
+import ForgotPassword from "../pages/ForgotPassword/ForgotPassword";
 
 const routes = [
   {
@@ -51,6 +52,7 @@ const routes = [
       { path: "/", element: <Home /> },
       { path: "register", element: <Register /> },
       { path: "login", element: <Login /> },
+      { path: "forgot-password", element: <ForgotPassword /> },
       { path: "information", element: <Information /> },
       { path: "news", element: <News /> },
       { path: "news/:id", element: <NewsDetail /> },
