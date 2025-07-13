@@ -55,3 +55,22 @@
     }
   }
 }
+.layoutWrapper {
+  display: flex;
+  gap: 32px;
+  align-items: flex-start;
+}
+
+.formSection {
+  flex: 1;
+}
+
+.programListSection {
+  flex: 1.5;
+  max-height: 600px;
+  overflow-y: auto;
+  border: 1px solid #eee;
+  padding: 16px;
+  border-radius: 8px;
+  background-color: #fafafa;
+}

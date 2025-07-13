@@ -54,6 +54,9 @@ const AppHeader = () => {
                   <Link to="/user/history">LỊCH SỬ ĐẶT HẸN</Link>
                 </li>
                 <li>
+                  <Link to="/user/cert">CHỨNG NHẬN</Link>
+                </li>
+                <li>
                   <Link to="/user/information">HỎI - ĐÁP</Link>
                 </li>
                 <li>

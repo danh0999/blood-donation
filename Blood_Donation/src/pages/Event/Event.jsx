@@ -110,6 +110,11 @@ export const Event = () => {
       <div className={list}>
         {programs.map((event) => (
           <Card key={event.id} title={event.proName} className={card}>
+            <img
+              src={event.imageUrl}
+              alt="Ảnh chương trình"
+              className={styles.programImage}
+            />
             <div className={iconText}>
               <span className={styles.label}>
                 <IoMdTime />
