@@ -20,7 +20,7 @@ export const fetchRequestsByMedId = createAsyncThunk(
   "bloodRequest/fetchByMedId",
   async (medId, { rejectWithValue }) => {
     try {
-      const response = await api.get(`/requests/hospital/${medId}`);
+      const response = await api.get(`/requests/kimrequests/${medId}`);
       return response.data;
     } catch (err) {
       return rejectWithValue(err.response?.data?.message || err.message);
@@ -40,11 +40,24 @@ export const deleteRequest = createAsyncThunk(
   }
 );
 
+export const cancelBloodRequest = createAsyncThunk(
+  "bloodRequest/cancel",
+  async (id, { rejectWithValue }) => {
+    try {
+      await api.put(`/requests/hospital/${id}/cancel`);
+      return id;
+    } catch (err) {
+      return rejectWithValue(err.response?.data?.message || err.message);
+    }
+  }
+);
+
+
 export const fetchAllBloodRequests = createAsyncThunk(
   "bloodRequest/fetchAll",
   async (_, { rejectWithValue }) => {
     try {
-      const response = await api.get("/requests");
+      const response = await api.get("/requests/kimrequests");
       const transformed = response.data.map((item) => ({
         reqID: item.reqID,
         isEmergency: item.isEmergency,
@@ -55,7 +68,9 @@ export const fetchAllBloodRequests = createAsyncThunk(
           packCount: d.packCount,
           packVolume: d.packVolume,
         })) ?? [],
+        
       }));
+      console.log("Fetched requestList:", transformed);
 
       return transformed;
 
@@ -119,7 +134,23 @@ const bloodRequestSlice = createSlice({
       .addCase(createBloodRequest.rejected, (state, action) => {
         state.createLoading = false;
         state.createError = action.payload || action.error.message;
-      });
+      })
+
+      .addCase(deleteRequest.fulfilled, (state, action) => {
+        state.requestList = state.requestList.filter(req => req.reqID !== action.payload);
+      })
+      .addCase(deleteRequest.rejected, (state, action) => {
+        state.error = action.payload || action.error.message;
+      })
+
+      .addCase(cancelBloodRequest.fulfilled, (state, action) => {
+        const index = state.requestList.findIndex((r) => r.reqID === action.payload);
+        if (index !== -1) {
+          state.requestList[index].status = "CANCELLED";
+        }
+      })
+
+      ;
   },
 });
 

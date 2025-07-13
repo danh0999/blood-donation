@@ -5,7 +5,7 @@ import { useSelector } from "react-redux";
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
-import { createBloodRequest } from "../../../redux/features/bloodRequestSlice"; 
+import { createBloodRequest, fetchRequestsByMedId } from "../../../redux/features/bloodRequestSlice"; 
 
 
 const { Option } = Select;
@@ -28,22 +28,6 @@ function BloodReceiveForm( {onFinishSuccess} ) {
     }
 
     try {
-      //   const formatted = {
-      //     ...values,
-      //     receiveDate: values.receiveDate.format("YYYY-MM-DD"),
-      //     receiveTime: values.receiveTime.format("HH:mm"),
-      //   };
-
-      // Gửi API nếu có
-      // await dispatch(registerReceive(formatted)).unwrap();
-
-    //   toast.success("Gửi yêu cầu nhận máu thành công!");
-    //   form.resetFields();
-    //   if (onFinishSuccess) onFinishSuccess();
-    // } catch (error) {
-    //   toast.error(error?.message || "Đã xảy ra lỗi khi gửi yêu cầu.");
-    // }
-
     const payload = {
       isEmergency: values.isEmergency ? "yes" : "no", 
       medId: user.userID, 
@@ -55,6 +39,7 @@ function BloodReceiveForm( {onFinishSuccess} ) {
     };
 
     await dispatch(createBloodRequest(payload)).unwrap();
+    await dispatch(fetchRequestsByMedId(user.userID));
     toast.success("Gửi yêu cầu nhận máu thành công!");
     form.resetFields();
     if (onFinishSuccess) onFinishSuccess();

@@ -1,34 +1,12 @@
 import React, { useEffect } from "react";
-import { Table, Tag, Tooltip } from "antd";
+import { toast } from "react-toastify";
+import { Table, Tag, Tooltip, Button, Popconfirm, Select } from "antd";
 import { useSelector, useDispatch } from "react-redux";
-import { fetchAllBloodRequests } from "../../redux/features/bloodRequestSlice";
+import { fetchRequestsByMedId, cancelBloodRequest } from "../../redux/features/bloodRequestSlice";
 import styles from "./styles.module.scss";
 
-function BloodRequestTable({ demoData = [] }) {
+function BloodRequestTable() {
   const dispatch = useDispatch();
-//   const user = useSelector((state) => state.user);
-// dummy data
-// const demoData2 = [
-//   {
-//     reqID: "REQ001",
-//     isEmergency: "yes",
-//     status: "PENDING",
-//     reqCreateDate: new Date().toISOString(),
-//     details: [
-//       { bloodType: "A+", packCount: 2, packVolume: 450 },
-//       { bloodType: "O-", packCount: 1, packVolume: 350 },
-//     ],
-//   },
-//   {
-//     reqID: "REQ002",
-//     isEmergency: "no",
-//     status: "APPROVED",
-//     reqCreateDate: new Date().toISOString(),
-//     details: [
-//       { bloodType: "B+", packCount: 3, packVolume: 500 },
-//     ],
-//   },
-// ];
 
   const statusDescriptions = {
     PENDING: "PENDING: Trung tâm hiến máu đang xem xét yêu cầu của bạn. Vui lòng đợi.",
@@ -37,80 +15,156 @@ function BloodRequestTable({ demoData = [] }) {
     REJECTED: "REJECTED: Yêu cầu đã bị từ chối. Vui lòng kiểm tra lại thông tin hoặc liên hệ hỗ trợ.",
   };
 
+  const { Option } = Select;
+  const [sortMode, setSortMode] = React.useState("status");
+  const handleSortChange = (value) => {
+    setSortMode(value);
+  };
+  const getSortedRequests = () => {
+    const statusOrder = {
+      PENDING: 1,
+      APPROVED: 2,
+      REJECTED: 3,
+      COMPLETED: 4,
+      CANCELLED: 5,
+    };
+
+    return [...requestList].sort((a, b) => {
+      if (sortMode === "status") {
+        // Emergency requests within PENDING come first
+        if (a.status === b.status && a.status === "PENDING") {
+          const aEmergency = a.isEmergency?.toString().toLowerCase() === "yes";
+          const bEmergency = b.isEmergency?.toString().toLowerCase() === "yes";
+          return bEmergency - aEmergency; // EMERGENCY before NORMAL
+        }
+        return statusOrder[a.status] - statusOrder[b.status];
+      } else if (sortMode === "date") {
+        return new Date(b.reqCreateDate) - new Date(a.reqCreateDate); // latest first
+      }
+      return 0;
+    });
+  };
+
+
   const { requestList, loading } = useSelector((state) => state.bloodRequest);
-
-    useEffect(() => {
-        dispatch(fetchAllBloodRequests());
-    }, [dispatch]);
-
-//     useEffect(() => {
-//   if (!demoData || demoData.length === 0) {
-//     dispatch(fetchAllBloodRequests());
-//   }
-// }, [dispatch, demoData]);
+  const user = useSelector((state) => state.user);
+  useEffect(() => {
+  if (user?.userID) {
+    dispatch(fetchRequestsByMedId(user.userID));
+  }
+}, [dispatch, user]);
 
   const columns = [
-  {
-    title: "Mã Yêu Cầu",
-    dataIndex: "reqID",
-    key: "reqID",
-  },
-  {
-    title: "Khẩn Cấp",
-    dataIndex: "isEmergency",
-    key: "isEmergency",
-    render: (value) => value?.toLowerCase() === "yes" ? <Tag color="red">Khẩn cấp</Tag> : <Tag color="green">Thường</Tag>,
-  },
-  {
-    title: "Chi Tiết",
-    dataIndex: "details",
-    key: "details",
-    render: (details) => (
-  <ul style={{ paddingLeft: 20, margin: 0 }}>
-    {Array.isArray(details) && details.length > 0 ? details.map((item, index) => (
-      <li key={index}>
-        Nhóm máu: <b>{item.bloodType}</b> | Số túi: {item.packCount} | Dung tích: {item.packVolume}ml
-      </li>
-    )) : <li>Không có dữ liệu</li>}
-  </ul>
-),
-  },
-  {
-    title: "Trạng Thái",
-    dataIndex: "status",
-    key: "status",
-    render: (status) => {
-      let color = "default";
-      if (status === "PENDING") color = "gold";
-      else if (status === "APPROVED") color = "blue";
-      else if (status === "COMPLETED") color = "green";
-      else if (status === "REJECTED") color = "red";
-      return (
-      <Tooltip title={statusDescriptions[status]}>
-        <Tag color={color} style={{ cursor: "pointer" }}>{status}</Tag>
-      </Tooltip>
-    );
+    {
+      title: "Mã Yêu Cầu",
+      dataIndex: "reqID",
+      key: "reqID",
     },
-  },
-  {
-    title: "Ngày Tạo",
-    dataIndex: "reqCreateDate",
-    key: "reqCreateDate",
-    render: (value) => new Date(value).toLocaleString("vi-VN"),
-  },
-];
+    {
+      title: "Khẩn Cấp",
+      dataIndex: "isEmergency",
+      key: "isEmergency",
+      render: (value) => {
+        const isTrue = typeof value === "boolean" ? value : value?.toString().toLowerCase() === "yes";
+        return isTrue ? <Tag color="red">Khẩn cấp</Tag> : <Tag color="green">Thường</Tag>;
+      },
+    },
+    {
+      title: "Chi Tiết",
+      dataIndex: "details",
+      key: "details",
+      render: (details) => (
+        <ul style={{ paddingLeft: 20, margin: 0 }}>
+          {Array.isArray(details) && details.length > 0 ? (
+            details.map((item, index) => (
+              <li key={index}>
+                Nhóm máu: <b>{item.bloodType}</b> | Số túi: {item.packCount} | Dung tích: {item.packVolume}ml
+              </li>
+            ))
+          ) : (
+            <li>Không có dữ liệu</li>
+          )}
+        </ul>
+      ),
+    },
+    {
+      title: "Trạng Thái",
+      dataIndex: "status",
+      key: "status",
+      render: (status) => {
+        let color = "default";
+        if (status === "PENDING") color = "gold";
+        else if (status === "APPROVED") color = "blue";
+        else if (status === "COMPLETED") color = "green";
+        else if (status === "REJECTED") color = "red";
+        return (
+          <Tooltip title={statusDescriptions[status]}>
+            <Tag color={color} style={{ cursor: "pointer" }}>{status}</Tag>
+          </Tooltip>
+        );
+      },
+    },
+    {
+      title: "Ngày Tạo",
+      dataIndex: "reqCreateDate",
+      key: "reqCreateDate",
+      render: (value) =>
+        value ? new Date(value).toLocaleString("vi-VN") : "Không rõ",
+    },
+
+    {
+      title: "Hành Động",
+      key: "action",
+      render: (_, record) => {
+        const canCancel = record.status === "PENDING";
+        return canCancel ? (
+          <Tooltip title="Chỉ có thể hủy yêu cầu đang chờ xử lý (PENDING)">
+            <Popconfirm
+              title="Bạn có chắc muốn hủy yêu cầu này không?"
+              okText="Có"
+              cancelText="Không"
+              onConfirm={async () => {
+                try {
+                  await dispatch(cancelBloodRequest(record.reqID)).unwrap();
+                  toast.success("Hủy yêu cầu thành công!");
+                } catch (err) {
+                  toast.error(err || "Không thể hủy yêu cầu.");
+                }
+              }}
+            >
+              <Button danger>Hủy</Button>
+            </Popconfirm>
+          </Tooltip>
+        ) : (
+          <Button danger disabled>
+            Hủy
+          </Button>
+        );
+      },
+    }
+
+  ];
 
   return (
     <div className={styles.tableContainer}>
-      <h3 className={styles.title}>Danh sách yêu cầu máu</h3>
-       <Table
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
+        <h3 className={styles.title} style={{ margin: 0 }}>Danh sách yêu cầu máu</h3>
+        <Select
+          defaultValue="status"
+          style={{ width: 220 }}
+          onChange={handleSortChange}
+        >
+          <Option value="status">Sắp xếp theo Trạng thái</Option>
+          <Option value="date">Sắp xếp theo Ngày tạo (mới nhất)</Option>
+        </Select>
+      </div>
+      <Table
         columns={columns}
-        dataSource={Array.isArray(requestList) ? requestList : demoData}
-        // dataSource={
-        //   Array.isArray(requestList) && requestList.length > 0
-        //     ? requestList
-        //     : demoData
-        // }
+        dataSource={
+          Array.isArray(getSortedRequests()) && getSortedRequests().length > 0
+            ? getSortedRequests()
+            : []
+        }
         rowKey="reqID"
         loading={loading}
         bordered
