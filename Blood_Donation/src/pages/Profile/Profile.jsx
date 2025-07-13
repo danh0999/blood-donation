@@ -6,6 +6,7 @@ import styles from "./styles.module.scss";
 import { toast } from "react-toastify";
 import api from "../../configs/axios";
 import { updateUser } from "../../redux/features/userSlice";
+import EnhancedPlacesAutocomplete from "../../pages/Admin/Programs/EnhancedPlacesAutocomplete"; // Điều chỉnh lại path nếu khác
 
 const Profile = () => {
   const user = useSelector((state) => state.user);
@@ -13,6 +14,18 @@ const Profile = () => {
   const [isUpdateModalVisible, setUpdateModalVisible] = useState(false);
   const [form] = Form.useForm();
   const { Option } = Select;
+
+  // State cho địa chỉ và tọa độ từ Google Maps
+  const [address, setAddress] = useState(user.address || "");
+  const [selectedLatLng, setSelectedLatLng] = useState({
+    lat: user.latitude || null,
+    lng: user.longitude || null,
+  });
+
+  const [coordinates, setCoordinates] = useState({
+    lat: user.latitude || null,
+    lng: user.longitude || null,
+  });
 
   const bloodTypeOptions = [
     { label: "A", value: "A" },
@@ -31,19 +44,16 @@ const Profile = () => {
         ...user,
         ...updatedData,
         birthdate: updatedData.birthdate?.format("YYYY-MM-DD"),
+        address: {
+          name: updatedData.address,
+          latitude: updatedData.latitude,
+          longitude: updatedData.longitude,
+        },
       };
 
       const response = await api.put(`/users/${user.userID}`, formattedData);
-      console.log("Gửi lên server:", formattedData);
-
       toast.success("Cập nhật thành công!");
-      dispatch(
-        updateUser({
-          ...user,
-          ...response.data,
-          token: user.token,
-        })
-      );
+      dispatch(updateUser({ ...user, ...response.data, token: user.token }));
       setUpdateModalVisible(false);
     } catch (error) {
       console.error("Lỗi cập nhật:", error.response?.data || error.message);
@@ -81,7 +91,7 @@ const Profile = () => {
             <strong>Email :</strong> {user.email}
           </p>
           <p>
-            <strong>Địa chỉ :</strong> {user.address}
+            <strong>Địa chỉ :</strong> {user.address?.name || "Chưa có"}
           </p>
           <p>
             <strong>SĐT :</strong> {user.phone}
@@ -96,12 +106,21 @@ const Profile = () => {
                   email: user.email || "",
                   username: user.username || "",
                   cccd: user.cccd || "",
-                  address: user.address || "",
+                  address: user.address?.name || "", // cập nhật
+                  latitude: user.address?.latitude || user.latitude || null,
+                  longitude: user.address?.longitude || user.longitude || null,
                   phone: user.phone || "",
                   gender: user.gender || "",
                   typeBlood: user.typeBlood || "",
                   birthdate: user.birthdate ? dayjs(user.birthdate) : null,
                 });
+
+                setAddress(user.address || "");
+                setCoordinates({
+                  lat: user.latitude || null,
+                  lng: user.longitude || null,
+                });
+
                 setUpdateModalVisible(true);
               }}
             >
@@ -188,7 +207,29 @@ const Profile = () => {
             label="Địa chỉ"
             rules={[{ required: true, message: "Vui lòng nhập địa chỉ!" }]}
           >
-            <Input placeholder="Ví dụ: Quận 1, TP. Hồ Chí Minh" />
+            <EnhancedPlacesAutocomplete
+              value={form.getFieldValue("address")}
+              onChange={(val) => form.setFieldsValue({ address: val })}
+              onPlaceSelect={(place) => {
+                form.setFieldsValue({
+                  address: place.formattedAddress,
+                  latitude: place.coordinates?.lat,
+                  longitude: place.coordinates?.lng,
+                });
+                setSelectedLatLng({
+                  lat: place.coordinates?.lat,
+                  lng: place.coordinates?.lng,
+                });
+              }}
+            />
+          </Form.Item>
+
+          <Form.Item name="latitude" hidden>
+            <Input />
+          </Form.Item>
+
+          <Form.Item name="longitude" hidden>
+            <Input />
           </Form.Item>
 
           <Form.Item
