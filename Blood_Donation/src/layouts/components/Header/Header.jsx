@@ -5,19 +5,31 @@ import { Layout } from "antd";
 import { useSelector, useDispatch } from "react-redux";
 import { logout } from "../../../redux/features/userSlice";
 import styles from "./Header.module.scss";
-
+import { IoNotifications } from "react-icons/io5";
+import DropdownNoti from "../../../components/DropdownNoti/DropdownNoti"; 
 const { Header } = Layout;
 
 const AppHeader = () => {
   const user = useSelector((state) => state.user);
   const dispatch = useDispatch();
   const navigate = useNavigate();
+
   const [showDropdown, setShowDropdown] = useState(false);
+  const [showNotificationDropdown, setShowNotificationDropdown] =
+    useState(false);
+
   const dropdownRef = useRef(null);
+  const notiRef = useRef(null);
 
   const toggleDropdown = () => setShowDropdown((prev) => !prev);
   const closeDropdown = () => setShowDropdown(false);
 
+  const handleLogout = () => {
+    dispatch(logout());
+    navigate("/");
+  };
+
+  // Đóng dropdown avatar khi click ngoài
   useEffect(() => {
     const handleClickOutside = (e) => {
       if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
@@ -28,24 +40,38 @@ const AppHeader = () => {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  const handleLogout = () => {
-    dispatch(logout());
-    navigate("/");
-  };
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (notiRef.current && !notiRef.current.contains(e.target)) {
+        setShowNotificationDropdown(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  // Dữ liệu demo sau này dùng API hoặc Redux
+  const mockNotifications = [
+    { message: "Bạn có lịch hiến máu vào 20/07", time: "5 phút trước" },
+    { message: "Chương trình mới đã được cập nhật", time: "2 giờ trước" },
+  ];
 
   return (
     <header className={styles.header}>
       <div className={styles.topHeader}>
+        {/* Logo */}
         <div className={styles.logoContainer}>
           <img src={Logo} alt="logo" className={styles.logo} />
         </div>
 
+        {/* Navbar */}
         <nav className={styles.navbar}>
           <ul className={styles.navList}>
             <li>
               <Link to="/">TRANG CHỦ</Link>
             </li>
-            {user && (
+
+            {user ? (
               <>
                 <li>
                   <Link to="/user/bloodDonate">LỊCH HẸN CỦA BẠN</Link>
@@ -65,9 +91,22 @@ const AppHeader = () => {
                 <li>
                   <Link to="/user/contact">LIÊN HỆ</Link>
                 </li>
+
+                {/* Bell Icon + Dropdown */}
+                <li className={styles.notificationContainer} ref={notiRef}>
+                  <IoNotifications
+                    className={styles.notificationIcon}
+                    onClick={() => setShowNotificationDropdown((prev) => !prev)}
+                  />
+                  {showNotificationDropdown && (
+                    <DropdownNoti
+                      notifications={mockNotifications}
+                      onClose={() => setShowNotificationDropdown(false)}
+                    />
+                  )}
+                </li>
               </>
-            )}
-            {!user && (
+            ) : (
               <>
                 <li>
                   <Link to="/information">HỎI - ĐÁP</Link>
@@ -83,6 +122,7 @@ const AppHeader = () => {
           </ul>
         </nav>
 
+        {/* Login / Avatar */}
         <div className={styles.loginArea}>
           {user ? (
             <div className={styles.userDropdown} ref={dropdownRef}>
@@ -96,8 +136,7 @@ const AppHeader = () => {
                     e.target.src = "https://via.placeholder.com/32";
                   }}
                 />
-                <span className={styles.userName}>{user?.username}</span>{" "}
-                {/* 👈 Thêm dòng này */}
+                <span className={styles.userName}>{user?.username}</span>
               </button>
 
               {showDropdown && (

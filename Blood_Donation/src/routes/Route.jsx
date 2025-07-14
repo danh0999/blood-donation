@@ -35,6 +35,7 @@ import ProgramDetail from "../pages/Admin/Programs/ProgramDetail";
 import CreateProgram from "../pages/Admin/Programs/CreateProgramRefactored";
 import ForgotPassword from "../pages/ForgotPassword/ForgotPassword";
 import CertPage from "../pages/CertPage/CertPage";
+import DropdownNoti from "../components/DropdownNoti/DropdownNoti";
 const routes = [
   {
     path: "",
@@ -95,7 +96,7 @@ const routes = [
         ],
       },
       { path: "event", element: <Event /> },
-    ],
+      ],
   },
 
   {
