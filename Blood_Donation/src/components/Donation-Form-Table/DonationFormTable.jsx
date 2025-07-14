@@ -38,9 +38,9 @@ function DonationFormTable({ demoData = [] }) {
 
   const statusColors = {
     PENDING: "gold",
-    APPROVED: "green",
+    APPROVED: "blue",
     REJECTED: "red",
-    FULFILLED: "blue",
+    FULFILLED: "green",
   };
 
   const handleViewForm = (record) => {
@@ -107,24 +107,43 @@ function DonationFormTable({ demoData = [] }) {
       title: "Hành Động",
       key: "actions",
       render: (_, record) => (
-        <>
-          <Button type="link" onClick={() => handleViewForm(record)}>
+        <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+          <Button
+            type="default"
+            onClick={() => handleViewForm(record)}
+            size="small"
+          >
             Xem phiếu
           </Button>
-          {record.status === "APPROVED" && (
-            <Button
-              type="link"
-              onClick={() => {
-                setSelectedForm(record);
-                setDonationModalVisible(true);
-              }}
-            >
-              Nhập thông tin hiến máu
-            </Button>
-          )}
-        </>
+
+          <Button
+            type="primary"
+            size="small"
+            disabled={record.status !== "APPROVED"}
+            onClick={() => {
+              setSelectedForm(record);
+              setDonationModalVisible(true);
+            }}
+          >
+            Nhập thông tin hiến máu
+          </Button>
+
+          <Select
+            size="small"
+            defaultValue={record.status}
+            style={{ width: 140 }}
+            onChange={(newStatus) => handleStatusUpdate(record.id, newStatus)}
+          >
+            <Select.Option value="PENDING">PENDING</Select.Option>
+            <Select.Option value="APPROVED">APPROVED</Select.Option>
+            <Select.Option value="REJECTED">REJECTED</Select.Option>
+            <Select.Option value="FULFILLED">FULFILLED</Select.Option>
+            <Select.Option value="CANCELLED">CANCELLED</Select.Option>
+          </Select>
+        </div>
       ),
     },
+
   ];
 
   return (
