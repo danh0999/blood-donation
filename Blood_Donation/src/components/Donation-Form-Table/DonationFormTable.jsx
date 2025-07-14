@@ -65,12 +65,13 @@ function DonationFormTable({ demoData = [] }) {
       ...values,
       appointmentId: selectedForm.id,
       staffId: user.userID,
+      memberId: 8,
     };
-
     dispatch(createDonationDetail(payload))
       .unwrap()
       .then(() => {
         message.success("Lưu thông tin hiến máu thành công!");
+        dispatch(updateAppointmentStatus({ id: selectedForm.id, status: "FULFILLED" }));
         setDonationModalVisible(false);
         donationForm.resetFields();
       })
