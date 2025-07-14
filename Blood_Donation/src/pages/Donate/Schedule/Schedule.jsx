@@ -24,10 +24,27 @@ export const Schedule = () => {
   const [slots, setSlots] = useState([]);
   const [selectedSlotId, setSelectedSlotId] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [cities, setCities] = useState([]);
+
   const cameFromEventDetail = !!location.state?.fromEventDetail;
 
   const disabledDate = (current) => current && current < dayjs().startOf("day");
 
+  // Lấy danh sách tỉnh/thành từ BE
+  useEffect(() => {
+    const fetchCities = async () => {
+      try {
+        const res = await api.get("/city"); // hoặc /locations tùy backend
+        setCities(Array.isArray(res.data) ? res.data : []);
+      } catch (err) {
+        console.error("Lỗi khi lấy danh sách tỉnh/thành:", err);
+      }
+    };
+
+    fetchCities();
+  }, []);
+
+  // Xử lý khi vào từ event detail
   useEffect(() => {
     form.resetFields();
     setPrograms([]);
@@ -60,6 +77,7 @@ export const Schedule = () => {
         const programWithTime = {
           ...selectedProgram,
           timeRange: slotLabels.join(", ") || "Không rõ thời gian",
+          fromEventDetail: true,
         };
 
         setPrograms([programWithTime]);
@@ -93,31 +111,25 @@ export const Schedule = () => {
       } else {
         const enrichedPrograms = await Promise.all(
           res.data.map(async (program) => {
-            const slotLabels = await Promise.all(
-              (program.slotIds || []).map(async (slotId) => {
-                try {
-                  const slotRes = await api.get(`/slots/${slotId}`);
-                  return slotRes.data.label;
-                } catch {
-                  return "Không rõ";
-                }
-              })
-            );
-
             let addressName = "Không rõ";
+            let slotIds = [];
             try {
+              const detailRes = await api.get(`/programs/${program.id}`);
+              slotIds = detailRes.data.slotIds || [];
+
               const addressRes = await api.get(
                 `/addresses/${program.addressId}`
               );
-              addressName = addressRes.data.name || "Không rõ"; // ✅ Sửa tại đây
+              addressName = addressRes.data.name || "Không rõ";
             } catch (err) {
-              console.warn("Không lấy được địa chỉ:", err);
+              console.log(err);
             }
 
             return {
               ...program,
               addressName,
-              timeRange: slotLabels.join(", "),
+              slotIds,
+              timeRange: "Vui lòng chọn để xem khung giờ",
             };
           })
         );
@@ -134,15 +146,35 @@ export const Schedule = () => {
   };
 
   const handleSelectProgram = async (program) => {
+    if (selectedProgramId === program.id && slots.length > 0) return;
+
     setSelectedProgramId(program.id);
     setSelectedSlotId(null);
+
+    if (program.fromEventDetail && program.slots?.length > 0) {
+      setSlots(program.slots);
+      return;
+    }
+
     try {
-      const res = await api.get("/slots", {
-        params: { programId: program.id },
-      });
-      setSlots(res.data || []);
+      const res = await api.get(`/programs/${program.id}`);
+      const slotIds = res.data.slotIds || [];
+
+      const detailedSlots = await Promise.all(
+        slotIds.map(async (slotId) => {
+          try {
+            const slotRes = await api.get(`/slots/${slotId}`);
+            return slotRes.data;
+          } catch (err) {
+            console.error(`Lỗi khi lấy slot ${slotId}:`, err);
+            return null;
+          }
+        })
+      );
+
+      setSlots(detailedSlots.filter((slot) => slot));
     } catch (err) {
-      console.error("Lỗi khi lấy slot:", err);
+      console.error("Lỗi khi lấy chi tiết chương trình:", err);
       setSlots([]);
     }
   };
@@ -175,6 +207,7 @@ export const Schedule = () => {
       navigate("/user/profile");
       return;
     }
+
     const program = programs.find((p) => p.id === selectedProgramId);
     if (!program) return message.error("Không tìm thấy chương trình.");
 
@@ -220,92 +253,98 @@ export const Schedule = () => {
               name="cityId"
               rules={[{ required: true, message: "Vui lòng chọn địa điểm" }]}
             >
-              <Select placeholder="Chọn tỉnh/thành phố">
-                <Option value={1}>Hồ Chí Minh</Option>
-                <Option value={2}>Đà Nẵng</Option>
-                <Option value={3}>Hà Nội</Option>
+              <Select placeholder="Chọn tỉnh/thành phố" allowClear>
+                {cities.map((city) => (
+                  <Option key={city.id} value={city.id}>
+                    {city.name}
+                  </Option>
+                ))}
               </Select>
             </Form.Item>
 
             <div className={styles.btn}>
-              <Button content="Kiểm tra lịch" onClick={handleCheckSchedule} />
+              <Button
+                content="Kiểm tra lịch"
+                onClick={handleCheckSchedule}
+                loading={loading}
+              />
               <Button content="Tiếp tục" onClick={handleContinue} />
             </div>
           </Form>
         </div>
 
-        {/* Danh sách chương trình bên phải */}
+        {/* Danh sách chương trình */}
         {programs.length > 0 && (
           <div className={styles.programListSection}>
             <h3>Danh sách chương trình phù hợp</h3>
-            {programs.map((program) => (
-              <div
-                key={program.id}
-                className={styles.programDetail}
-                style={{
-                  border: "1px solid #ccc",
-                  padding: "12px",
-                  borderRadius: "8px",
-                  marginBottom: "16px",
-                  backgroundColor:
-                    selectedProgramId === program.id ? "#e6f7ff" : "#fff",
-                }}
-              >
-                <p>
-                  <strong>Tên:</strong> {program.proName}
-                </p>
-                {program.imageUrl && (
-                  <img
-                    src={program.imageUrl}
-                    alt="Hình ảnh chương trình"
-                    style={{
-                      width: 100,
-                      height: "auto",
-                      borderRadius: 8,
-                      marginBottom: 8,
-                    }}
-                  />
-                )}
 
-                <p>
-                  <strong>Địa điểm:</strong> {program.addressName || "Không rõ"}
-                </p>
-                <p>
-                  <strong>Thời gian:</strong> {program.timeRange}
-                </p>
-                <p>
-                  <strong>Ghi chú:</strong> {program.description || "Không có"}
-                </p>
+            {programs.map((program) => {
+              const isSelected = selectedProgramId === program.id;
 
-                <Button
-                  content="Chọn chương trình này"
+              return (
+                <div
+                  key={program.id}
+                  className={`${styles.programDetail} ${isSelected ? styles.selected : ""}`}
                   onClick={() => handleSelectProgram(program)}
-                />
+                >
+                  <p>
+                    <strong>Tên:</strong> {program.proName}
+                  </p>
 
-                {selectedProgramId === program.id && slots.length > 0 && (
-                  <Form layout="vertical" style={{ marginTop: 16 }}>
-                    <Form.Item
-                      label="Chọn khung giờ"
-                      required
-                      validateStatus={!selectedSlotId ? "error" : ""}
-                      help={!selectedSlotId ? "Vui lòng chọn khung giờ." : ""}
+                  {program.imageUrl && (
+                    <img
+                      src={program.imageUrl}
+                      alt="Hình ảnh chương trình"
+                      style={{
+                        width: 100,
+                        height: "auto",
+                        borderRadius: 8,
+                        marginBottom: 8,
+                      }}
+                    />
+                  )}
+
+                  <p>
+                    <strong>Địa điểm:</strong> {program.addressName}
+                  </p>
+                  <p>
+                    <strong>Ghi chú:</strong>{" "}
+                    {program.description || "Không có"}
+                  </p>
+                  <p>
+                    <strong>Thời gian:</strong> {program.timeRange}
+                  </p>
+
+                  {isSelected && slots.length > 0 && (
+                    <Form
+                      layout="vertical"
+                      style={{ marginTop: 16 }}
+                      onClick={(e) => e.stopPropagation()}
                     >
-                      <Select
-                        placeholder="Chọn khung giờ"
-                        onChange={(value) => setSelectedSlotId(value)}
-                        value={selectedSlotId || undefined}
+                      <Form.Item
+                        label="Chọn khung giờ"
+                        required
+                        validateStatus={!selectedSlotId ? "error" : ""}
+                        help={!selectedSlotId ? "Vui lòng chọn khung giờ." : ""}
                       >
-                        {slots.map((slot) => (
-                          <Option key={slot.slotID} value={slot.slotID}>
-                            {slot.label}
-                          </Option>
-                        ))}
-                      </Select>
-                    </Form.Item>
-                  </Form>
-                )}
-              </div>
-            ))}
+                        <Select
+                          placeholder="Chọn khung giờ"
+                          onChange={(value) => setSelectedSlotId(value)}
+                          value={selectedSlotId || undefined}
+                          onClick={(e) => e.stopPropagation()}
+                        >
+                          {slots.map((slot) => (
+                            <Option key={slot.slotID} value={slot.slotID}>
+                              {slot.label}
+                            </Option>
+                          ))}
+                        </Select>
+                      </Form.Item>
+                    </Form>
+                  )}
+                </div>
+              );
+            })}
           </div>
         )}
       </div>
