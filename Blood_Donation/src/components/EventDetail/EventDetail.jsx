@@ -6,13 +6,14 @@ import { IoMdTime } from "react-icons/io";
 import { CiLocationOn } from "react-icons/ci";
 import { MdOutlineDescription } from "react-icons/md";
 import { FaCalendarAlt } from "react-icons/fa";
-import { BsDropletHalf, BsImage } from "react-icons/bs";
+import { BsDropletHalf } from "react-icons/bs";
 import { FiPhone } from "react-icons/fi";
 import { Button } from "../Button/Button";
 import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { setSelectedProgram } from "../../redux/features/bloodHistorySlice";
 import api from "../../configs/axios";
+import dayjs from "dayjs";
 
 export const EventDetail = ({ open, onClose, event }) => {
   const dispatch = useDispatch();
@@ -20,22 +21,55 @@ export const EventDetail = ({ open, onClose, event }) => {
 
   const handleRegister = async () => {
     try {
-      // Không cần fetch lại nếu đã truyền đủ từ Event.jsx
-      const programDetail = event;
+      // Lấy chi tiết chương trình
+      const programRes = await api.get(`/programs/${event.id}`);
+      const programDetail = programRes.data;
 
-      const slotRes = await api.get("/slots", {
-        params: { programId: event.id },
-      });
+      // Lấy danh sách slotIds từ chi tiết chương trình
+      const slotIds = programDetail.slotIds || [];
 
-      const slots = slotRes.data || [];
-      programDetail.slots = slots;
-      programDetail.slotIds = slots.map((slot) => slot.slotID);
+      // Gọi từng slot theo ID (giống bên Schedule)
+      const slots = await Promise.all(
+        slotIds.map(async (slotId) => {
+          try {
+            const slotRes = await api.get(`/slots/${slotId}`);
+            return slotRes.data;
+          } catch {
+            return null;
+          }
+        })
+      );
 
-      dispatch(setSelectedProgram(programDetail));
+      // Lọc ra những slot hợp lệ
+      const validSlots = slots.filter((slot) => slot);
+
+      // Lấy địa chỉ
+      let addressName = "Không rõ";
+      try {
+        const addressRes = await api.get(
+          `/addresses/${programDetail.addressId}`
+        );
+        addressName = addressRes.data.name || "Không rõ";
+      } catch (err) {
+        console.log(err);
+      }
+
+      // Gửi dữ liệu sang Redux
+      dispatch(
+        setSelectedProgram({
+          ...programDetail,
+          slots: validSlots,
+          slotIds,
+          addressName,
+          fromEventDetail: true,
+        })
+      );
+
+      // Điều hướng sang schedule
       navigate("/user/donate/schedule", {
         state: {
           fromEventDetail: true,
-          selectedDate: event.selectedDate || event.startDate, // ✅ Ưu tiên ngày search
+          selectedDate: event.selectedDate || programDetail.startDate,
         },
       });
     } catch (error) {
@@ -58,7 +92,11 @@ export const EventDetail = ({ open, onClose, event }) => {
       <div className={styles.detailItem}>
         <FaCalendarAlt className={styles.icon} />
         <strong>Ngày tổ chức:</strong>{" "}
-        <span>{event.startDate || "Chưa rõ"}</span>
+        <span>
+          {event.startDate
+            ? dayjs(event.startDate).format("DD/MM/YYYY")
+            : "Chưa rõ"}
+        </span>
       </div>
 
       <div className={styles.detailItem}>
