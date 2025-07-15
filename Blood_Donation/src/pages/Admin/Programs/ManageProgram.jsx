@@ -32,7 +32,7 @@ export default function ManageProgram() {
   
 
   // when the list of programs changes, check if the selected program still exists.
-  // Ii not, it means it was deleted, so we clear the selection. Used by map to remove the info window
+  // If not, it means it was deleted, so we clear the selection. Used by map to remove the info window
   useEffect(() => {
     if (selectedProgram && !programs.find(p => p.id === selectedProgram.id)) {
       setSelectedProgram(null);
