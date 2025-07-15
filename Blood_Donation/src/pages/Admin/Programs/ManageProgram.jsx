@@ -42,6 +42,7 @@ export default function ManageProgram() {
   // When a program is selected, update map center to its address
   const handleSelectProgram = (program) => {
     setSelectedProgram(program);
+    // Using program.addressId to search for address in the address list that match the id of the one in program
     const address = addresses.find(addr => addr.id === program.addressId);
     if (address && address.latitude && address.longitude) {
       setMapCenter({ lat: address.latitude, lng: address.longitude });

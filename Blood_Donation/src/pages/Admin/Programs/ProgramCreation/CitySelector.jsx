@@ -1,3 +1,17 @@
+// Component for selecting, adding, and managing cities during program creation
+/*
+  Used in:
+  + ProgramFormFields.jsx: City selection dropdown with management capabilities
+  
+  Purpose:
+  - Provides dropdown for selecting cities from available list
+  - Allows adding new cities that don't exist in the database
+  - Enables marking cities for deletion (soft delete)
+  - Shows pending changes modal for reviewing city modifications
+  - Integrates with useCityManagement hook for state management
+  - Handles city validation and duplicate prevention
+*/
+
 import { useState } from "react";
 import { Select, Divider, Space, Input, Button, Modal, Typography } from "antd";
 import { PlusOutlined, DeleteOutlined } from "@ant-design/icons";
@@ -33,7 +47,7 @@ const CitySelector = ({
     setNewCityName("");
   };
 
-  // Handle deleting city (staging only)
+  // Handle deleting city, removes a staging city or marks an existing city for deletion.
   const handleDeleteCity = (cityId) => {
     const cityToDelete = stagingCities.find(city => city.id === cityId);
 
@@ -105,7 +119,8 @@ const CitySelector = ({
               <DeleteOutlined
                 style={{ color: 'red', fontSize: '12px' }}
                 onClick={(e) => {
-                  e.stopPropagation();
+                  // stops the click on the delete icon from also triggering the dropdown's selection logic
+                  e.stopPropagation(); 
                   handleDeleteCity(city.id);
                 }}
               />
