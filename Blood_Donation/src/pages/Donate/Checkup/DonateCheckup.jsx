@@ -111,7 +111,7 @@ const DonateCheckup = () => {
   const location = useLocation();
   const user = useSelector((state) => state.user);
 
-  const { programId, date, cityId, slotId, addressId } = location.state || {};
+  const { programId, date, cityId, slotId, addressId } = location.state || {}; // eslint-disable-line no-unused-vars
 
   const handleCheckboxChange = (qIndex, option) => {
     const updated = [...answers];

@@ -8,6 +8,7 @@ import { Button } from "../../../components/Button/Button";
 import { useSelector, useDispatch } from "react-redux";
 import { setSelectedProgram } from "../../../redux/features/bloodHistorySlice";
 import { toast } from "react-toastify";
+import ScrollToTopButton from "../../../components/ScrollToTopButton/ScrollToTopButton";
 
 const { Option } = Select;
 
@@ -348,6 +349,7 @@ export const Schedule = () => {
           </div>
         )}
       </div>
+      <ScrollToTopButton />
     </div>
   );
 };
