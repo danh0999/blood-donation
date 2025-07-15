@@ -5,6 +5,7 @@ import calendarImg from "../../assets/calendar.png";
 import api from "../../configs/axios";
 import { useSelector } from "react-redux";
 import { Spin, Empty, Tag } from "antd";
+import ScrollToTopButton from "../../components/ScrollToTopButton/ScrollToTopButton";
 
 export const History = () => {
   const { container, image, title, message, historyList, card, infoRow } =
@@ -36,7 +37,8 @@ export const History = () => {
         const res = await api.get("/appointments/history", {
           params: { userId: user.userID },
         });
-        setAppointments(res.data);
+        const sortedAppointments = res.data.sort((a, b) => b.id - a.id); // sắp xếp giảm dần theo id
+        setAppointments(sortedAppointments);
       } catch (err) {
         console.error("Lỗi lấy lịch sử:", err);
       } finally {
@@ -109,6 +111,7 @@ export const History = () => {
           ))}
         </div>
       )}
+      <ScrollToTopButton />
     </div>
   );
 };

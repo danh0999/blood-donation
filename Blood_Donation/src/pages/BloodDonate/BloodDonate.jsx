@@ -58,21 +58,21 @@ const BloodDonate = () => {
     if (!appointment) return;
 
     try {
-      await api.delete(`/appointments/${appointment.id}/with-permission`, {
+      await api.patch(`/appointments/${appointment.id}/cancel`, null, {
         params: {
-          userID: user.userID,
+          userId: user.userID,
         },
       });
 
       dispatch(clearDonationHistory());
       dispatch(clearCurrentAppointment());
-      toast.success("🗑️ Xóa đơn đăng ký thành công!");
+      toast.success("🗑️ Hủy đơn đăng ký thành công!");
       setIsModalVisible(false);
       setAppointment(null);
       setStatus("FULFILLED"); // cho phép đăng ký mới
     } catch (err) {
-      console.error("Lỗi xóa appointment:", err.response?.data || err.message);
-      toast.error(err.response?.data);
+      console.error("Lỗi hủy appointment:", err.response?.data || err.message);
+      toast.error(err.response?.data || "Lỗi khi hủy đơn.");
     }
   };
 
