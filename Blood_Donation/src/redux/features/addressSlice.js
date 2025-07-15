@@ -32,6 +32,19 @@ export const createAddress = createAsyncThunk(
   }
 );
 
+// Async thunk to delete address by ID
+export const deleteAddress = createAsyncThunk(
+  "addresses/deleteAddress",
+  async (id, { rejectWithValue }) => {
+    try {
+      await api.delete(`/addresses/${id}`);
+      return id;
+    } catch (err) {
+      return rejectWithValue(err.response?.data?.message || err.message);
+    }
+  }
+);
+
 const addressSlice = createSlice({
   name: "address",
   initialState: {
@@ -87,6 +100,11 @@ const addressSlice = createSlice({
       .addCase(createAddress.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload || action.error.message;
+      })
+      
+      // deleteAddress
+      .addCase(deleteAddress.fulfilled, (state, action) => {
+        state.data = state.data.filter(addr => addr.id !== action.payload);
       });
   },
 });
