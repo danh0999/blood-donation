@@ -5,9 +5,7 @@ import api from "../../configs/axios";
 export const fetchPrograms = createAsyncThunk(
   "programs/fetchPrograms",
   async () => {
-    // TODO: Update endpoint
     const response = await api.get("/programs");
-    // Add a 'key' property for AntD Table
     return response.data.map((program) => ({
       ...program,
       key: program.id, // TODO: update to correct id field

@@ -23,9 +23,8 @@ const CreateProgram = () => {
   const dispatch = useDispatch();
 
   // Basic form states
-  const [imageUrl, setImageUrl] = useState(null); // Local preview URL
-  const [firebaseImageUrl, setFirebaseImageUrl] = useState(null); // Firebase storage URL
-  const [fileList, setFileList] = useState([]);
+  const [firebaseImageUrl, setFirebaseImageUrl] = useState(null); // Firebase storage URL, used in submitProgram and ConfirmationModal
+  const [hasImageSelected, setHasImageSelected] = useState(false); // Track if user has selected an image file
   const [selectedAddress, setSelectedAddress] = useState("");
   const [selectedPlaceData, setSelectedPlaceData] = useState(null);
   
@@ -52,6 +51,11 @@ const CreateProgram = () => {
     setFirebaseImageUrl(url);
   };
 
+  // Handle image file selection state
+  const handleFileListChange = (hasFiles) => {
+    setHasImageSelected(hasFiles);
+  };
+
   // Handle place selection from Google Places API
   const handlePlaceSelect = (placeData) => {
     setSelectedPlaceData(placeData);
@@ -65,23 +69,26 @@ const CreateProgram = () => {
       form.setFieldValue('proName', `Chương trình hiến máu tại ${placeData.name}`);
     }
     
-    // Auto-select city if we can find a match
+    // Auto-select city after filling address info if we can find a match
     if (placeData.city) {
       const matchingCity = cityManagement.displayCities.find(city => 
         city.name.toLowerCase().includes(placeData.city.toLowerCase()) ||
         placeData.city.toLowerCase().includes(city.name.toLowerCase())
       );
       
+      // If city name is found in actual data, set the field to use that
+      // otherwise continue to look for city name in the staging list
       if (matchingCity) {
         form.setFieldValue('cityId', matchingCity.id);
       } else {
-        // If no matching city found, add it as a new staging city
+        // Check if the city exist in staging list (meaning it already in process of being created)
         const cityExists = cityManagement.stagingCities.some(city => 
           city.name.toLowerCase() === placeData.city.toLowerCase()
         );
         
+        // If no matching city found, add it as a new staging city
         if (!cityExists) {
-          const tempId = Date.now();
+          const tempId = Date.now(); // generate a temporary ID to handle form choice & submit
           const newCity = { id: tempId, name: placeData.city, isStaging: true };
           cityManagement.setStagingCities(prev => [...prev, newCity]);
           form.setFieldValue('cityId', tempId);
@@ -110,7 +117,7 @@ const CreateProgram = () => {
     }
     
     // Check if image was uploaded to Firebase (optional warning)
-    if (imageUrl && !firebaseImageUrl) {
+    if (hasImageSelected && !firebaseImageUrl) {
       toast.warning('Bạn có ảnh nhưng chưa tải lên Firebase. Ảnh sẽ không được lưu trong chương trình.');
     }
     
@@ -190,11 +197,8 @@ const CreateProgram = () => {
             <Col span={12}>
               <Form.Item label="Hình ảnh chương trình">
                 <ImageUpload
-                  imageUrl={imageUrl}
-                  setImageUrl={setImageUrl}
-                  fileList={fileList}
-                  setFileList={setFileList}
                   onFirebaseUpload={handleFirebaseUpload}
+                  onFileListChange={handleFileListChange}
                 />
               </Form.Item>
             </Col>
@@ -226,7 +230,7 @@ const CreateProgram = () => {
         selectedAddress={selectedAddress}
         displayCities={cityManagement.displayCities}
         slots={slots}
-        imageUrl={firebaseImageUrl || imageUrl} // Show Firebase URL if available, fallback to local preview
+        imageUrl={firebaseImageUrl} // Show Firebase URL if available
         getPendingChanges={cityManagement.getPendingChanges}
       />
     </div>

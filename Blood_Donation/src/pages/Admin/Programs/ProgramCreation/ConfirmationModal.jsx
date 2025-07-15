@@ -1,3 +1,16 @@
+// Modal component for confirming program creation before submission
+/*
+  Used in:
+  + CreateProgramRefactored.jsx: Shows confirmation dialog before final program submission
+  
+  Purpose:
+  - Displays a summary of all program data before submission
+  - Shows pending city changes (new cities to add, cities to delete)
+  - Provides final review of form data, selected address, and image
+  - Handles confirmation or cancellation of program creation
+  - Shows loading state during submission process
+*/
+
 import { Modal, Typography, Row, Col } from "antd";
 
 const ConfirmationModal = ({

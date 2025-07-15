@@ -1,3 +1,16 @@
+// Component containing all form fields for program creation
+/*
+  Used in:
+  + CreateProgramRefactored.jsx: Main form fields for program creation
+  
+  Purpose:
+  - Renders all input fields for program creation (name, dates, description, contact, slots)
+  - Integrates address selection via Google Places API
+  - Handles city selection with CitySelector component
+  - Manages form validation and field interactions
+  - Provides interface for address and city auto-selection
+*/
+
 import { Form, Input, DatePicker, Select, Row, Col } from "antd";
 import dayjs from "dayjs";
 import EnhancedPlacesAutocomplete from "../EnhancedPlacesAutocomplete";

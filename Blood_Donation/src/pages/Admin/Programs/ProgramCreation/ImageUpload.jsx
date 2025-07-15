@@ -1,45 +1,49 @@
-import { useState } from "react";
-import { Upload, Button, Progress, message } from "antd";
-import { PlusOutlined, CloudUploadOutlined } from "@ant-design/icons";
-import { ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
-import { storage } from "../../../../firebase";
+// Component for handling program image upload to Firebase
+/*
+  Used in:
+  + CreateProgramRefactored.jsx: Image upload functionality for program creation
+  
+  Purpose:
+  - Provides image selection and preview functionality
+  - Handles file upload to Firebase Storage
+  - Shows upload progress with progress bar
+  - Manages image URL state (local preview and Firebase URL)
+  - Validates image file types and sizes
+*/
 
-const ImageUpload = ({ imageUrl, setImageUrl, fileList, setFileList, onFirebaseUpload }) => {
+import { useState } from "react";
+import { Upload, Button, Progress, message, Spin } from "antd";
+import { PlusOutlined, CloudUploadOutlined, UploadOutlined } from "@ant-design/icons";
+import { ref, uploadBytesResumable, getDownloadURL, deleteObject } from "firebase/storage";
+import { storage } from "../../../../firebase";
+import { toast } from "react-toastify";
+
+const ImageUpload = ({ onFirebaseUpload, onFileListChange }) => {
+  const [fileList, setFileList] = useState([]);
   const [uploading, setUploading] = useState(false);
+  const [deleting, setDeleting] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
   const [firebaseUrl, setFirebaseUrl] = useState(null);
+  const [firebaseStorageRef, setFirebaseStorageRef] = useState(null);
+
   const handleImageUpload = ({ fileList: newFileList }) => {
     setFileList(newFileList);
+    // Reset Firebase upload state when file selection changes
+    setFirebaseUrl(null);
+    setFirebaseStorageRef(null);
+    setUploadProgress(0);
 
-    if (newFileList.length > 0) {
-      const file = newFileList[0].originFileObj;
-      if (file) {
-        const reader = new FileReader();
-        reader.onload = (e) => {
-          setImageUrl(e.target.result);
-        };
-        reader.readAsDataURL(file);
-        
-        // Reset Firebase upload state when new file is selected
-        setFirebaseUrl(null);
-        setUploadProgress(0);
-      }
-    } else {
-      setImageUrl(null);
-      setFirebaseUrl(null);
-      setUploadProgress(0);
+    // Notify parent about file list changes
+    // this will set the boolean to be true since an image has been upload
+    if (onFileListChange) {
+      onFileListChange(newFileList.length > 0);
     }
   };
 
   const handleFirebaseUpload = async () => {
-    if (fileList.length === 0) {
-      message.error("Vui lòng chọn ảnh trước khi tải lên!");
-      return;
-    }
-
     const file = fileList[0].originFileObj;
     if (!file) {
-      message.error("Không tìm thấy file để tải lên!");
+      toast.error("Không tìm thấy file để tải lên!");
       return;
     }
 
@@ -51,7 +55,10 @@ const ImageUpload = ({ imageUrl, setImageUrl, fileList, setFileList, onFirebaseU
       const timestamp = Date.now();
       const fileName = `${timestamp}_${file.name}`;
       const storageRef = ref(storage, `images/donation-programs/${fileName}`);
-      
+
+      // Store the storage reference for potential deletion
+      setFirebaseStorageRef(storageRef);
+
       // Create upload task for progress tracking (from your experimental uploader)
       const uploadTask = uploadBytesResumable(storageRef, file);
 
@@ -66,20 +73,19 @@ const ImageUpload = ({ imageUrl, setImageUrl, fileList, setFileList, onFirebaseU
         (error) => {
           // Handle error
           setUploading(false);
-          message.error("Lỗi khi tải ảnh lên Firebase: " + error.message);
+          toast.error("Lỗi khi tải ảnh lên Firebase: " + error.message);
         },
         () => {
           // Handle successful completion
           getDownloadURL(uploadTask.snapshot.ref).then((url) => {
             setFirebaseUrl(url);
             setUploading(false);
-            
+
             // Notify parent component about the Firebase URL
             if (onFirebaseUpload) {
               onFirebaseUpload(url);
             }
-            
-            message.success("Ảnh đã được tải lên Firebase thành công!");
+
           });
         }
       );
@@ -89,42 +95,70 @@ const ImageUpload = ({ imageUrl, setImageUrl, fileList, setFileList, onFirebaseU
     }
   };
 
+  const handleRemove = async () => {
+    // If there's a Firebase URL and storage reference, delete the file from Firebase
+    if (firebaseUrl && firebaseStorageRef) {
+      setDeleting(true); 
+      try {
+        await deleteObject(firebaseStorageRef);
+        toast.success("Ảnh đã được xóa khỏi Firebase thành công!", {
+          autoClose: 3000
+        });
+
+        // Notify parent component that the Firebase URL is no longer valid
+        if (onFirebaseUpload) {
+          onFirebaseUpload(null);
+        }
+      } catch (error) {
+        console.error("Error deleting file from Firebase:", error);
+        toast.error("Lỗi khi xóa ảnh khỏi Firebase: " + error.message);
+        // Don't prevent UI removal even if Firebase deletion fails
+      }
+      setDeleting(false);
+    }
+
+    // Reset all states
+    setFirebaseUrl(null);
+    setFirebaseStorageRef(null);
+    setUploadProgress(0);
+    setFileList([]);
+
+    // Notify parent about file list changes
+    if (onFileListChange) {
+      onFileListChange(false);
+    }
+
+    return true; // allow removal from UI
+  };
+
   const uploadButton = (
     <div>
-      <PlusOutlined />
-      <div style={{ marginTop: 8 }}>Chọn ảnh</div>
+      <Button icon={<UploadOutlined />}>Click to Upload</Button>
     </div>
   );
 
   return (
     <div>
-      <Upload
-        listType="picture-card"
-        fileList={fileList}
-        onChange={handleImageUpload}
-        beforeUpload={() => false} // Prevent auto upload
-        showUploadList={{
-          showPreviewIcon: false
-        }}
-        maxCount={1}
-      >
-        {fileList.length === 0 && uploadButton}
-      </Upload>
-      
-      {imageUrl && (
+      <Spin spinning={uploading || deleting}>
+        <Upload
+          accept="image/*" //restrict upload to images
+          listType="picture"
+          fileList={fileList}
+          onChange={handleImageUpload}
+          onRemove={handleRemove}
+          beforeUpload={() => false} // Prevent auto upload
+          showUploadList={{
+            showPreviewIcon: false // disable the "eye" icon in the default component look
+          }}
+          maxCount={1}
+        >
+          {/* Render upload button only when no file are selected */}
+          {fileList.length === 0 && uploadButton}
+        </Upload>
+      </Spin>
+
+      {fileList.length > 0 && (
         <div style={{ marginTop: 8 }}>
-          <img
-            src={imageUrl}
-            alt="Preview"
-            style={{
-              width: '100%',
-              maxWidth: 300,
-              height: 200,
-              objectFit: 'cover',
-              borderRadius: 8
-            }}
-          />
-          
           {/* Upload to Firebase Button */}
           <div style={{ marginTop: 12 }}>
             <Button
@@ -137,16 +171,16 @@ const ImageUpload = ({ imageUrl, setImageUrl, fileList, setFileList, onFirebaseU
             >
               {uploading ? 'Đang tải lên...' : firebaseUrl ? 'Đã tải lên Firebase' : 'Tải ảnh lên Firebase'}
             </Button>
-            
+
             {uploading && (
-              <Progress 
-                percent={uploadProgress} 
-                size="small" 
+              <Progress
+                percent={uploadProgress}
+                size="small"
                 style={{ marginTop: 8 }}
                 status="active"
               />
             )}
-            
+
             {firebaseUrl && (
               <div style={{ marginTop: 8, padding: 8, backgroundColor: '#f6ffed', borderRadius: 4 }}>
                 <div style={{ fontSize: '12px', color: '#52c41a', fontWeight: 'bold' }}>
