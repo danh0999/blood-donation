@@ -78,24 +78,28 @@ const ConfirmationModal = ({
                 </Col>
               )}
             </Row>
-            {imageUrl && (
-              <div style={{ marginTop: 12 }}>
-                <strong>Hình ảnh:</strong>
-                <div style={{ marginTop: 8 }}>
-                  <img
-                    src={imageUrl}
-                    alt="Program preview"
-                    style={{
-                      width: '100%',
-                      maxWidth: 200,
-                      height: 120,
-                      objectFit: 'cover',
-                      borderRadius: 4
-                    }}
-                  />
-                </div>
+            <div style={{ marginTop: 12 }}>
+              <strong>Hình ảnh:</strong>
+              <div style={{ marginTop: 8 }}>
+                <img
+                  src={imageUrl || 'https://firebasestorage.googleapis.com/v0/b/seventh-dynamo-465214-j3.firebasestorage.app/o/images%2Fdonation-programs%2FPlaceholderBloodDrive.jpg?alt=media&token=6a26d6e6-4d4c-429e-97ff-0b8b1c53913b'}
+                  alt="Program preview"
+                  style={{
+                    width: '100%',
+                    maxWidth: 200,
+                    height: 120,
+                    objectFit: 'cover',
+                    borderRadius: 4,
+                    border: imageUrl ? 'none' : '1px dashed #d9d9d9'
+                  }}
+                />
+                {!imageUrl && (
+                  <div style={{ fontSize: '12px', color: '#666', marginTop: 4 }}>
+                    * Sử dụng ảnh mặc định
+                  </div>
+                )}
               </div>
-            )}
+            </div>
           </div>
 
           {(() => {
