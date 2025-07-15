@@ -94,6 +94,10 @@ const useProgramSubmission = () => {
       }
 
       // Process: Prepare final data for backend submission
+      // Use placeholder image if no image was uploaded
+      const placeholderImageUrl = 'https://firebasestorage.googleapis.com/v0/b/seventh-dynamo-465214-j3.firebasestorage.app/o/images%2Fdonation-programs%2FPlaceholderBloodDrive.jpg?alt=media&token=6a26d6e6-4d4c-429e-97ff-0b8b1c53913b';
+      const finalImageUrl = imageUrl || placeholderImageUrl;
+
       const programData = {
         proName: values.proName,
         startDate: values.startDate.format('YYYY-MM-DD'),
@@ -103,7 +107,7 @@ const useProgramSubmission = () => {
         cityId: finalCityId,
         description: values.description || null,
         contact: values.contact || null,
-        imageUrl: imageUrl || null,
+        imageUrl: finalImageUrl,
         adminId: 1, // TODO: replace this in future when adding profile for staff, admin account
         slotIds: values.slotIds || []
       };

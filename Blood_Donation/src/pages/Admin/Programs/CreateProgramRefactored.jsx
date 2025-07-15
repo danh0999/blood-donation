@@ -118,7 +118,9 @@ const CreateProgram = () => {
     
     // Check if image was uploaded to Firebase (optional warning)
     if (hasImageSelected && !firebaseImageUrl) {
-      toast.warning('Bạn có ảnh nhưng chưa tải lên Firebase. Ảnh sẽ không được lưu trong chương trình.');
+      toast.warning('Bạn có ảnh nhưng chưa tải lên Firebase. Ảnh mặc định sẽ được sử dụng thay thế.');
+    } else if (!hasImageSelected) {
+      toast.info('Chương trình sẽ sử dụng ảnh mặc định.');
     }
     
     setPendingFormData(values);
