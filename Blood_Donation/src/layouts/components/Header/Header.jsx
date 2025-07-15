@@ -5,8 +5,7 @@ import { Layout } from "antd";
 import { useSelector, useDispatch } from "react-redux";
 import { logout } from "../../../redux/features/userSlice";
 import styles from "./Header.module.scss";
-import { IoNotifications } from "react-icons/io5";
-import DropdownNoti from "../../../components/DropdownNoti/DropdownNoti"; 
+import NotificationBell from "../../../components/Notification/Bell/NotificationBell";
 const { Header } = Layout;
 
 const AppHeader = () => {
@@ -15,11 +14,7 @@ const AppHeader = () => {
   const navigate = useNavigate();
 
   const [showDropdown, setShowDropdown] = useState(false);
-  const [showNotificationDropdown, setShowNotificationDropdown] =
-    useState(false);
-
   const dropdownRef = useRef(null);
-  const notiRef = useRef(null);
 
   const toggleDropdown = () => setShowDropdown((prev) => !prev);
   const closeDropdown = () => setShowDropdown(false);
@@ -39,22 +34,6 @@ const AppHeader = () => {
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
-
-  useEffect(() => {
-    const handleClickOutside = (e) => {
-      if (notiRef.current && !notiRef.current.contains(e.target)) {
-        setShowNotificationDropdown(false);
-      }
-    };
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
-
-  // Dữ liệu demo sau này dùng API hoặc Redux
-  const mockNotifications = [
-    { message: "Bạn có lịch hiến máu vào 20/07", time: "5 phút trước" },
-    { message: "Chương trình mới đã được cập nhật", time: "2 giờ trước" },
-  ];
 
   return (
     <header className={styles.header}>
@@ -93,7 +72,7 @@ const AppHeader = () => {
                 </li>
 
                 {/* Bell Icon + Dropdown */}
-                <li className={styles.notificationContainer} ref={notiRef}>
+                {/* <li className={styles.notificationContainer} ref={notiRef}>
                   <IoNotifications
                     className={styles.notificationIcon}
                     onClick={() => setShowNotificationDropdown((prev) => !prev)}
@@ -104,7 +83,7 @@ const AppHeader = () => {
                       onClose={() => setShowNotificationDropdown(false)}
                     />
                   )}
-                </li>
+                </li> */}
               </>
             ) : (
               <>
@@ -126,6 +105,7 @@ const AppHeader = () => {
         <div className={styles.loginArea}>
           {user ? (
             <div className={styles.userDropdown} ref={dropdownRef}>
+              <NotificationBell className={styles.notificationIconWrapper} />
               <button onClick={toggleDropdown} className={styles.avatarButton}>
                 <img
                   src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRsVNNgXA9Qlq5GaQtWcqv0eyrFFLBJXWXpnw&s"
