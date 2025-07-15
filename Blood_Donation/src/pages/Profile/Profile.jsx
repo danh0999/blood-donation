@@ -16,12 +16,13 @@ const Profile = () => {
   const { Option } = Select;
 
   // State cho địa chỉ và tọa độ từ Google Maps
-  const [address, setAddress] = useState(user.address || "");
+  const [address, setAddress] = useState(user.address || ""); // eslint-disable-line no-unused-vars
+  /* eslint-disable no-unused-vars */
   const [selectedLatLng, setSelectedLatLng] = useState({
     lat: user.latitude || null,
     lng: user.longitude || null,
   });
-
+  /* eslint-disable no-unused-vars */
   const [coordinates, setCoordinates] = useState({
     lat: user.latitude || null,
     lng: user.longitude || null,

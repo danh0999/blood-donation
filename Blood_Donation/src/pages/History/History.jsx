@@ -36,7 +36,8 @@ export const History = () => {
         const res = await api.get("/appointments/history", {
           params: { userId: user.userID },
         });
-        setAppointments(res.data);
+        const sortedAppointments = res.data.sort((a, b) => b.id - a.id); // sắp xếp giảm dần theo id
+        setAppointments(sortedAppointments);
       } catch (err) {
         console.error("Lỗi lấy lịch sử:", err);
       } finally {
