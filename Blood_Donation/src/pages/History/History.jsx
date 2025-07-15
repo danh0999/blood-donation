@@ -5,6 +5,7 @@ import calendarImg from "../../assets/calendar.png";
 import api from "../../configs/axios";
 import { useSelector } from "react-redux";
 import { Spin, Empty, Tag } from "antd";
+import ScrollToTopButton from "../../components/ScrollToTopButton/ScrollToTopButton";
 
 export const History = () => {
   const { container, image, title, message, historyList, card, infoRow } =
@@ -110,6 +111,7 @@ export const History = () => {
           ))}
         </div>
       )}
+      <ScrollToTopButton />
     </div>
   );
 };
