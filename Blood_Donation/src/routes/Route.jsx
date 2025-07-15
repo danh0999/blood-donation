@@ -30,7 +30,11 @@ import DonateContainer from "../pages/Donate/DonateContainer";
 import DonateCheckup from "../pages/Donate/Checkup/DonateCheckup";
 import { Event } from "../pages/Event/Event";
 import FirebaseImageUploader from "../components/FirebaseImageUploader (experimental)";
-
+import AdminOverview from "../pages/Admin/AdminOverview";
+import ProgramDetail from "../pages/Admin/Programs/ProgramDetail";
+import CreateProgram from "../pages/Admin/Programs/CreateProgramRefactored";
+import ForgotPassword from "../pages/ForgotPassword/ForgotPassword";
+import CertPage from "../pages/CertPage/CertPage";
 const routes = [
   {
     path: "",
@@ -48,6 +52,7 @@ const routes = [
       { path: "/", element: <Home /> },
       { path: "register", element: <Register /> },
       { path: "login", element: <Login /> },
+      { path: "forgot-password", element: <ForgotPassword /> },
       { path: "information", element: <Information /> },
       { path: "news", element: <News /> },
       { path: "news/:id", element: <NewsDetail /> },
@@ -75,6 +80,7 @@ const routes = [
       { path: "profile", element: <Profile /> },
       { path: "bloodDonate", element: <BloodDonate /> },
       { path: "history", element: <History /> },
+      { path: "cert", element: <CertPage /> },
       { path: "information", element: <Information /> },
       { path: "news", element: <News /> },
       { path: "news/:id", element: <NewsDetail /> },
@@ -101,11 +107,13 @@ const routes = [
         element: <AdminDashboard />,
         children: [
           { index: true, element: <div>Welcome to Admin Dashboard</div> },
-          { path: "overview", element: <FirebaseImageUploader />},
-          { path: "accounts", element: <ManageAccount />},
+          { path: "overview", element: <AdminOverview /> },
+          { path: "accounts", element: <ManageAccount /> },
           { path: "accounts/:id", element: <AccountDetail /> },
           { path: "reports", element: <div>Report List</div> },
           { path: "programs", element: <ManageProgram /> },
+          { path: "programs/:id", element: <ProgramDetail /> },
+          { path: "programs/create", element: <CreateProgram /> },
         ],
       },
     ],
@@ -119,8 +127,15 @@ const routes = [
 
   {
     path: "hospital",
-    element: <ProtectedRoute allowedRoles={["HOSPITAL_STAFF"]} />,
-    children: [{ index: true, element: <HospitalStaff_Dashboard /> }],
+    //  element: <HospitalStaff_Dashboard />,
+    element: (
+      <ProtectedRoute allowedRoles={["HOSPITAL_STAFF"]}>
+        <HospitalStaff_Dashboard />
+      </ProtectedRoute>
+    ),
+    children: [
+      { index: true, element: <div>Welcome to Hospital Staff Dashboard</div> },
+    ],
   },
 ];
 

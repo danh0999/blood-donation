@@ -1,0 +1,139 @@
+import { Modal, Typography, Row, Col } from "antd";
+
+const ConfirmationModal = ({
+  visible,
+  onConfirm,
+  onCancel,
+  loading,
+  pendingFormData,
+  selectedPlaceData,
+  selectedAddress,
+  displayCities,
+  slots,
+  imageUrl,
+  getPendingChanges
+}) => {
+  return (
+    <Modal
+      title="Xác nhận tạo chương trình"
+      open={visible}
+      onOk={onConfirm}
+      onCancel={onCancel}
+      okText="Tạo chương trình"
+      cancelText="Hủy"
+      width={800}
+      okButtonProps={{ loading }}
+    >
+      {pendingFormData && (
+        <div>
+          <Typography.Title level={4}>Thông tin chương trình:</Typography.Title>
+          <div style={{ marginBottom: 20, padding: 16, backgroundColor: '#fafafa', borderRadius: 6 }}>
+            <Row gutter={[16, 8]}>
+              <Col span={12}>
+                <strong>Tên chương trình:</strong> {pendingFormData.proName}
+              </Col>
+              <Col span={12}>
+                <strong>Liên hệ:</strong> {pendingFormData.contact || 'Không có'}
+              </Col>
+              <Col span={12}>
+                <strong>Ngày bắt đầu:</strong> {pendingFormData.startDate?.format('DD/MM/YYYY')}
+              </Col>
+              <Col span={12}>
+                <strong>Ngày kết thúc:</strong> {pendingFormData.endDate?.format('DD/MM/YYYY')}
+              </Col>
+              <Col span={12}>
+                <strong>Địa điểm:</strong> {selectedPlaceData?.formattedAddress || selectedAddress || 'Không xác định'}
+              </Col>
+              {selectedPlaceData?.coordinates && (
+                <Col span={12}>
+                  <strong>Tọa độ:</strong> {selectedPlaceData.coordinates.lat.toFixed(6)}, {selectedPlaceData.coordinates.lng.toFixed(6)}
+                </Col>
+              )}
+              <Col span={12}>
+                <strong>Thành phố:</strong> {displayCities.find(city => city.id === pendingFormData.cityId)?.name || 'Không xác định'}
+              </Col>
+              <Col span={24}>
+                <strong>Khung giờ:</strong> {
+                  pendingFormData.slotIds?.length > 0
+                    ? slots.filter(slot => pendingFormData.slotIds.includes(slot.slotID)).map(slot => slot.label).join(', ')
+                    : 'Không có'
+                }
+              </Col>
+              {pendingFormData.description && (
+                <Col span={24}>
+                  <strong>Mô tả:</strong> {pendingFormData.description}
+                </Col>
+              )}
+            </Row>
+            {imageUrl && (
+              <div style={{ marginTop: 12 }}>
+                <strong>Hình ảnh:</strong>
+                <div style={{ marginTop: 8 }}>
+                  <img
+                    src={imageUrl}
+                    alt="Program preview"
+                    style={{
+                      width: '100%',
+                      maxWidth: 200,
+                      height: 120,
+                      objectFit: 'cover',
+                      borderRadius: 4
+                    }}
+                  />
+                </div>
+              </div>
+            )}
+          </div>
+
+          {(() => {
+            const changes = getPendingChanges();
+            if (changes.hasChanges) {
+              return (
+                <div>
+                  <Typography.Title level={4} style={{ color: '#fa8c16' }}>
+                    Các thay đổi sẽ được áp dụng:
+                  </Typography.Title>
+
+                  {changes.newCities.length > 0 && (
+                    <div style={{ marginBottom: 12 }}>
+                      <Typography.Text strong style={{ color: '#52c41a' }}>
+                        ✅ Thêm thành phố mới:
+                      </Typography.Text>
+                      <ul style={{ marginTop: 4, marginBottom: 0, paddingLeft: 20 }}>
+                        {changes.newCities.map(city => (
+                          <li key={city.id}>{city.name}</li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+
+                  {changes.deletedCities.length > 0 && (
+                    <div style={{ marginBottom: 12 }}>
+                      <Typography.Text strong style={{ color: '#ff4d4f' }}>
+                        ❌ Xóa thành phố:
+                      </Typography.Text>
+                      <ul style={{ marginTop: 4, marginBottom: 0, paddingLeft: 20 }}>
+                        {changes.deletedCities.map(city => (
+                          <li key={city.id}>{city.name}</li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+                </div>
+              );
+            }
+            return null;
+          })()}
+
+          <div style={{ marginTop: 16, padding: 12, backgroundColor: '#e6f7ff', borderRadius: 6, border: '1px solid #91d5ff' }}>
+            <Typography.Text style={{ fontSize: '13px' }}>
+              ⚠️ Sau khi nhấn "Tạo chương trình", tất cả thay đổi sẽ được lưu vào cơ sở dữ liệu và không thể hoàn tác.
+            </Typography.Text>
+          </div>
+        </div>
+      )}
+    </Modal>
+  );
+};
+
+export default ConfirmationModal;

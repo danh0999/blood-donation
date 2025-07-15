@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import styles from "./styles.module.scss";
-import { Checkbox, Input, Button, message, Modal } from "antd";
+import { Checkbox, Input, Button } from "antd";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate, useLocation } from "react-router-dom";
 import {
@@ -8,25 +8,41 @@ import {
   setCurrentAppointment,
 } from "../../../redux/features/bloodHistorySlice";
 import api from "../../../configs/axios";
+import { toast } from "react-toastify";
+import ScrollToTopButton from "../../../components/ScrollToTopButton/ScrollToTopButton";
 
 const questionList = [
-  { text: "1. Anh/chị từng hiến máu chưa?", options: ["Có", "Không"] },
-  { text: "2. Hiện tại, anh/ chị có mắc bệnh lý nào không?", options: ["Có", "Không"], hasNote: true },
   {
-    text: "3. Trước đây, anh/chị có từng mắc một trong các bệnh: viêm gan siêu vi B, C, HIV, vảy nến, phì đại tuyến giáp, sốc phản vệ, tai biến mạch máu não, nhồi máu cơ tim, lupus ban đỏ, động kinh, ung thư, hen, được cấy ghép mô/tạng?",
-    options: ["Có", "Không", "Bệnh khác"],
-    hasNote: true
+    text: "1. Anh/chị từng hiến máu chưa?",
+    options: ["Có", "Không"],
+    isSingle: true,
   },
+
+  {
+    text: "2. Hiện tại, anh/chị có mắc bệnh lý nào không?",
+    options: ["Có", "Không"],
+    hasNote: true,
+    isSingle: true,
+  },
+
+  {
+    text: "3. Trước đây, anh/chị có từng mắc một trong các bệnh ...?",
+    options: ["Có", "Không", "Bệnh khác"],
+    hasNote: true,
+    isSingle: true,
+  },
+
   {
     text: "4. Trong 12 tháng gần đây, anh/chị có:",
     options: [
       "Khỏi bệnh sau khi mắc các bệnh: sốt rét, giang mai, lao, viêm não – màng não, uốn ván, phẫu thuật ngoại khoa?",
       "Được truyền máu hoặc chế phẩm máu?",
       "Tiêm Vắc-xin?",
-      "Không"
+      "Không",
     ],
-    hasNote: true
+    hasNote: true,
   },
+
   {
     text: "5. Trong 06 tháng gần đây, anh/chị có:",
     options: [
@@ -40,35 +56,49 @@ const questionList = [
       "Sống chung với người bị viêm gan siêu vi B?",
       "Quan hệ với người mắc bệnh truyền nhiễm?",
       "Quan hệ đồng giới?",
-      "Không"
-    ]
+      "Không",
+    ],
   },
+
   {
     text: "6. Trong 01 tháng gần đây, anh/chị có:",
     options: [
       "Mắc bệnh viêm hô hấp, viêm da, viêm phế quản,...?",
       "Đi vùng có dịch bệnh lưu hành (sốt rét, sốt xuất huyết, Zika,...)?",
-      "Không"
-    ]
+      "Không",
+    ],
   },
+
   {
     text: "7. Trong 14 ngày gần đây, anh/chị có:",
-    options: ["Bị cúm, cảm lạnh, ho, nhức đầu, sốt, đau họng?", "Không", "Khác (cụ thể)"],
-    hasNote: true
+    options: [
+      "Bị cúm, cảm lạnh, ho, nhức đầu, sốt, đau họng?",
+      "Không",
+      "Khác (cụ thể)",
+    ],
+    hasNote: true,
   },
+
   {
     text: "8. Trong 07 ngày gần đây, anh/chị có:",
-    options: ["Dùng thuốc kháng sinh, kháng viêm, Aspirin, Corticoid?", "Không", "Khác (cụ thể)"],
-    hasNote: true
+    options: [
+      "Dùng thuốc kháng sinh, kháng viêm, Aspirin, Corticoid?",
+      "Không",
+      "Khác (cụ thể)",
+    ],
+    hasNote: true,
   },
+
   {
     text: "9. Câu hỏi dành cho phụ nữ:",
     options: [
       "Hiện chị đang mang thai hoặc nuôi con dưới 12 tháng tuổi?",
       "Chấm dứt thai kỳ trong 12 tháng gần đây (sảy thai, phá thai, thai ngoài tử cung)?",
-      "Không"
-    ]
-  }
+      "Không",
+    ],
+
+    isSingle: true,
+  },
 ];
 
 const DonateCheckup = () => {
@@ -80,6 +110,7 @@ const DonateCheckup = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const user = useSelector((state) => state.user);
+
 
   const { programId, date, cityId, slotId } = location.state || {};
 
@@ -102,8 +133,23 @@ const DonateCheckup = () => {
 
   const handleSubmit = async () => {
     if (!programId || !user?.userID || !slotId) {
-      message.error("Thiếu thông tin người dùng, chương trình hoặc khung giờ.");
+      toast.error("Thiếu thông tin người dùng, chương trình hoặc khung giờ.");
       return;
+    }
+    // Kiểm tra các câu hỏi cần ghi chú nếu chọn Có hoặc Khác
+    for (let i = 0; i < questionList.length; i++) {
+      const question = questionList[i];
+      const answer = answers[i];
+
+      if (question.hasNote) {
+        const requireNote = answer.answer.some((opt) =>
+          ["có", "khác", "Bệnh khác"].includes(opt.toLowerCase())
+        );
+        if (requireNote && !answer.note.trim()) {
+          toast.error(`❗ Câu hỏi ${i + 1}: Vui lòng ghi rõ thông tin cụ thể.`);
+          return;
+        }
+      }
     }
 
 
@@ -135,38 +181,40 @@ const payload = {
         id: detail.id,
         address: detail.address || "Không rõ địa điểm",
         time: detail.timeRange || "Không rõ thời gian",
+        status: detail.status,
       };
 
       dispatch(setDonationHistory([data]));
       dispatch(setCurrentAppointment(data));
 
-      message.success("Đăng ký hiến máu thành công!");
+      toast.success("🎉 Đăng ký hiến máu thành công!");
       navigate("/user/bloodDonate");
     } catch (error) {
-      if (
-        error.response?.data?.message?.includes("already have") ||
-        error.response?.data?.error?.includes("already have")
-      ) {
-        Modal.error({
-          title: "Bạn chỉ có thể đăng ký 1 đơn hiến máu tại 1 thời điểm",
-          content: "Rất tiếc, bạn vừa hiến máu gần đây",
-          centered: true,
-        });
+      const errorMessage =
+        error.response?.data?.message || error.response?.data?.error || "";
 
+      if (errorMessage.includes("already have an active appointment")) {
+        toast.error("Bạn chỉ có thể đăng ký 1 đơn hiến máu tại 1 thời điểm");
+
+        // Thử lấy lại lịch hẹn đang hoạt động
         try {
           const res = await api.get(`/appointments/by-user`, {
             params: { userId: user.userID },
           });
 
-          const appointment = res.data.find((a) => a.status === "PENDING");
+          const appointment = res.data.find(
+            (a) => a.status === "PENDING" || a.status === "APPROVED"
+          );
 
           if (appointment) {
-            const detail = (await api.get(`/appointments/${appointment.id}`)).data;
+            const detail = (await api.get(`/appointments/${appointment.id}`))
+              .data;
 
             const data = {
               id: detail.id,
               address: detail.address || "Không rõ địa điểm",
               time: detail.timeRange || "Không rõ thời gian",
+              status: detail.status,
             };
 
             dispatch(setDonationHistory([data]));
@@ -174,10 +222,24 @@ const payload = {
             navigate("/user/bloodDonate");
           }
         } catch {
-          message.error("Không thể lấy lại lịch hẹn.");
+          toast.error("❌ Không thể lấy lại lịch hẹn hiện tại.");
         }
+      } else if (errorMessage.includes("10 ngày")) {
+        toast.error(
+          "Bạn chỉ được đặt lịch sau ít nhất 10 ngày kể từ lần hiến máu gần nhất"
+        );
+      } else if (errorMessage.includes("thông tin cá nhân")) {
+        toast.error(
+          "⚠️ Vui lòng cập nhật thông tin cá nhân trước khi đặt lịch."
+        );
+        navigate("/user/profile");
+      } else if (
+        errorMessage.includes("Program not found") ||
+        errorMessage.includes("Slot not found")
+      ) {
+        toast.error("Chương trình hoặc khung giờ không tồn tại.");
       } else {
-        message.error("Lỗi khi đăng ký lịch hiến máu.");
+        toast.error("Đăng ký thất bại. Vui lòng thử lại sau.");
       }
     }
   };
@@ -194,7 +256,15 @@ const payload = {
                 <Checkbox
                   key={optIdx}
                   checked={answers[index].answer.includes(opt)}
-                  onChange={() => handleCheckboxChange(index, opt)}
+                  onChange={() => {
+                    if (q.isSingle) {
+                      const updated = [...answers];
+                      updated[index].answer = [opt]; // chỉ chọn duy nhất
+                      setAnswers(updated);
+                    } else {
+                      handleCheckboxChange(index, opt);
+                    }
+                  }}
                 >
                   {opt}
                 </Checkbox>
@@ -203,6 +273,7 @@ const payload = {
 
             {q.hasNote && (
               <Input.TextArea
+                id={`note-${index}`}
                 rows={2}
                 placeholder="Ghi chú thêm (nếu có)"
                 value={answers[index].note}
@@ -216,6 +287,7 @@ const payload = {
           Gửi phiếu khảo sát
         </Button>
       </form>
+      <ScrollToTopButton />
     </div>
   );
 };

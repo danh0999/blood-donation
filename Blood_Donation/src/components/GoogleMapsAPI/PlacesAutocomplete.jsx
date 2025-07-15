@@ -1,11 +1,9 @@
-import React, { useRef, useMemo } from "react";
+import { useRef } from "react";
 import { Input } from "antd";
 import { Autocomplete } from "@react-google-maps/api";
 
 const PlacesAutocomplete = ({ value, onChange, placeholder = "Nhập địa chỉ" }) => {
   const autocompleteRef = useRef(null);
-  // Generate a session token for each component mount to reduce API usage
-  const sessionToken = useMemo(() => new window.google.maps.places.AutocompleteSessionToken(), []);
 
   // called when the user select a suggestion from google dropdown
   // update the input box content with user selection
@@ -24,7 +22,9 @@ const PlacesAutocomplete = ({ value, onChange, placeholder = "Nhập địa ch�
     <Autocomplete
       onLoad={ref => (autocompleteRef.current = ref)} // get reference to the Google Autocomplete instance
       onPlaceChanged={handlePlaceChanged}
-      options={{ sessionToken }}
+      options={{
+        componentRestrictions: { country: "vn" }
+      }}
     >
       <Input
         value={value}

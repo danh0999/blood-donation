@@ -88,7 +88,12 @@ const UpdateAccountForm = ({
             </Select>
           </Form.Item>
           <Form.Item label="Ngày sinh" name="birthdate">
-            <DatePicker style={{ width: "100%" }} format="YYYY-MM-DD" placeholder="Chọn ngày sinh" />
+            <DatePicker 
+              style={{ width: "100%" }} 
+              format="YYYY-MM-DD" 
+              placeholder="Chọn ngày sinh"
+              disabledDate={current => current && current > dayjs().endOf('day')}
+            />
           </Form.Item>
         </>
       )}

@@ -5,6 +5,7 @@ import calendarImg from "../../assets/calendar.png";
 import api from "../../configs/axios";
 import { useSelector } from "react-redux";
 import { Spin, Empty, Tag } from "antd";
+import ScrollToTopButton from "../../components/ScrollToTopButton/ScrollToTopButton";
 
 export const History = () => {
   const { container, image, title, message, historyList, card, infoRow } =
@@ -36,7 +37,8 @@ export const History = () => {
         const res = await api.get("/appointments/history", {
           params: { userId: user.userID },
         });
-        setAppointments(res.data);
+        const sortedAppointments = res.data.sort((a, b) => b.id - a.id); // sắp xếp giảm dần theo id
+        setAppointments(sortedAppointments);
       } catch (err) {
         console.error("Lỗi lấy lịch sử:", err);
       } finally {
@@ -80,10 +82,36 @@ export const History = () => {
                   {statusLabel[item.status]}
                 </Tag>
               </div>
+
+              {/* 🎯 THÊM PHẦN NHẮC NHỞ / CẢM ƠN */}
+              {item.status === "APPROVED" && (
+                <p
+                  style={{
+                    color: "#faad14",
+                    fontStyle: "italic",
+                    marginTop: 8,
+                  }}
+                >
+                  ⚠️ Vui lòng đến đúng giờ để hoàn thành hiến máu.
+                </p>
+              )}
+              {item.status === "FULFILLED" && (
+                <p
+                  style={{
+                    color: "#52c41a",
+                    fontStyle: "italic",
+                    marginTop: 8,
+                  }}
+                >
+                  🎉 Cảm ơn bạn đã hiến máu! Hãy nghỉ ngơi và trở lại sau 10–14
+                  ngày nếu muốn tiếp tục đóng góp 💖
+                </p>
+              )}
             </div>
           ))}
         </div>
       )}
+      <ScrollToTopButton />
     </div>
   );
 };

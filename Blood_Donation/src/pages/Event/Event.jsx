@@ -1,4 +1,4 @@
-// src/pages/Event/Event.jsx
+// Event.jsx
 import React, { useEffect, useState } from "react";
 import styles from "./styles.module.scss";
 import { Card, message } from "antd";
@@ -15,22 +15,26 @@ export const Event = () => {
   const [selectedEvent, setSelectedEvent] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [programs, setPrograms] = useState([]);
+  const [addresses, setAddresses] = useState([]);
   const [slots, setSlots] = useState([]);
+  const [selectedDate, setSelectedDate] = useState(null);
   const location = useLocation();
 
   const handleShowDetail = (event) => {
     const matchedSlots = slots.filter((s) => event.slotIds?.includes(s.slotID));
-    const enrichedEvent = { ...event, slots: matchedSlots };
+    const addressName = getAddressName(event.addressId);
+    const enrichedEvent = {
+      ...event,
+      slots: matchedSlots,
+      address: addressName,
+      selectedDate: selectedDate,
+    };
     setSelectedEvent(enrichedEvent);
     setIsModalOpen(true);
   };
 
-  const fetchPrograms = async () => {
+  const fetchPrograms = async (start, end) => {
     try {
-      const queryParams = new URLSearchParams(location.search);
-      const start = queryParams.get("startDate"); // ✅ Đổi thành startDate
-      const end = queryParams.get("endDate"); // ✅ Đổi thành endDate
-
       let res;
       if (start) {
         res = await api.get(
@@ -41,7 +45,7 @@ export const Event = () => {
       }
       setPrograms(res.data);
     } catch (error) {
-      console.log(error);
+      console.error(error);
       message.error("Lỗi khi tải danh sách chương trình");
     }
   };
@@ -51,18 +55,26 @@ export const Event = () => {
       const res = await api.get("/slots");
       setSlots(res.data);
     } catch (error) {
-      console.log(error);
-
-      message.error("Lỗi khi tải danh sách thời gian (slots)");
+      console.error(error);
+      message.error("Lỗi khi tải danh sách thời gian");
     }
   };
 
-  useEffect(() => {
-    fetchPrograms();
-    fetchSlots();
-  }, [location.search]);
+  const fetchAddresses = async () => {
+    try {
+      const res = await api.get("/addresses");
+      setAddresses(res.data);
+    } catch (error) {
+      console.error(error);
+      message.error("Không thể tải địa chỉ.");
+    }
+  };
 
-  // Lấy thời gian từ danh sách slot dựa trên program.slotIds
+  const getAddressName = (addressId) => {
+    const found = addresses.find((a) => a.id === addressId);
+    return found?.name || "Không xác định";
+  };
+
   const getTimeRange = (slotIds) => {
     const ranges = slotIds
       .map((id) => {
@@ -72,6 +84,20 @@ export const Event = () => {
       .filter(Boolean);
     return ranges.join(", ");
   };
+
+  useEffect(() => {
+    const queryParams = new URLSearchParams(location.search);
+    const start = queryParams.get("startDate");
+    const end = queryParams.get("endDate");
+
+    if (start) {
+      setSelectedDate(start); // ⬅ dùng khi chuyển sang Schedule.jsx
+    }
+
+    fetchPrograms(start, end);
+    fetchSlots();
+    fetchAddresses();
+  }, [location.search]);
 
   return (
     <div className={container}>
@@ -84,6 +110,11 @@ export const Event = () => {
       <div className={list}>
         {programs.map((event) => (
           <Card key={event.id} title={event.proName} className={card}>
+            <img
+              src={event.imageUrl}
+              alt="Ảnh chương trình"
+              className={styles.programImage}
+            />
             <div className={iconText}>
               <span className={styles.label}>
                 <IoMdTime />
@@ -95,7 +126,6 @@ export const Event = () => {
               <span className={styles.label}>📅 Ngày bắt đầu:</span>
               <span>{event.startDate}</span>
             </div>
-
             <div className={iconText}>
               <span className={styles.label}>🗓️ Ngày kết thúc:</span>
               <span>{event.endDate}</span>
@@ -105,7 +135,7 @@ export const Event = () => {
                 <CiLocationOn />
                 Địa điểm:
               </span>
-              <span>{event.address}</span>
+              <span>{getAddressName(event.addressId)}</span>
             </div>
             <div className={iconText}>
               <span className={styles.label}>
@@ -123,12 +153,12 @@ export const Event = () => {
         ))}
       </div>
 
-      {/* 🔍 Popup chi tiết sự kiện */}
       {selectedEvent && (
         <EventDetail
           open={isModalOpen}
           onClose={() => setIsModalOpen(false)}
           event={selectedEvent}
+          selectedDate={selectedDate} // 👈 truyền sang Schedule.jsx
         />
       )}
     </div>

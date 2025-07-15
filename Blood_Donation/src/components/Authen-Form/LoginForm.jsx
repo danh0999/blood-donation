@@ -18,6 +18,7 @@ const LoginForm = () => {
     try {
       const response = await api.post("login", values);
       const userData = response.data;
+      console.log("📦 Login response:", userData);
 
       dispatch(setDonationHistory([])); // 🧹 Clear lịch hẹn cũ
       dispatch(login(userData)); // ✅ Cập nhật user mới
@@ -62,7 +63,6 @@ const LoginForm = () => {
           navigate("/");
       }
     } catch (e) {
-      console.error("Login error:", e);
       toast.error(e.response?.data || "Đăng nhập thất bại!");
     }
   };
@@ -109,7 +109,7 @@ const LoginForm = () => {
             <Form.Item name="remember" valuePropName="checked" noStyle>
               <Checkbox>Nhớ tôi</Checkbox>
             </Form.Item>
-            <a href="">Quên mật khẩu?</a>
+            <Link to="/forgot-password">Quên mật khẩu?</Link>
           </Flex>
         </Form.Item>
 

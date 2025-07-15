@@ -1,3 +1,4 @@
+// src/components/EventDetail/EventDetail.jsx
 import React from "react";
 import { Modal, message } from "antd";
 import styles from "./styles.module.scss";
@@ -5,13 +6,14 @@ import { IoMdTime } from "react-icons/io";
 import { CiLocationOn } from "react-icons/ci";
 import { MdOutlineDescription } from "react-icons/md";
 import { FaCalendarAlt } from "react-icons/fa";
-import { BsDropletHalf, BsImage } from "react-icons/bs";
+import { BsDropletHalf } from "react-icons/bs";
 import { FiPhone } from "react-icons/fi";
 import { Button } from "../Button/Button";
 import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { setSelectedProgram } from "../../redux/features/bloodHistorySlice";
 import api from "../../configs/axios";
+import dayjs from "dayjs";
 
 export const EventDetail = ({ open, onClose, event }) => {
   const dispatch = useDispatch();
@@ -20,24 +22,56 @@ export const EventDetail = ({ open, onClose, event }) => {
   const handleRegister = async () => {
     try {
       // Lấy chi tiết chương trình
-      const res = await api.get(`/programs/${event.id}`);
-      const programDetail = res.data;
+      const programRes = await api.get(`/programs/${event.id}`);
+      const programDetail = programRes.data;
 
-      // Gọi API lấy slot theo programId
-      const slotRes = await api.get("/slots", {
-        params: {
-          programId: event.id,
+      // Lấy danh sách slotIds từ chi tiết chương trình
+      const slotIds = programDetail.slotIds || [];
+
+      // Gọi từng slot theo ID (giống bên Schedule)
+      const slots = await Promise.all(
+        slotIds.map(async (slotId) => {
+          try {
+            const slotRes = await api.get(`/slots/${slotId}`);
+            return slotRes.data;
+          } catch {
+            return null;
+          }
+        })
+      );
+
+      // Lọc ra những slot hợp lệ
+      const validSlots = slots.filter((slot) => slot);
+
+      // Lấy địa chỉ
+      let addressName = "Không rõ";
+      try {
+        const addressRes = await api.get(
+          `/addresses/${programDetail.addressId}`
+        );
+        addressName = addressRes.data.name || "Không rõ";
+      } catch (err) {
+        console.log(err);
+      }
+
+      // Gửi dữ liệu sang Redux
+      dispatch(
+        setSelectedProgram({
+          ...programDetail,
+          slots: validSlots,
+          slotIds,
+          addressName,
+          fromEventDetail: true,
+        })
+      );
+
+      // Điều hướng sang schedule
+      navigate("/user/donate/schedule", {
+        state: {
+          fromEventDetail: true,
+          selectedDate: event.selectedDate || programDetail.startDate,
         },
       });
-
-      const slots = slotRes.data || [];
-      programDetail.slots = slots;
-
-      // Lưu chương trình đã chọn vào Redux
-      dispatch(setSelectedProgram(programDetail));
-
-      // Điều hướng đến trang đặt lịch
-      navigate("/user/donate/schedule");
     } catch (error) {
       console.error("Lỗi khi lấy chi tiết chương trình:", error);
       message.error("Không thể tải thông tin chi tiết chương trình.");
@@ -58,7 +92,11 @@ export const EventDetail = ({ open, onClose, event }) => {
       <div className={styles.detailItem}>
         <FaCalendarAlt className={styles.icon} />
         <strong>Ngày tổ chức:</strong>{" "}
-        <span>{event.startDate || "Chưa rõ"}</span>
+        <span>
+          {event.startDate
+            ? dayjs(event.startDate).format("DD/MM/YYYY")
+            : "Chưa rõ"}
+        </span>
       </div>
 
       <div className={styles.detailItem}>
@@ -96,13 +134,6 @@ export const EventDetail = ({ open, onClose, event }) => {
         <strong>Liên hệ:</strong>{" "}
         <span>{event.contact || "Chưa có thông tin"}</span>
       </div>
-
-      {event.imageUrl && (
-        <div className={styles.imageWrapper}>
-          <BsImage className={styles.icon} />
-          <img src={event.imageUrl} alt="Sự kiện" />
-        </div>
-      )}
 
       <div style={{ marginTop: 24, textAlign: "right" }}>
         <Button content="Đăng ký ngay" onClick={handleRegister} />

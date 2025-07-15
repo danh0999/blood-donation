@@ -128,7 +128,7 @@ function AccountTable() {
   ];
 
   // Loading and error state of the async thunk from redux
-  if (loading) return <div>Loading...</div>;
+  
   if (error) return <div>Error: {error}</div>;
 
   // Actual table return
@@ -141,8 +141,8 @@ function AccountTable() {
             <li>trùng username</li>
             <li>sdt, cccd không phải 1234567..</li>
           </ul>
-          <b>Thêm field ngày sinh vào post, put api</b><br />
-          <b>Validate acc bị xóa không phải acc admin duy nhất</b>
+          <b>Validate acc bị xóa không phải acc admin duy nhất</b><br/>
+          <b>Add hospital info when creating hospital staff account</b>
         </div>
         <div style={{ display: "flex", alignItems: "flex-start", gap: "1rem", marginBottom: "0.5rem", justifyContent: "space-between" }}>
           <SearchBarV2
@@ -158,7 +158,7 @@ function AccountTable() {
             </Button>
           </div>
         </div>
-        <Table dataSource={filteredAccounts} columns={columns} />
+        <Table dataSource={filteredAccounts} columns={columns} loading={loading}/>
 
         {/* Modals */}
         {/* Add Account Modal */}
@@ -169,7 +169,6 @@ function AccountTable() {
           footer={null}
         >
           <AddAccountForm
-            roles={roles}
             onCancel={() => setAddModalVisible(false)}
             // Ant Design Form submit button handling
             onFinish={async (values) => {
@@ -182,7 +181,6 @@ function AccountTable() {
               setAddModalVisible(false);
               dispatch(fetchAccounts()); // Refresh list
             }}
-            initialRole={roles[0] || ''}
           />
         </Modal>
 

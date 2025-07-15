@@ -9,9 +9,12 @@ import {
   TeamOutlined,
   LoginOutlined,
 } from "@ant-design/icons";
-import { Breadcrumb, Layout, Menu, theme, message } from "antd";
+import styles from "./styles.module.scss";
+import { Breadcrumb, Layout, Menu, theme, message, Modal, Button } from "antd";
 import { useDispatch } from "react-redux";
 import { logout } from "../../redux/features/userSlice";
+import BloodReceiveForm from "../../components/Blood-Form/Blood-Receive-Form/BloodReceiveForm";
+import BloodRequestTable from "../../components/BloodRequestTable/BloodRequestTable";
 
 const { Header, Content, Footer, Sider } = Layout;
 
@@ -33,11 +36,32 @@ const HospitalStaffDashboard = () => {
   } = theme.useToken();
 
   const [selectedMenuItem, setSelectedMenuItem] = useState("dashboard");
+  const [isModalVisible, setIsModalVisible] = useState(false);
+
+//setup test
+//   const [localRequests, setLocalRequests] = useState([]);
+//   const handleNewRequest = (newRequest) => {
+//   const formatted = {
+//     reqID: `REQ${Date.now()}`, // unique ID
+//     reqCreateDate: new Date().toISOString(),
+//     status: "PENDING",
+//     ...newRequest,
+//   };
+//   setLocalRequests((prev) => [formatted, ...prev]);
+//   setIsModalVisible(false); // close modal after submit
+// };
+//end of setup test
+  const showModal = () => {
+    setIsModalVisible(true);
+  };
+  const handleCancel = () => {
+    setIsModalVisible(false);
+  };
 
   const items = [
     getItem("Dashboard", "dashboard", <DashboardOutlined />),
 
-    getItem("Blood Requisition", "blood-requisition", <FileSearchOutlined />),
+    getItem("Blood Requisition", "create-request", <FileSearchOutlined />),
 
     getItem("Emergency Donors", "emergency-donors", <TeamOutlined />),
 
@@ -59,11 +83,7 @@ const HospitalStaffDashboard = () => {
 
   return (
     <Layout style={{ minHeight: "100vh" }}>
-      <Sider
-        collapsible
-        collapsed={collapsed}
-        onCollapse={(value) => setCollapsed(value)}
-      >
+      <Sider collapsible collapsed={collapsed} onCollapse={(value) => setCollapsed(value)}>
         <div className="demo-logo-vertical" />
         <Menu
           theme="dark"
@@ -74,17 +94,15 @@ const HospitalStaffDashboard = () => {
         />
       </Sider>
       <Layout>
-        <Header style={{ padding: 0, background: colorBgContainer }} />
+         <Header className={styles.header}>
+                  <h1 className={styles.headerTitle}>Hospital Staff Dashboard</h1>
+          </Header>
         <Content style={{ margin: "0 16px" }}>
           <Breadcrumb
             style={{ margin: "16px 0" }}
             items={[
               { title: "Hospital Staff" },
-              {
-                title:
-                  items.find((item) => item.key === selectedMenuItem)?.label ||
-                  "Dashboard",
-              },
+              { title: items.find((item) => item.key === selectedMenuItem)?.label || "Dashboard" },
             ]}
           />
           <div
@@ -95,23 +113,33 @@ const HospitalStaffDashboard = () => {
               borderRadius: borderRadiusLG,
             }}
           >
-            {selectedMenuItem === "dashboard" && (
-              <h2>Welcome to Hospital Staff Dashboard</h2>
-            )}
-            {selectedMenuItem === "view-requests" && (
-              <div>Blood Requisition Requests List</div>
-            )}
+            {selectedMenuItem === "dashboard" && <h2>Welcome to Hospital Staff Dashboard</h2>}
+
             {selectedMenuItem === "create-request" && (
-              <div>Create New Blood Requisition Form</div>
+              <>
+                <Button type="primary" onClick={showModal}>
+                  Tạo yêu cầu nhận máu
+                </Button>
+
+                <Modal
+                  title="Yêu Cầu Nhận Máu"
+                  open={isModalVisible}
+                  onCancel={handleCancel}
+                  footer={null} 
+                  width={800} 
+                >
+                  <BloodReceiveForm onFinishSuccess={() => setIsModalVisible(false)} />
+                  {/* <BloodReceiveForm onFinishSuccess={handleNewRequest} /> */}
+
+                </Modal>
+                <BloodRequestTable />
+                {/* <BloodRequestTable demoData={localRequests} /> */}
+
+              </>
             )}
-            {selectedMenuItem === "update-request" && (
-              <div>Update Blood Requisition Request</div>
-            )}
-            {selectedMenuItem === "delete-request" && (
-              <div>Delete Blood Requisition Request</div>
-            )}
-            {selectedMenuItem === "search-donors" && (
-              <div>Search Emergency Donors</div>
+
+            {selectedMenuItem === "emergency-donors" && (
+              <div>Search Emergency Donors (coming soon...)</div>
             )}
           </div>
         </Content>
@@ -123,4 +151,4 @@ const HospitalStaffDashboard = () => {
   );
 };
 
-export default HospitalStaffDashboard;
+export default HospitalStaffDashboard; 
