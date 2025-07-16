@@ -9,20 +9,27 @@ const NotificationBell = ({ className = "" }) => {
   const [notifications, setNotifications] = useState([]);
   const notiRef = useRef(null);
 
+  const unreadCount = notifications.filter((n) => !n.isRead).length;
+
   const fetchNotifications = async () => {
     try {
       const res = await api.get("notification/me");
-      setNotifications(res.data);
+      setNotifications(res.data); // cập nhật luôn danh sách mỗi lần fetch
     } catch (error) {
       console.error("Lỗi khi fetch thông báo:", error);
     }
   };
 
-  useEffect(() => {
-    fetchNotifications();
-  }, []);
+  // Gọi API mỗi khi người dùng bấm chuông để mở dropdown
+  const handleToggleDropdown = () => {
+    const nextShow = !showDropdown;
+    setShowDropdown(nextShow);
+    if (nextShow) {
+      fetchNotifications(); // gọi API mỗi lần mở dropdown
+    }
+  };
 
-  // Đóng dropdown khi click ngoài
+  // Đóng dropdown khi click ra ngoài
   useEffect(() => {
     const handleClickOutside = (e) => {
       if (notiRef.current && !notiRef.current.contains(e.target)) {
@@ -37,8 +44,9 @@ const NotificationBell = ({ className = "" }) => {
     <div ref={notiRef} className={className} style={{ position: "relative" }}>
       <IoNotifications
         className={styles.notificationIcon}
-        onClick={() => setShowDropdown((prev) => !prev)}
+        onClick={handleToggleDropdown}
       />
+      {unreadCount > 0 && <span className={styles.badge}>{unreadCount}</span>}
       {showDropdown && (
         <DropdownNoti
           notifications={notifications}
