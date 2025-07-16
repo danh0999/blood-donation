@@ -35,6 +35,7 @@ import ProgramDetail from "../pages/Admin/Programs/ProgramDetail";
 import CreateProgram from "../pages/Admin/Programs/CreateProgramRefactored";
 import ForgotPassword from "../pages/ForgotPassword/ForgotPassword";
 import CertPage from "../pages/CertPage/CertPage";
+import AppointmentDetail from "../pages/History/AppointmentDetails/AppointmentDetail";
 const routes = [
   {
     path: "",
@@ -80,6 +81,7 @@ const routes = [
       { path: "profile", element: <Profile /> },
       { path: "bloodDonate", element: <BloodDonate /> },
       { path: "history", element: <History /> },
+      { path: "/user/appointment/:id", element: <AppointmentDetail /> },
       { path: "cert", element: <CertPage /> },
       { path: "information", element: <Information /> },
       { path: "news", element: <News /> },

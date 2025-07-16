@@ -6,13 +6,16 @@ import api from "../../configs/axios";
 import { useSelector } from "react-redux";
 import { Spin, Empty, Tag } from "antd";
 import ScrollToTopButton from "../../components/ScrollToTopButton/ScrollToTopButton";
+import { useNavigate } from "react-router-dom";
 
 export const History = () => {
   const { container, image, title, message, historyList, card, infoRow } =
     styles;
+
   const user = useSelector((state) => state.user);
   const [appointments, setAppointments] = useState([]);
   const [loading, setLoading] = useState(false);
+  const navigate = useNavigate(); // 👈 Thêm useNavigate
 
   const statusColor = {
     PENDING: "orange",
@@ -66,7 +69,12 @@ export const History = () => {
       ) : (
         <div className={historyList}>
           {appointments.map((item) => (
-            <div className={card} key={item.id}>
+            <div
+              className={card}
+              key={item.id}
+              onClick={() => navigate(`/user/appointment/${item.id}`)} // 👈 Điều hướng chi tiết
+              style={{ cursor: "pointer" }}
+            >
               <div className={infoRow}>
                 <strong>Ngày hẹn:</strong> {item.date}
               </div>
@@ -83,7 +91,6 @@ export const History = () => {
                 </Tag>
               </div>
 
-              {/* 🎯 THÊM PHẦN NHẮC NHỞ / CẢM ƠN */}
               {item.status === "APPROVED" && (
                 <p
                   style={{
@@ -111,6 +118,7 @@ export const History = () => {
           ))}
         </div>
       )}
+
       <ScrollToTopButton />
     </div>
   );

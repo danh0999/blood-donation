@@ -3,6 +3,7 @@ import React, { useState } from "react";
 import { Button, Form, Input, Typography } from "antd";
 import { toast } from "react-toastify";
 import api from "../../configs/axios";
+import { Navigate, useNavigate } from "react-router-dom";
 
 const { Title } = Typography;
 
@@ -13,7 +14,7 @@ const ForgotPassword = () => {
   const [token, setToken] = useState("");
 
   const [form] = Form.useForm();
-
+  const navigate = useNavigate();
   const handleGenerateOtp = async () => {
     try {
       await api.post("/generate-otp", null, { params: { email } });
@@ -57,6 +58,7 @@ const ForgotPassword = () => {
       setOtp("");
       setToken("");
       form.resetFields();
+      navigate("/login");
     } catch (e) {
       toast.error(e.response?.data || "Đặt lại mật khẩu thất bại!");
     }
