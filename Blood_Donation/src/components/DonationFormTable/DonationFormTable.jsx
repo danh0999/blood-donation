@@ -183,19 +183,28 @@ function DonationFormTable({ demoData = [] }) {
             <Button
               key="reject"
               danger
-              onClick={() => handleStatusUpdate(selectedForm.id, "REJECTED")}
+              onClick={() => {
+                if (window.confirm("Bạn có chắc chắn muốn từ chối phiếu này?")) {
+                  handleStatusUpdate(selectedForm.id, "REJECTED");
+                }
+              }}
             >
               Từ chối
             </Button>,
             <Button
               key="approve"
               type="primary"
-              onClick={() => handleStatusUpdate(selectedForm.id, "APPROVED")}
+              onClick={() => {
+                if (window.confirm("Bạn có chắc chắn muốn phê duyệt phiếu này?")) {
+                  handleStatusUpdate(selectedForm.id, "APPROVED");
+                }
+              }}
             >
               Phê duyệt
             </Button>,
           ]
         }
+
       >
         {selectedForm ? (
           <div>
