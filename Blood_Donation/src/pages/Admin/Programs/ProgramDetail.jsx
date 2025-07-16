@@ -2,7 +2,7 @@ import React, { useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { Card, Descriptions, Image, Tag, Button, Row, Col, Typography, Spin, Alert, Space } from 'antd';
-import { ArrowLeftOutlined, CalendarOutlined, EnvironmentOutlined, ClockCircleOutlined } from '@ant-design/icons';
+import { ArrowLeftOutlined, CalendarOutlined, EnvironmentOutlined, ClockCircleOutlined, EditOutlined } from '@ant-design/icons';
 import { fetchProgramById } from '../../../redux/features/programSlice';
 import Link from 'antd/es/typography/Link';
 
@@ -28,6 +28,10 @@ const ProgramDetail = () => {
 
   const handleBack = () => {
     navigate(-1);
+  };
+
+  const handleEdit = () => {
+    navigate(`/admin/programs/edit/${id}`);
   };
 
   const formatDate = (dateString) => {
@@ -120,9 +124,18 @@ const ProgramDetail = () => {
           >
             Quay lại
           </Button>
-          <Title level={2} style={{ margin: 0 }}>
-            Chi tiết chương trình hiến máu
-          </Title>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <Title level={2} style={{ margin: 0 }}>
+              Chi tiết chương trình hiến máu
+            </Title>
+            <Button 
+              type="primary" 
+              icon={<EditOutlined />}
+              onClick={handleEdit}
+            >
+              Chỉnh sửa
+            </Button>
+          </div>
         </div>
 
         <Row gutter={[24, 24]}>

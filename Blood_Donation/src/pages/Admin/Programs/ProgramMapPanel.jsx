@@ -1,7 +1,9 @@
+
 import { GoogleMap, Marker, InfoWindow } from "@react-google-maps/api";
 import markerImg from "../../../assets/program-marker.png";
 import centerMarker from "../../../assets/headquarter.png";
-import { Spin } from "antd";
+import { Spin, Button } from "antd";
+import { useNavigate } from "react-router-dom";
 
 const containerStyle = {
   width: "100%",
@@ -19,7 +21,9 @@ const mapOptions = {
   disableDefaultUI: true, // disables all default map UI buttons
 };
 
+
 const ProgramMapPanel = ({ selectedProgram, setSelectedProgram, mapCenter, programs, programsLoading, addresses, addressesLoading }) => {
+  const navigate = useNavigate();
 
   // used the passed loading state here to render a spin
   if (programsLoading || addressesLoading) return <Spin size="large" fullscreen />;
@@ -82,7 +86,7 @@ const ProgramMapPanel = ({ selectedProgram, setSelectedProgram, mapCenter, progr
           <div style={{ flex: 1, minWidth: 0, maxWidth: 250 }}>
             <img src={selectedProgram.imageUrl} style={{
               width: '100%',
-              height: '150px',
+              height: '100px',
               objectFit: 'cover',
               borderRadius: '8px',
               marginBottom: '8px'
@@ -95,9 +99,17 @@ const ProgramMapPanel = ({ selectedProgram, setSelectedProgram, mapCenter, progr
             <p style={{ margin: '0 0 4px 0' }}>
               <strong>Start Date:</strong> {selectedProgram.startDate}
             </p>
-            <p style={{ margin: '0 0 0 0' }}>
+            <p style={{ margin: '0 0 8px 0' }}>
               <strong>End Date:</strong> {selectedProgram.endDate}
             </p>
+            <Button
+              type="primary"
+              block
+              onClick={() => navigate(`/admin/programs/${selectedProgram.id}`)}
+              style={{ marginTop: 8 }}
+            >
+              Xem chi tiết
+            </Button>
           </div>
         </InfoWindow>
       )}

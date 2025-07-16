@@ -13,7 +13,7 @@
 
 import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
-import { addProgram } from "../../../../redux/features/programSlice";
+import { addProgram, updateProgram } from "../../../../redux/features/programSlice";
 import { addCity, deleteCityById } from "../../../../redux/features/citySlice";
 import { createAddress } from "../../../../redux/features/addressSlice";
 import { toast } from "react-toastify";
@@ -30,14 +30,18 @@ const useProgramSubmission = () => {
     stagingCities: Array of city objects, including both existing and newly added (staging) cities
     deletedCityIds: Array of city IDs marked for deletion during this program creation session
     selectedPlaceData: Object containing Google Places data, get from EnhancedPlacesAutocomplete component
-    imageUrl: String, URL of the program image (from Firebase or local preview)
+    imageUrl: String, URL of the program image from firebase
+    isEditMode: Boolean, whether this is an edit operation
+    programId: String, ID of the program being edited (only for edit mode)
   */
   const submitProgram = async ({
     values,
     stagingCities,
     deletedCityIds,
     selectedPlaceData,
-    imageUrl
+    imageUrl,
+    isEditMode = false,
+    programId = null
   }) => {
     try {
       // Process: First, commit city changes
@@ -102,7 +106,8 @@ const useProgramSubmission = () => {
         proName: values.proName,
         startDate: values.startDate.format('YYYY-MM-DD'),
         endDate: values.endDate.format('YYYY-MM-DD'),
-        dateCreated: dayjs().format('YYYY-MM-DD'),
+        // if isEdit, don't change dateCreated
+        dateCreated: isEditMode ? values.dateCreated.format('YYYY-MM-DD') : dayjs().format('YYYY-MM-DD'),
         addressId: finalAddressId,
         cityId: finalCityId,
         description: values.description || null,
@@ -111,11 +116,19 @@ const useProgramSubmission = () => {
         slotIds: values.slotIds || []
       };
 
-      await dispatch(addProgram(programData)).unwrap();
-      toast.success('Chương trình đã được tạo thành công!');
+      // Submit program data based on mode
+      if (isEditMode && programId) {
+        await dispatch(updateProgram({ id: programId, ...programData })).unwrap();
+        toast.success('Chương trình đã được cập nhật thành công!');
+      } else {
+        await dispatch(addProgram(programData)).unwrap();
+        toast.success('Chương trình đã được tạo thành công!');
+      }
+      
       navigate('/admin/programs');
     } catch (error) {
-      toast.error('Có lỗi xảy ra khi tạo chương trình: ' + error);
+      const errorMessage = isEditMode ? 'Có lỗi xảy ra khi cập nhật chương trình: ' : 'Có lỗi xảy ra khi tạo chương trình: ';
+      toast.error(errorMessage + error);
       throw error;
     }
   };

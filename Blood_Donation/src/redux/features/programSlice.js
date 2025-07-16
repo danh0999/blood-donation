@@ -68,6 +68,21 @@ export const addProgram = createAsyncThunk(
   }
 );
 
+// Async thunk to add a new program
+export const updateProgram = createAsyncThunk(
+  "programs/updatetProgram",
+  async ({id, ...programData}, { rejectWithValue }) => {
+    try {
+      // TODO: Update endpoint
+      const response = await api.put(`/programs/${id}`, programData);
+      // Add a 'key' property for AntD Table
+      return { ...response.data, key: response.data.id }; // TODO: update to correct id field
+    } catch (err) {
+      return rejectWithValue(err.response?.data?.message || err.message);
+    }
+  }
+);
+
 const programSlice = createSlice({
   name: "program", // name of the slice state
   initialState: {
@@ -142,6 +157,26 @@ const programSlice = createSlice({
         state.selectedLoading = false;
         state.selectedError = action.payload || action.error.message;
         toast.error(`Tạo chương trình thất bại: ${action.payload || action.error.message}`);
+      })
+      // updateProgram
+      .addCase(updateProgram.pending, (state) => {
+        state.selectedLoading = true;
+        state.selectedError = null;
+      })
+      .addCase(updateProgram.fulfilled, (state, action) => {
+        state.selectedLoading = false;
+        // Update the program in the data array
+        const index = state.data.findIndex(program => program.id === action.payload.id);
+        if (index !== -1) {
+          state.data[index] = action.payload;
+        }
+        state.selectedProgram = action.payload;
+        toast.success('Cập nhật chương trình thành công!');
+      })
+      .addCase(updateProgram.rejected, (state, action) => {
+        state.selectedLoading = false;
+        state.selectedError = action.payload || action.error.message;
+        toast.error(`Cập nhật chương trình thất bại: ${action.payload || action.error.message}`);
       });
   },
 });

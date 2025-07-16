@@ -1,10 +1,12 @@
 import { useState, useEffect } from "react";
 import { Form, Button, Card, Row, Col, Typography } from "antd";
 import { ArrowLeftOutlined } from "@ant-design/icons";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchCities } from "../../../redux/features/citySlice";
 import { fetchSlots } from "../../../redux/features/slotSlice";
+import { fetchProgramById } from "../../../redux/features/programSlice";
+import { fetchAddresses } from "../../../redux/features/addressSlice";
 import { toast } from "react-toastify";
 import dayjs from "dayjs";
 
@@ -17,10 +19,13 @@ import useProgramSubmission from "./ProgramCreation/useProgramSubmission";
 
 const { Title } = Typography;
 
-const CreateProgram = () => {
+const ProgramForm = () => {
+  const { id } = useParams(); // If id exists, it's edit mode
   const [form] = Form.useForm();
   const navigate = useNavigate();
   const dispatch = useDispatch();
+
+  const isEditMode = Boolean(id);
 
   // Basic form states
   const [firebaseImageUrl, setFirebaseImageUrl] = useState(null); // Firebase storage URL, used in submitProgram and ConfirmationModal
@@ -36,6 +41,8 @@ const CreateProgram = () => {
   // Get data from Redux store
   const { data: cities, loading: citiesLoading } = useSelector(state => state.city);
   const { data: slots, loading: slotsLoading } = useSelector(state => state.slot);
+  const { selectedProgram } = useSelector(state => state.program);
+  const { data: addresses } = useSelector(state => state.address);
 
   // Custom hooks
   const cityManagement = useCityManagement(cities);
@@ -44,7 +51,58 @@ const CreateProgram = () => {
   useEffect(() => {
     dispatch(fetchCities());
     dispatch(fetchSlots());
-  }, [dispatch]);
+
+    // Fetch program data and address if in edit mode
+    if (isEditMode && id) {
+      dispatch(fetchProgramById(id));
+      dispatch(fetchAddresses());
+    
+    }
+  }, [dispatch, isEditMode, id]);
+
+  
+  
+  // Populate form when editing and program data is loaded
+  useEffect(() => {
+    if (isEditMode && selectedProgram && addresses) {
+      // Find the address for this program
+      const programAddress = addresses.find(addr => addr.id === selectedProgram.addressId);
+      
+      // Set form values from existing program
+      form.setFieldsValue({
+        proName: selectedProgram.proName,
+        description: selectedProgram.description,
+        startDate: selectedProgram.startDate ? dayjs(selectedProgram.startDate) : undefined,
+        endDate: selectedProgram.endDate ? dayjs(selectedProgram.endDate) : undefined,
+        dateCreated: selectedProgram.dateCreated ? dayjs(selectedProgram.dateCreated) : dayjs(),
+        cityId: selectedProgram.cityId,
+        contact: selectedProgram.contact,
+        slotIds: selectedProgram.slotIds || [],
+        addressInput: programAddress ? programAddress.name : ""
+      });
+
+      // Set image URL if exists
+      if (selectedProgram.imageUrl) {
+        setFirebaseImageUrl(selectedProgram.imageUrl);
+        setHasImageSelected(true);
+      }
+
+      // Set address related states
+      if (programAddress) {
+        setSelectedAddress(programAddress.name);
+        
+        // Set selected place data for validation
+        setSelectedPlaceData({
+          formattedAddress: programAddress.name,
+          name: programAddress.name,
+          coordinates: {
+            lat: programAddress.latitude,
+            lng: programAddress.longitude
+          }
+        });
+      }
+    }
+  }, [isEditMode, selectedProgram, addresses, form]);
 
   // Handle Firebase image upload
   const handleFirebaseUpload = (url) => {
@@ -110,16 +168,22 @@ const CreateProgram = () => {
 
   // Handle form submission - show confirmation modal first
   const handleFormSubmit = (values) => {
-    // Validate that address has been selected from Google Places
-    if (!selectedPlaceData) {
+    // Validate that address has been selected from Google Places (skip for edit mode if no change)
+    if (!isEditMode && !selectedPlaceData) {
       toast.error('Vui lòng chọn địa điểm từ danh sách gợi ý của Google Maps!');
+      return;
+    }
+    
+    // For edit mode, allow submission even without place data if address wasn't changed
+    if (isEditMode && !selectedPlaceData && !selectedAddress) {
+      toast.error('Vui lòng nhập địa chỉ!');
       return;
     }
     
     // Check if image was uploaded to Firebase (optional warning)
     if (hasImageSelected && !firebaseImageUrl) {
       toast.warning('Bạn có ảnh nhưng chưa tải lên Firebase. Ảnh mặc định sẽ được sử dụng thay thế.');
-    } else if (!hasImageSelected) {
+    } else if (!hasImageSelected && !isEditMode) {
       toast.info('Chương trình sẽ sử dụng ảnh mặc định.');
     }
     
@@ -136,7 +200,10 @@ const CreateProgram = () => {
         stagingCities: cityManagement.stagingCities,
         deletedCityIds: cityManagement.deletedCityIds,
         selectedPlaceData,
-        imageUrl: firebaseImageUrl // Use Firebase URL instead of local preview
+        imageUrl: firebaseImageUrl,
+        isEditMode,
+        programId: id,
+        currentProgram: selectedProgram
       });
     } catch {
       // Error handling is done in the hook
@@ -167,7 +234,9 @@ const CreateProgram = () => {
           >
             Quay lại
           </Button>
-          <Title level={2}>Tạo chương trình mới</Title>
+          <Title level={2}>
+            {isEditMode ? 'Chỉnh sửa chương trình' : 'Tạo chương trình mới'}
+          </Title>
         </div>
 
         <Form
@@ -201,6 +270,7 @@ const CreateProgram = () => {
                 <ImageUpload
                   onFirebaseUpload={handleFirebaseUpload}
                   onFileListChange={handleFileListChange}
+                  initialImageUrl={isEditMode ? firebaseImageUrl : null}
                 />
               </Form.Item>
             </Col>
@@ -212,7 +282,7 @@ const CreateProgram = () => {
                 Hủy
               </Button>
               <Button type="primary" htmlType="submit">
-                Tạo chương trình
+                {isEditMode ? 'Cập nhật chương trình' : 'Tạo chương trình'}
               </Button>
             </div>
           </Form.Item>
@@ -234,9 +304,10 @@ const CreateProgram = () => {
         slots={slots}
         imageUrl={firebaseImageUrl} // Show Firebase URL if available
         getPendingChanges={cityManagement.getPendingChanges}
+        isEditMode={isEditMode}
       />
     </div>
   );
 };
 
-export default CreateProgram;
+export default ProgramForm;

@@ -24,15 +24,16 @@ const ConfirmationModal = ({
   displayCities,
   slots,
   imageUrl,
-  getPendingChanges
+  getPendingChanges,
+  isEditMode = false
 }) => {
   return (
     <Modal
-      title="Xác nhận tạo chương trình"
+      title={isEditMode ? "Xác nhận cập nhật chương trình" : "Xác nhận tạo chương trình"}
       open={visible}
       onOk={onConfirm}
       onCancel={onCancel}
-      okText="Tạo chương trình"
+      okText={isEditMode ? "Cập nhật chương trình" : "Tạo chương trình"}
       cancelText="Hủy"
       width={800}
       okButtonProps={{ loading }}
@@ -144,7 +145,7 @@ const ConfirmationModal = ({
 
           <div style={{ marginTop: 16, padding: 12, backgroundColor: '#e6f7ff', borderRadius: 6, border: '1px solid #91d5ff' }}>
             <Typography.Text style={{ fontSize: '13px' }}>
-              ⚠️ Sau khi nhấn "Tạo chương trình", tất cả thay đổi sẽ được lưu vào cơ sở dữ liệu và không thể hoàn tác.
+              ⚠️ Sau khi nhấn "{isEditMode ? 'Cập nhật chương trình' : 'Tạo chương trình'}", tất cả thay đổi sẽ được lưu vào cơ sở dữ liệu và không thể hoàn tác.
             </Typography.Text>
           </div>
         </div>
