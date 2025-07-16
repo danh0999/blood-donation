@@ -32,11 +32,40 @@ export const updateAppointmentStatus = createAsyncThunk(
   }
 );
 
+// Create donation detail
 export const createDonationDetail = createAsyncThunk(
   "donationForm/createDonationDetail",
   async (payload, { rejectWithValue }) => {
     try {
       const response = await api.post("/donation-details", payload);
+      return response.data;
+    } catch (err) {
+      return rejectWithValue(err.response?.data?.message || err.message);
+    }
+  }
+);
+
+// Update the donation form slice
+export const updateDonationDetail = createAsyncThunk(
+  "donationForm/updateDonationDetail",
+  async ({ id, payload }, { rejectWithValue }) => {
+    try {
+      const response = await api.put(`/donation-details/${id}`, payload);
+      toast.success("Cập nhật thông tin hiến máu thành công!");
+      return response.data;
+    } catch (err) {
+      toast.error("Cập nhật thông tin hiến máu thất bại");
+      return rejectWithValue(err.response?.data?.message || err.message);
+    }
+  }
+);
+
+// Fetch donation detail by appointment ID
+export const fetchDonationDetailByAppointmentId = createAsyncThunk(
+  "donationForm/fetchDonationDetailByAppointmentId",
+  async (id, { rejectWithValue }) => {
+    try {
+      const response = await api.get(`/donation-details/${id}`);
       return response.data;
     } catch (err) {
       return rejectWithValue(err.response?.data?.message || err.message);
@@ -52,6 +81,7 @@ const donationFormSlice = createSlice({
     appointments: [],
     loading: false,
     error: null,
+    donationDetail: null,
   },
   reducers: {},
   extraReducers: (builder) => {
@@ -78,7 +108,32 @@ const donationFormSlice = createSlice({
         if (appointment) {
           appointment.status = status;
         }
-      });
+      })
+
+      .addCase(updateDonationDetail.pending, (state) => {
+        state.loading = true;
+      })
+      .addCase(updateDonationDetail.fulfilled, (state) => {
+        state.loading = false;
+      })
+      .addCase(updateDonationDetail.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload || action.error.message;
+      })
+
+      .addCase(fetchDonationDetailByAppointmentId.pending, (state) => {
+        state.loading = true;
+        state.donationDetail = null;
+      })
+      .addCase(fetchDonationDetailByAppointmentId.fulfilled, (state, action) => {
+        state.loading = false;
+        state.donationDetail = action.payload;
+      })
+      .addCase(fetchDonationDetailByAppointmentId.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload || action.error.message;
+      })
+      ;
   },
 });
 

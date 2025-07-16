@@ -11,19 +11,22 @@ import {
   Form,
   Input,
   DatePicker,
-  Select
+  Select,
 } from "antd";
 import { useSelector, useDispatch } from "react-redux";
 import {
   fetchAllAppointments,
   updateAppointmentStatus,
   createDonationDetail,
+  updateDonationDetail,
+  fetchDonationDetailByAppointmentId,
 } from "../../redux/features/donationFormSlice";
 import styles from "./styles.module.scss";
 
 const { TabPane } = Tabs;
+const { Option } = Select;
 
-function DonationFormTable({ demoData = [] }) {
+function DonationFormTable() {
   const dispatch = useDispatch();
   const { appointments, loading } = useSelector((state) => state.donationForm);
   const user = useSelector((state) => state.user);
@@ -32,6 +35,9 @@ function DonationFormTable({ demoData = [] }) {
   const [modalVisible, setModalVisible] = useState(false);
   const [donationModalVisible, setDonationModalVisible] = useState(false);
   const [donationForm] = Form.useForm();
+  const [editMode, setEditMode] = useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [sortKey, setSortKey] = useState("status");
 
   useEffect(() => {
     dispatch(fetchAllAppointments());
@@ -66,18 +72,67 @@ function DonationFormTable({ demoData = [] }) {
       ...values,
       appointmentId: selectedForm.id,
       staffId: user.userID,
-      memberId: 8,
+      memberId: selectedForm.userId,
     };
-    dispatch(createDonationDetail(payload))
+
+    const isEdit = selectedForm.status === "FULFILLED";
+
+    const thunk = isEdit
+      ? updateDonationDetail({ id: selectedForm.id, payload })
+      : createDonationDetail(payload);
+
+    dispatch(thunk)
       .unwrap()
       .then(() => {
-        message.success("Lưu thông tin hiến máu thành công!");
-        dispatch(updateAppointmentStatus({ id: selectedForm.id, status: "FULFILLED" }));
+        message.success(
+          isEdit ? "Cập nhật thành công!" : "Lưu thông tin hiến máu thành công!"
+        );
+        dispatch(
+          updateAppointmentStatus({ id: selectedForm.id, status: "FULFILLED" })
+        );
         setDonationModalVisible(false);
         donationForm.resetFields();
+        setEditMode(false);
       })
-      .catch(() => message.error("Lỗi khi lưu thông tin hiến máu"));
+      .catch(() => {
+        message.error(isEdit ? "Lỗi khi cập nhật" : "Lỗi khi lưu thông tin hiến máu");
+      });
   };
+
+  const handleOpenDonationModal = async (record) => {
+    setSelectedForm(record); // Set appointment info immediately
+    setDonationModalVisible(true); // ✅ Open modal first
+
+    try {
+      const donationDetail = await dispatch(
+        fetchDonationDetailByAppointmentId(record.id)
+      ).unwrap();
+
+      // Fill form if donation exists
+      if (donationDetail) {
+        donationForm.setFieldsValue({
+          donationId: donationDetail.donationId,
+          donDate: donationDetail.donDate ? parseISO(donationDetail.donDate) : null,
+          location: donationDetail.location,
+          bloodType: donationDetail.bloodType,
+          donAmount: donationDetail.donAmount,
+          userId: donationDetail.userId,
+          notes: donationDetail.notes,
+        });
+      } else {
+        donationForm.resetFields(); // If no data, start fresh
+      }
+
+      setEditMode(false);
+    } catch (error) {
+      console.warn("No donation detail found or error:", error);
+      donationForm.resetFields(); // Still allow user to input new data
+      setEditMode(false);
+      // Don't block modal from opening
+    }
+  };
+
+  const isReadOnly = selectedForm?.status === "FULFILLED" && !editMode;
 
   const appointmentColumns = [
     {
@@ -107,61 +162,95 @@ function DonationFormTable({ demoData = [] }) {
     {
       title: "Hành Động",
       key: "actions",
+      width: 200,
       render: (_, record) => (
-        <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-          <Button
-            type="default"
-            onClick={() => handleViewForm(record)}
-            size="small"
-          >
-            Xem phiếu
-          </Button>
-
-          <Button
-            type="primary"
-            size="small"
-            disabled={record.status !== "APPROVED"}
-            onClick={() => {
-              setSelectedForm(record);
-              setDonationModalVisible(true);
-            }}
-          >
-            Nhập thông tin hiến máu
-          </Button>
-
-          <Select
-            size="small"
-            defaultValue={record.status}
-            style={{ width: 140 }}
-            onChange={(newStatus) => handleStatusUpdate(record.id, newStatus)}
-          >
-            <Select.Option value="PENDING">PENDING</Select.Option>
-            <Select.Option value="APPROVED">APPROVED</Select.Option>
-            <Select.Option value="REJECTED">REJECTED</Select.Option>
-            <Select.Option value="FULFILLED">FULFILLED</Select.Option>
-            <Select.Option value="CANCELLED">CANCELLED</Select.Option>
-          </Select>
+        <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+          <div style={{ display: "flex", flexDirection: "row", gap: 8 }}>
+            <Button
+              type="default"
+              onClick={() => handleViewForm(record)}
+              size="small"
+            >
+              Xem phiếu
+            </Button>
+            <Button
+              type="primary"
+              size="small"
+              disabled={record.status !== "APPROVED" && record.status !== "FULFILLED"}
+              onClick={() => handleOpenDonationModal(record)}
+              style={
+                record.status === "FULFILLED"
+                  ? { backgroundColor: 'green', borderColor: 'green' }
+                  : {}
+              }
+            >
+              {record.status === "FULFILLED"
+                ? "Xem thông tin hiến máu"
+                : "Nhập thông tin hiến máu"}
+            </Button>
+          </div>
+          <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+            <span style={{ fontSize: 12 }}>Thay đổi trạng thái:</span>
+            <Select
+              size="small"
+              defaultValue={record.status}
+              style={{ width: 140 }}
+              onChange={(newStatus) => handleStatusUpdate(record.id, newStatus)}
+            >
+              <Select.Option value="PENDING">PENDING</Select.Option>
+              <Select.Option value="APPROVED">APPROVED</Select.Option>
+              <Select.Option value="REJECTED">REJECTED</Select.Option>
+              <Select.Option value="FULFILLED">FULFILLED</Select.Option>
+              <Select.Option value="CANCELLED">CANCELLED</Select.Option>
+            </Select>
+          </div>
         </div>
       ),
     },
-
   ];
 
   return (
     <div className={styles.tableContainer}>
       <h3 className={styles.title}>Quản lý Lịch Hẹn Hiến Máu</h3>
+      <div style={{ display: "flex", justifyContent: "flex-end", gap: 12, marginBottom: 16 }}>
+        <Input.Search
+          placeholder="Tìm theo Mã Lịch Hẹn"
+          onChange={(e) => setSearchTerm(e.target.value)}
+          style={{ width: 240 }}
+        />
+
+        <Select value={sortKey} onChange={setSortKey} style={{ width: 180 }}>
+          <Option value="status">Sắp xếp theo trạng thái</Option>
+          <Option value="date">Sắp xếp theo ngày</Option>
+        </Select>
+      </div>
+
       <Tabs defaultActiveKey="1">
         <TabPane tab="Lịch hẹn" key="1">
           <Table
             columns={appointmentColumns}
             dataSource={
-              Array.isArray(appointments) && appointments.length > 0
-                ? [...appointments].sort((a, b) => {
-                    if (a.status === "PENDING" && b.status !== "PENDING") return -1;
-                    if (b.status === "PENDING" && a.status !== "PENDING") return 1;
+              [...(appointments || [])]
+                .filter((a) =>
+                  String(a.id).toLowerCase().includes(searchTerm.toLowerCase())
+                )
+                .sort((a, b) => {
+                  if (sortKey === "status") {
+                    const statusPriority = {
+                      PENDING: 1,
+                      APPROVED: 2,
+                      FULFILLED: 3,
+                      REJECTED: 4,
+                      CANCELLED: 5,
+                    };
+                    return (
+                      (statusPriority[a.status] || 99) - (statusPriority[b.status] || 99)
+                    );
+                  } else {
+                    // sortKey === "date"
                     return new Date(b.date) - new Date(a.date);
-                  })
-                : demoData
+                  }
+                })
             }
             rowKey="id"
             loading={loading}
@@ -170,11 +259,12 @@ function DonationFormTable({ demoData = [] }) {
           />
         </TabPane>
 
-        <TabPane tab="Chi tiết hiến máu" key="2">
+        {/* <TabPane tab="Chi tiết hiến máu" key="2">
           <p>Chưa có dữ liệu.</p>
-        </TabPane>
+        </TabPane> */}
       </Tabs>
 
+      {/* Modal for viewing appointment survey */}
       <Modal
         title={`Phiếu khảo sát - Mã lịch hẹn #${selectedForm?.id}`}
         open={modalVisible}
@@ -205,7 +295,6 @@ function DonationFormTable({ demoData = [] }) {
             </Button>,
           ]
         }
-
       >
         {selectedForm ? (
           <div>
@@ -226,12 +315,40 @@ function DonationFormTable({ demoData = [] }) {
         )}
       </Modal>
 
+      {/* Modal for donation input or view */}
       <Modal
-        title={`Nhập thông tin hiến máu - Mã lịch hẹn #${selectedForm?.id}`}
+        title={`${selectedForm?.status === "FULFILLED"
+          ? "Thông tin hiến máu"
+          : "Nhập thông tin hiến máu"
+          } - Mã lịch hẹn #${selectedForm?.id}`}
         open={donationModalVisible}
-        onCancel={() => setDonationModalVisible(false)}
-        onOk={() => donationForm.submit()}
-        okText="Lưu"
+        onCancel={() => {
+          setDonationModalVisible(false);
+          donationForm.resetFields();
+          setEditMode(false);
+        }}
+        footer={[
+          selectedForm?.status === "FULFILLED" && (
+            <Button
+              key="toggle"
+              onClick={() => setEditMode((prev) => !prev)}
+              type={editMode ? "default" : "primary"}
+            >
+              {editMode ? "Hủy chỉnh sửa" : "Chỉnh sửa"}
+            </Button>
+          ),
+          <Button key="cancel" onClick={() => setDonationModalVisible(false)}>
+            Đóng
+          </Button>,
+          <Button
+            key="save"
+            type="primary"
+            onClick={() => donationForm.submit()}
+            disabled={selectedForm?.status === "FULFILLED" && !editMode}
+          >
+            Lưu
+          </Button>,
+        ]}
       >
         <Form layout="vertical" form={donationForm} onFinish={handleSubmitDonation}>
           <Form.Item
@@ -239,7 +356,7 @@ function DonationFormTable({ demoData = [] }) {
             name="donAmount"
             rules={[{ required: true, message: "Nhập số lượng hiến máu" }]}
           >
-            <Select placeholder="Chọn đơn vị (ml)">
+            <Select placeholder="Chọn đơn vị (ml)" disabled={isReadOnly}>
               <Option value={200}>200ml</Option>
               <Option value={350}>350ml</Option>
               <Option value={500}>500ml</Option>
@@ -273,6 +390,7 @@ function DonationFormTable({ demoData = [] }) {
             <DatePicker
               format="YYYY-MM-DD"
               style={{ width: "100%" }}
+              disabled={isReadOnly}
               disabledDate={(current) => {
                 if (!selectedForm?.date) return false;
                 const appointmentDate = parseISO(selectedForm.date);
@@ -281,13 +399,12 @@ function DonationFormTable({ demoData = [] }) {
             />
           </Form.Item>
 
-
           <Form.Item
             label="Nhóm máu"
             name="bloodType"
             rules={[{ required: true, message: "Chọn nhóm máu" }]}
           >
-            <Select placeholder="Nhóm máu">
+            <Select placeholder="Nhóm máu" disabled={isReadOnly}>
               <Option value={1}>A</Option>
               <Option value={2}>B</Option>
               <Option value={3}>AB</Option>
@@ -295,7 +412,6 @@ function DonationFormTable({ demoData = [] }) {
             </Select>
           </Form.Item>
         </Form>
-
       </Modal>
     </div>
   );
