@@ -32,7 +32,7 @@ import { Event } from "../pages/Event/Event";
 import FirebaseImageUploader from "../components/FirebaseImageUploader (experimental)";
 import AdminOverview from "../pages/Admin/AdminOverview";
 import ProgramDetail from "../pages/Admin/Programs/ProgramDetail";
-import CreateProgram from "../pages/Admin/Programs/CreateProgramRefactored";
+import ProgramForm from "../pages/Admin/Programs/ProgramForm";
 import ForgotPassword from "../pages/ForgotPassword/ForgotPassword";
 import CertPage from "../pages/CertPage/CertPage";
 import AppointmentDetail from "../pages/History/AppointmentDetails/AppointmentDetail";
@@ -115,7 +115,8 @@ const routes = [
           { path: "reports", element: <div>Report List</div> },
           { path: "programs", element: <ManageProgram /> },
           { path: "programs/:id", element: <ProgramDetail /> },
-          { path: "programs/create", element: <CreateProgram /> },
+          { path: "programs/create", element: <ProgramForm /> },
+          { path: "/admin/programs/edit/:id", element: <ProgramForm />}
         ],
       },
     ],

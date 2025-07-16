@@ -1,5 +1,6 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import api from "../../configs/axios";
+import { toast } from "react-toastify";
 
 // Async thunk to fetch cities from the API
 export const fetchCities = createAsyncThunk(
@@ -57,7 +58,8 @@ const citySlice = createSlice({
       })
       .addCase(fetchCities.rejected, (state, action) => {
         state.loading = false;
-        state.error = action.error.message;
+        state.error = action.payload || action.error.message;
+        toast.error(`Lỗi tải danh sách thành phố: ${action.payload || action.error.message}`);
       })
       // addCity
       .addCase(addCity.pending, (state) => {
@@ -71,6 +73,7 @@ const citySlice = createSlice({
       .addCase(addCity.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload || action.error.message;
+        toast.error(`Tạo thành phố thất bại: ${action.payload || action.error.message}`);
       })
       // deleteCityById
       .addCase(deleteCityById.pending, (state) => {
@@ -84,6 +87,7 @@ const citySlice = createSlice({
       .addCase(deleteCityById.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload || action.error.message;
+        toast.error(`Xóa thành phố thất bại: ${action.payload || action.error.message}`);
       });
   },
 });

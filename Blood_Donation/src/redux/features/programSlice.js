@@ -1,5 +1,6 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import api from "../../configs/axios";
+import { toast } from "react-toastify";
 
 // Async thunk to fetch programs from the API
 export const fetchPrograms = createAsyncThunk(
@@ -67,6 +68,21 @@ export const addProgram = createAsyncThunk(
   }
 );
 
+// Async thunk to add a new program
+export const updateProgram = createAsyncThunk(
+  "programs/updatetProgram",
+  async ({id, ...programData}, { rejectWithValue }) => {
+    try {
+      // TODO: Update endpoint
+      const response = await api.put(`/programs/${id}`, programData);
+      // Add a 'key' property for AntD Table
+      return { ...response.data, key: response.data.id }; // TODO: update to correct id field
+    } catch (err) {
+      return rejectWithValue(err.response?.data?.message || err.message);
+    }
+  }
+);
+
 const programSlice = createSlice({
   name: "program", // name of the slice state
   initialState: {
@@ -91,7 +107,8 @@ const programSlice = createSlice({
       })
       .addCase(fetchPrograms.rejected, (state, action) => {
         state.loading = false;
-        state.error = action.error.message;
+        state.error = action.payload || action.error.message;
+        toast.error(`Lỗi tải danh sách chương trình: ${action.payload || action.error.message}`);
       })
       // fetchProgramById
       .addCase(fetchProgramById.pending, (state) => {
@@ -105,8 +122,9 @@ const programSlice = createSlice({
       })
       .addCase(fetchProgramById.rejected, (state, action) => {
         state.selectedLoading = false;
-        state.selectedError = action.error.message;
+        state.selectedError = action.payload || action.error.message;
         state.selectedProgram = null;
+        toast.error(`Lỗi tải thông tin chương trình: ${action.payload || action.error.message}`);
       })
       // deleteProgramById
       .addCase(deleteProgramById.pending, (state) => {
@@ -123,6 +141,7 @@ const programSlice = createSlice({
       .addCase(deleteProgramById.rejected, (state, action) => {
         state.selectedLoading = false;
         state.selectedError = action.payload || action.error.message;
+        toast.error(`Xóa chương trình thất bại: ${action.payload || action.error.message}`);
       })
       // addProgram
       .addCase(addProgram.pending, (state) => {
@@ -137,6 +156,27 @@ const programSlice = createSlice({
       .addCase(addProgram.rejected, (state, action) => {
         state.selectedLoading = false;
         state.selectedError = action.payload || action.error.message;
+        toast.error(`Tạo chương trình thất bại: ${action.payload || action.error.message}`);
+      })
+      // updateProgram
+      .addCase(updateProgram.pending, (state) => {
+        state.selectedLoading = true;
+        state.selectedError = null;
+      })
+      .addCase(updateProgram.fulfilled, (state, action) => {
+        state.selectedLoading = false;
+        // Update the program in the data array
+        const index = state.data.findIndex(program => program.id === action.payload.id);
+        if (index !== -1) {
+          state.data[index] = action.payload;
+        }
+        state.selectedProgram = action.payload;
+        toast.success('Cập nhật chương trình thành công!');
+      })
+      .addCase(updateProgram.rejected, (state, action) => {
+        state.selectedLoading = false;
+        state.selectedError = action.payload || action.error.message;
+        toast.error(`Cập nhật chương trình thất bại: ${action.payload || action.error.message}`);
       });
   },
 });

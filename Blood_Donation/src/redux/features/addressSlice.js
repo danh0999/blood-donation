@@ -1,5 +1,6 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import api from "../../configs/axios";
+import { toast } from "react-toastify";
 
 // Async thunk to fetch all addresses
 export const fetchAddresses = createAsyncThunk(
@@ -69,7 +70,8 @@ const addressSlice = createSlice({
       })
       .addCase(fetchAddresses.rejected, (state, action) => {
         state.loading = false;
-        state.error = action.error.message;
+        state.error = action.payload || action.error.message;
+        toast.error(`Lỗi tải danh sách địa chỉ: ${action.payload || action.error.message}`);
       })
 
       // fetchAddressByID
@@ -84,8 +86,9 @@ const addressSlice = createSlice({
       })
       .addCase(fetchAddressById.rejected, (state, action) => {
         state.selectedLoading = false;
-        state.selectedError = action.error.message;
+        state.selectedError = action.payload || action.error.message;
         state.selectedAddress = null;
+        toast.error(`Lỗi tải thông tin địa chỉ: ${action.payload || action.error.message}`);
       })
 
       // createAddress
@@ -100,11 +103,17 @@ const addressSlice = createSlice({
       .addCase(createAddress.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload || action.error.message;
+        toast.error(`Tạo địa chỉ thất bại: ${action.payload || action.error.message}`);
       })
       
       // deleteAddress
       .addCase(deleteAddress.fulfilled, (state, action) => {
         state.data = state.data.filter(addr => addr.id !== action.payload);
+      })
+      .addCase(deleteAddress.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload || action.error.message;
+        toast.error(`Xóa địa chỉ thất bại: ${action.payload || action.error.message}`);
       });
   },
 });
