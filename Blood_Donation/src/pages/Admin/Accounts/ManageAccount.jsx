@@ -1,12 +1,16 @@
 // Tag: for different colors of the boolean "enabled"
 // fetchAccounts: THE async thunk used to fetch API data
-import { Table, Space, Modal, Button, } from "antd";
+import { Table, Space, Modal, Button } from "antd";
 import {
   FileSearchOutlined,
   DeleteOutlined,
 } from "@ant-design/icons";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchAccounts, deleteAccountById, addAccount } from "../../../redux/features/accountSlice";
+import {
+  fetchAccounts,
+  deleteAccountById,
+  addAccount,
+} from "../../../redux/features/accountSlice";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import SearchBarV2 from "../../../components/SearchBarV2/SearchBarV2";
@@ -15,34 +19,25 @@ import AddAccountForm from "./AddAccountForm";
 function AccountTable() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  // B1: declare the "state" var, assign it with state.accounts (the slice state), which returned by useSelector()
-  // B2: assign the "state" var to the 3 vars (accounts, loading, error) and use it throughout this file
 
-  // note: "data: accounts" mean take the "data" property from accounts slice and assign it to a new var called "accounts"
-  // this is just for clarity
   const { data: accounts, loading, error } = useSelector((state) => state.account);
 
-  // Local state for search/filter
   const [selectedRole, setSelectedRole] = useState("All");
   const [searchText, setSearchText] = useState("");
 
-  // State for delete modal and countdown
   const [deleteModalVisible, setDeleteModalVisible] = useState(false);
   const [deleteTarget, setDeleteTarget] = useState(null);
   const [countdown, setCountdown] = useState(3);
   const [deleteBtnDisabled, setDeleteBtnDisabled] = useState(true);
 
-  // Get unique roles from accounts for the filter dropdown
-  const roles = Array.from(new Set(accounts.map(acc => acc.role)));
+  const roles = Array.from(new Set(accounts.map((acc) => acc.role)));
 
-  // State for add account modal and form
   const [addModalVisible, setAddModalVisible] = useState(false);
 
   useEffect(() => {
     dispatch(fetchAccounts());
   }, [dispatch]);
 
-  // Countdown logic for delete button
   useEffect(() => {
     let timer;
     if (deleteModalVisible && deleteBtnDisabled) {
@@ -68,26 +63,28 @@ function AccountTable() {
   };
 
   const handleDelete = async () => {
-    await dispatch(deleteAccountById(deleteTarget.userID));
+    if (!deleteTarget?.id) {
+      console.error("Không có ID hợp lệ để xóa.");
+      return;
+    }
+
+    await dispatch(deleteAccountById(deleteTarget.id));
     setDeleteModalVisible(false);
   };
 
-  // Filter accounts based on selectedRole and searchText
-  const filteredAccounts = accounts.filter(acc => {
+  const filteredAccounts = accounts.filter((acc) => {
     const matchRole = selectedRole === "All" || acc.role === selectedRole;
-    const matchName = (acc.fullName || "").toLowerCase().includes(searchText.toLowerCase());
+    const matchName = (acc.fullName || "")
+      .toLowerCase()
+      .includes(searchText.toLowerCase());
     return matchRole && matchName;
   });
 
-  // Columns of the displayed table
-  // title: the header text display on the web
-  // dataIndex: the key (field)'s name that the API return, specify the exact name to get the value
-  // key: used internally by React
   const columns = [
     {
       title: "UserID",
-      dataIndex: "userID",
-      key: "userID",
+      dataIndex: "id", 
+      key: "id",
     },
     {
       title: "Username",
@@ -116,7 +113,7 @@ function AccountTable() {
         <Space size="middle">
           <FileSearchOutlined
             style={{ cursor: "pointer" }}
-            onClick={() => navigate(`/admin/accounts/${record.userID}`)}
+            onClick={() => navigate(`/admin/accounts/${record.id}`)} 
           />
           <DeleteOutlined
             style={{ color: "red", cursor: "pointer" }}
@@ -127,11 +124,8 @@ function AccountTable() {
     },
   ];
 
-  // Loading and error state of the async thunk from redux
-  
   if (error) return <div>Error: {error}</div>;
 
-  // Actual table return
   return (
     <>
       <div style={{ padding: 24 }}>
@@ -141,10 +135,19 @@ function AccountTable() {
             <li>trùng username</li>
             <li>sdt, cccd không phải 1234567..</li>
           </ul>
-          <b>Validate acc bị xóa không phải acc admin duy nhất</b><br/>
+          <b>Validate acc bị xóa không phải acc admin duy nhất</b>
+          <br />
           <b>Add hospital info when creating hospital staff account</b>
         </div>
-        <div style={{ display: "flex", alignItems: "flex-start", gap: "1rem", marginBottom: "0.5rem", justifyContent: "space-between" }}>
+        <div
+          style={{
+            display: "flex",
+            alignItems: "flex-start",
+            gap: "1rem",
+            marginBottom: "0.5rem",
+            justifyContent: "space-between",
+          }}
+        >
           <SearchBarV2
             roles={roles}
             selectedRole={selectedRole}
@@ -152,13 +155,20 @@ function AccountTable() {
             searchText={searchText}
             onSearchChange={setSearchText}
           />
-          <div style={{ display: "flex", alignItems: "center", height: "100%" }}>
+          <div
+            style={{ display: "flex", alignItems: "center", height: "100%" }}
+          >
             <Button type="primary" onClick={() => setAddModalVisible(true)}>
               Thêm tài khoản
             </Button>
           </div>
         </div>
-        <Table dataSource={filteredAccounts} columns={columns} loading={loading}/>
+        <Table
+          dataSource={filteredAccounts}
+          columns={columns}
+          loading={loading}
+          rowKey="id" // ✅ thêm rowKey để tránh warning React
+        />
 
         {/* Modals */}
         {/* Add Account Modal */}
@@ -172,10 +182,11 @@ function AccountTable() {
             onCancel={() => setAddModalVisible(false)}
             // Ant Design Form submit button handling
             onFinish={async (values) => {
-              // Convert birthdate to string if present
               const payload = {
                 ...values,
-                birthdate: values.birthdate ? values.birthdate.format("YYYY-MM-DD") : undefined,
+                birthdate: values.birthdate
+                  ? values.birthdate.format("YYYY-MM-DD")
+                  : undefined,
               };
               await dispatch(addAccount(payload));
               setAddModalVisible(false);
@@ -206,7 +217,9 @@ function AccountTable() {
         >
           {deleteTarget && (
             <>
-              Bạn có chắc chắn muốn xóa tài khoản <b>{deleteTarget.username}</b> (UserID: {deleteTarget.userID})? Hành động này không thể hoàn tác.
+              Bạn có chắc chắn muốn xóa tài khoản{" "}
+              <b>{deleteTarget.username}</b> (UserID: {deleteTarget.id})?
+              Hành động này không thể hoàn tác.
             </>
           )}
         </Modal>
