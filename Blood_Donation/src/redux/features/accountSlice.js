@@ -1,6 +1,6 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import api from "../../configs/axios";
-import { toast } from "react-toastify";
+import { toast, ToastContainer } from "react-toastify";
 
 // Async thunk to fetch accounts from the API
 export const fetchAccounts = createAsyncThunk(
@@ -32,7 +32,8 @@ export const deleteAccountById = createAsyncThunk(
       await api.delete(`/admin/users/${id}`);
       return id;
     } catch (err) {
-      return rejectWithValue(err.response?.data?.message || err.message);
+      const apiMsg = err.response?.data?.message || err.response?.data?.error || err.message;
+      return rejectWithValue(apiMsg);
     }
   }
 );
@@ -43,10 +44,10 @@ export const addAccount = createAsyncThunk(
   async (accountData, { rejectWithValue }) => {
     try {
       const response = await api.post("/admin/users", accountData);
-      // Add a 'key' property for AntD Table
       return { ...response.data, key: response.data.userID };
     } catch (err) {
-      return rejectWithValue(err.response?.data?.message || err.message);
+      const apiMsg = err.response?.data?.message || err.response?.data?.error || err.message;
+      return rejectWithValue(apiMsg);
     }
   }
 );
@@ -57,10 +58,10 @@ export const updateAccount = createAsyncThunk(
   async ({ id, accountData }, { rejectWithValue }) => {
     try {
       const response = await api.put(`/admin/users/${id}`, accountData);
-      // Add a 'key' property for AntD Table
       return { ...response.data, key: response.data.userID };
     } catch (err) {
-      return rejectWithValue(err.response?.data?.message || err.message);
+      const apiMsg = err.response?.data?.message || err.response?.data?.error || err.message;
+      return rejectWithValue(apiMsg);
     }
   }
 );
@@ -94,7 +95,8 @@ const accountSlice = createSlice({
       })
       .addCase(fetchAccounts.rejected, (state, action) => {
         state.loading = false;
-        state.error = action.error.message;
+        state.error = action.payload || action.error.message;
+        toast.error(`Lỗi tải danh sách tài khoản: ${action.payload || action.error.message}`);
       })
       
       // fetchAccountById
@@ -109,8 +111,9 @@ const accountSlice = createSlice({
       })
       .addCase(fetchAccountById.rejected, (state, action) => {
         state.selectedLoading = false;
-        state.selectedError = action.error.message;
+        state.selectedError = action.payload || action.error.message;
         state.selectedAccount = null;
+        toast.error(`Lỗi tải thông tin tài khoản: ${action.payload || action.error.message}`);
       })
       
       // deleteAccountById
@@ -130,6 +133,7 @@ const accountSlice = createSlice({
       .addCase(deleteAccountById.rejected, (state, action) => {
         state.selectedLoading = false;
         state.selectedError = action.payload || action.error.message;
+        toast.error(`Xóa tài khoản thất bại: ${action.payload  || action.error.message}`);
       })
       
       // addAccount
@@ -148,7 +152,7 @@ const accountSlice = createSlice({
       .addCase(addAccount.rejected, (state, action) => {
         state.selectedLoading = false;
         state.selectedError = action.payload || action.error.message;
-        toast.error(`Tạo tài khoản thất bại (${action.error.message})`)
+        toast.error(`Tạo tài khoản thất bại: ${action.payload || action.error.message}`);
       })
       // updateAccount
       .addCase(updateAccount.pending, (state) => {
@@ -167,6 +171,7 @@ const accountSlice = createSlice({
       .addCase(updateAccount.rejected, (state, action) => {
         state.selectedLoading = false;
         state.selectedError = action.payload || action.error.message;
+        toast.error(`Cập nhật tài khoản thất bại: ${action.payload || action.error.message}`);
       });
   },
 });

@@ -108,7 +108,6 @@ const useProgramSubmission = () => {
         description: values.description || null,
         contact: values.contact || null,
         imageUrl: finalImageUrl,
-        adminId: 1, // TODO: replace this in future when adding profile for staff, admin account
         slotIds: values.slotIds || []
       };
 

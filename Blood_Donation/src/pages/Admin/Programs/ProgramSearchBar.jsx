@@ -29,10 +29,11 @@ const ProgramSearchBar = ({
       <Select
         value={category}
         onChange={onCategoryChange}
-        style={{ minWidth: 120 }}
+        style={{ minWidth: 140 }}
         options={[
           { value: "name", label: "Tên" },
           { value: "date", label: "Ngày bắt đầu" },
+          { value: "status", label: "Trạng thái" },
         ]}
       />
       {category === "name" ? (
@@ -42,7 +43,7 @@ const ProgramSearchBar = ({
           onChange={e => onSearchTextChange(e.target.value)}
           style={{ minWidth: 220 }}
         />
-      ) : (
+      ) : category === "date" ? (
         <RangePicker
           value={dateRange}
           onChange={onDateRangeChange}
@@ -51,7 +52,21 @@ const ProgramSearchBar = ({
           style={{ minWidth: 240 }}
           placeholder={["Từ ngày", "Đến ngày"]}
         />
-      )}
+      ) : category === "status" ? (
+        <Select
+          value={searchText}
+          onChange={onSearchTextChange}
+          style={{ minWidth: 180 }}
+          allowClear
+          placeholder="Chọn trạng thái"
+          options={[
+            { value: "NOT_STARTED", label: "Chưa bắt đầu" },
+            { value: "ACTIVE", label: "Đang hoạt động" },
+            { value: "FINISHED", label: "Đã kết thúc" },
+            { value: "INACTIVE", label: "Không hoạt động" },
+          ]}
+        />
+      ) : null}
     </div>
   );
 };

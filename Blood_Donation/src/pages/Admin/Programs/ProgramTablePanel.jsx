@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Table, Button, Space, Modal } from "antd";
+import { Table, Button, Space, Modal, Tag } from "antd";
 import dayjs from "dayjs";
 import ProgramSearchBar from "./ProgramSearchBar";
 import { FileSearchOutlined, DeleteOutlined } from "@ant-design/icons";
@@ -18,6 +18,12 @@ const ProgramTablePanel = ({ selectedProgram, onSelectProgram, programs, program
   const [category, setCategory] = useState("name"); // default to "name" to match dropdown
   const [searchText, setSearchText] = useState("");
   const [dateRange, setDateRange] = useState([null, null]); // use null for moment compatibility
+
+  // Reset searchText and dateRange when category changes
+  useEffect(() => {
+    setSearchText("");
+    setDateRange([null, null]);
+  }, [category]);
 
   // State for delete modal and countdown
   const [deleteModalVisible, setDeleteModalVisible] = useState(false);
@@ -56,8 +62,10 @@ const ProgramTablePanel = ({ selectedProgram, onSelectProgram, programs, program
       let deleteTargetAddress = null;
 
       if (deleteTarget) {
-        // Delete image from Firebase if exists
-        if (deleteTarget.imageUrl) {
+        // Default image URL (do not delete if matches)
+        const DEFAULT_IMAGE_URL = "https://firebasestorage.googleapis.com/v0/b/seventh-dynamo-465214-j3.firebasestorage.app/o/images%2Fdonation-programs%2FPlaceholderBloodDrive.jpg?alt=media&token=6a26d6e6-4d4c-429e-97ff-0b8b1c53913b";
+        // Delete image from Firebase if exists and is not the default image
+        if (deleteTarget.imageUrl && deleteTarget.imageUrl !== DEFAULT_IMAGE_URL) {
           try {
             // Get the file name from the firebase URL
             const imagePath = decodeURIComponent(deleteTarget.imageUrl.split('/o/')[1].split('?')[0]);
@@ -88,6 +96,35 @@ const ProgramTablePanel = ({ selectedProgram, onSelectProgram, programs, program
     }
   };
 
+  // Status color and text mapping
+  const getStatusColor = (status) => {
+    switch (status) {
+      case 'ACTIVE':
+        return 'green';
+      case 'FINISHED':
+        return 'default';
+      case 'INACTIVE':
+        return 'red';
+      default:
+        return 'default';
+    }
+  };
+
+  const getStatusText = (status) => {
+    switch (status) {
+      case 'NOT_STARTED':
+        return 'Chưa bắt đầu';
+      case 'ACTIVE':
+        return 'Đang hoạt động';
+      case 'FINISHED':
+        return 'Đã kết thúc';
+      case 'INACTIVE':
+        return 'Không hoạt động';
+      default:
+        return status;
+    }
+  };
+
   const columns = [
     {
       title: "ProgramID",
@@ -99,20 +136,14 @@ const ProgramTablePanel = ({ selectedProgram, onSelectProgram, programs, program
       dataIndex: "proName",
       key: "proName",
       width: 300,
-
-      //set the Name column to be scrollable
       render: (text) => (
         <div style={{ 
           maxWidth: '300px',
           overflowX: 'auto',
           whiteSpace: 'nowrap',
-
-          /* Hide scrollbar */
-          msOverflowStyle: 'none',  /* IE and Edge */
-          scrollbarWidth: 'none',   /* Firefox */
-          '&::WebkitScrollbar': {
-            display: 'none'         /* Chrome, Safari and Opera */
-          }
+          msOverflowStyle: 'none',
+          scrollbarWidth: 'none',
+          '&::WebkitScrollbar': { display: 'none' }
         }}>
           {text}
         </div>
@@ -129,6 +160,16 @@ const ProgramTablePanel = ({ selectedProgram, onSelectProgram, programs, program
       key: "endDate",
     },
     {
+      title: "Trạng thái",
+      dataIndex: "status",
+      key: "status",
+      render: (status) => (
+        <Tag color={getStatusColor(status)} style={{ fontSize: '14px' }}>
+          {getStatusText(status)}
+        </Tag>
+      ),
+    },
+    {
       title: "Hành động",
       key: "actions",
       render: (_, record) => (
@@ -137,7 +178,6 @@ const ProgramTablePanel = ({ selectedProgram, onSelectProgram, programs, program
               style={{ cursor: "pointer" }}
               onClick={() => navigate(`/admin/programs/${record.id}`)}
             />
-            
             <DeleteOutlined
               style={{ color: "red", cursor: "pointer" }}
               onClick={() => showDeleteModal(record)}
@@ -172,6 +212,8 @@ const ProgramTablePanel = ({ selectedProgram, onSelectProgram, programs, program
         startDate.isAfter(dateRange[0].startOf('day')) &&
         startDate.isBefore(dateRange[1].endOf('day'))
       );
+    } else if (category === "status") {
+      return searchText ? item.status === searchText : true;
     }
     return true;
   });

@@ -1,5 +1,6 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import api from "../../configs/axios";
+import { toast } from "react-toastify";
 
 // Async thunk to fetch programs from the API
 export const fetchPrograms = createAsyncThunk(
@@ -91,7 +92,8 @@ const programSlice = createSlice({
       })
       .addCase(fetchPrograms.rejected, (state, action) => {
         state.loading = false;
-        state.error = action.error.message;
+        state.error = action.payload || action.error.message;
+        toast.error(`Lỗi tải danh sách chương trình: ${action.payload || action.error.message}`);
       })
       // fetchProgramById
       .addCase(fetchProgramById.pending, (state) => {
@@ -105,8 +107,9 @@ const programSlice = createSlice({
       })
       .addCase(fetchProgramById.rejected, (state, action) => {
         state.selectedLoading = false;
-        state.selectedError = action.error.message;
+        state.selectedError = action.payload || action.error.message;
         state.selectedProgram = null;
+        toast.error(`Lỗi tải thông tin chương trình: ${action.payload || action.error.message}`);
       })
       // deleteProgramById
       .addCase(deleteProgramById.pending, (state) => {
@@ -123,6 +126,7 @@ const programSlice = createSlice({
       .addCase(deleteProgramById.rejected, (state, action) => {
         state.selectedLoading = false;
         state.selectedError = action.payload || action.error.message;
+        toast.error(`Xóa chương trình thất bại: ${action.payload || action.error.message}`);
       })
       // addProgram
       .addCase(addProgram.pending, (state) => {
@@ -137,6 +141,7 @@ const programSlice = createSlice({
       .addCase(addProgram.rejected, (state, action) => {
         state.selectedLoading = false;
         state.selectedError = action.payload || action.error.message;
+        toast.error(`Tạo chương trình thất bại: ${action.payload || action.error.message}`);
       });
   },
 });

@@ -1,10 +1,10 @@
-
 import React, { useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { Card, Descriptions, Image, Tag, Button, Row, Col, Typography, Spin, Alert, Space } from 'antd';
 import { ArrowLeftOutlined, CalendarOutlined, EnvironmentOutlined, ClockCircleOutlined } from '@ant-design/icons';
 import { fetchProgramById } from '../../../redux/features/programSlice';
+import Link from 'antd/es/typography/Link';
 
 const { Title, Text } = Typography;
 
@@ -53,6 +53,8 @@ const ProgramDetail = () => {
 
   const getStatusText = (status) => {
     switch (status) {
+      case 'NOT_STARTED':
+        return 'Chưa bắt đầu';
       case 'ACTIVE':
         return 'Đang hoạt động';
       case 'FINISHED':
@@ -165,7 +167,13 @@ const ProgramDetail = () => {
                   <Descriptions.Item label="Địa chỉ">
                     <Space>
                       <EnvironmentOutlined />
-                      <Text>{programAddress.name}</Text>
+                      <Link
+                        href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(programAddress.name)}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        {programAddress.name}
+                      </Link>
                     </Space>
                   </Descriptions.Item>
                 )}
@@ -249,12 +257,6 @@ const ProgramDetail = () => {
                     </Descriptions.Item>
                   </>
                 )}
-
-                <Descriptions.Item label="Số khung giờ">
-                  <Tag color="blue">
-                    {selectedProgram.slotIds ? selectedProgram.slotIds.length : 0} khung giờ
-                  </Tag>
-                </Descriptions.Item>
               </Descriptions>
             </Card>
           </Col>
