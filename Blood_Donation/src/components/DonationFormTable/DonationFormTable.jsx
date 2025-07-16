@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { parseISO, isBefore } from "date-fns";
 import {
   Table,
   Tag,
@@ -156,10 +157,10 @@ function DonationFormTable({ demoData = [] }) {
             dataSource={
               Array.isArray(appointments) && appointments.length > 0
                 ? [...appointments].sort((a, b) => {
-                    if (a.status === "PENDING" && b.status !== "PENDING") return -1;
-                    if (b.status === "PENDING" && a.status !== "PENDING") return 1;
-                    return new Date(b.date) - new Date(a.date);
-                  })
+                  if (a.status === "PENDING" && b.status !== "PENDING") return -1;
+                  if (b.status === "PENDING" && a.status !== "PENDING") return 1;
+                  return new Date(b.date) - new Date(a.date);
+                })
                 : demoData
             }
             rowKey="id"
@@ -248,10 +249,39 @@ function DonationFormTable({ demoData = [] }) {
           <Form.Item
             label="Ngày hiến máu"
             name="donDate"
-            rules={[{ required: true, message: "Chọn ngày hiến máu" }]}
+            rules={[
+              { required: true, message: "Chọn ngày hiến máu" },
+              () => ({
+                validator(_, value) {
+                  if (!value) return Promise.resolve();
+
+                  const appointmentDate = selectedForm?.date
+                    ? parseISO(selectedForm.date)
+                    : null;
+
+                  if (appointmentDate && isBefore(value.toDate(), appointmentDate)) {
+                    return Promise.reject(
+                      new Error("Ngày hiến máu không được trước ngày lịch hẹn!")
+                    );
+                  }
+
+                  return Promise.resolve();
+                },
+              }),
+            ]}
           >
-            <DatePicker format="YYYY-MM-DD" style={{ width: "100%" }} />
+            <DatePicker
+              format="YYYY-MM-DD"
+              style={{ width: "100%" }}
+              disabledDate={(current) => {
+                if (!selectedForm?.date) return false;
+                const appointmentDate = parseISO(selectedForm.date);
+                return current && isBefore(current.toDate(), appointmentDate);
+              }}
+            />
           </Form.Item>
+
+
 
           <Form.Item
             label="Nhóm máu"
