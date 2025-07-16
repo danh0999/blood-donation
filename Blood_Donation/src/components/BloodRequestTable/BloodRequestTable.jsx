@@ -1,8 +1,9 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { toast } from "react-toastify";
-import { Table, Tag, Tooltip, Button, Popconfirm, Select } from "antd";
+import { Table, Tag, Tooltip, Button, Popconfirm, Select, Modal } from "antd";
 import { useSelector, useDispatch } from "react-redux";
 import { fetchRequestsByMedId, cancelBloodRequest } from "../../redux/features/bloodRequestSlice";
+import UpdateBloodRequestForm from "../BloodRequestModal/UpdateModal/UpdateModal";
 import styles from "./styles.module.scss";
 
 function BloodRequestTable() {
@@ -45,6 +46,8 @@ function BloodRequestTable() {
     });
   };
 
+  const [updateModalVisible, setUpdateModalVisible] = useState(false);
+  const [selectedRequest, setSelectedRequest] = useState(null);
 
   const { requestList, loading } = useSelector((state) => state.bloodRequest);
   const user = useSelector((state) => state.user);
@@ -116,32 +119,46 @@ function BloodRequestTable() {
       title: "Hành Động",
       key: "action",
       render: (_, record) => {
-        const canCancel = record.status === "PENDING";
-        return canCancel ? (
-          <Tooltip title="Chỉ có thể hủy yêu cầu đang chờ xử lý (PENDING)">
-            <Popconfirm
-              title="Bạn có chắc muốn hủy yêu cầu này không?"
-              okText="Có"
-              cancelText="Không"
-              onConfirm={async () => {
-                try {
-                  await dispatch(cancelBloodRequest(record.reqID)).unwrap();
-                  toast.success("Hủy yêu cầu thành công!");
-                } catch (err) {
-                  toast.error(err || "Không thể hủy yêu cầu.");
-                }
-              }}
-            >
-              <Button danger>Hủy</Button>
-            </Popconfirm>
-          </Tooltip>
-        ) : (
-          <Button danger disabled>
-            Hủy
-          </Button>
+        const canChange = record.status === "PENDING";
+        return (
+          <div style={{ display: "flex", gap: "8px" }}>
+            <Tooltip title="Cập nhật yêu cầu">
+              <Button
+                type="primary"
+                disabled={!canChange}
+                onClick={() => {
+                  setSelectedRequest(record);
+                  setUpdateModalVisible(true);
+                }}
+              >
+                Cập nhật
+              </Button>
+            </Tooltip>
+
+            <Tooltip title="Chỉ có thể hủy yêu cầu đang chờ xử lý (PENDING)">
+              <Popconfirm
+                title="Bạn có chắc muốn hủy yêu cầu này không?"
+                okText="Có"
+                cancelText="Không"
+                onConfirm={async () => {
+                  try {
+                    await dispatch(cancelBloodRequest(record.reqID)).unwrap();
+                    toast.success("Hủy yêu cầu thành công!");
+                  } catch (err) {
+                    toast.error(err || "Không thể hủy yêu cầu.");
+                  }
+                }}
+              >
+                <Button danger disabled={!canChange}>
+                  Hủy
+                </Button>
+              </Popconfirm>
+            </Tooltip>
+          </div>
         );
       },
     }
+
 
   ];
 
@@ -170,6 +187,19 @@ function BloodRequestTable() {
         bordered
         pagination={{ pageSize: 5 }}
       />
+      <Modal
+        title="Cập nhật Yêu Cầu Nhận Máu"
+        open={updateModalVisible}
+        onCancel={() => setUpdateModalVisible(false)}
+        footer={null}
+      >
+        {selectedRequest && (
+          <UpdateBloodRequestForm
+            initialData={selectedRequest}
+            onClose={() => setUpdateModalVisible(false)}
+          />
+        )}
+      </Modal>
     </div>
   );
 }

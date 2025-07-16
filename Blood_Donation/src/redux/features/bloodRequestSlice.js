@@ -52,6 +52,21 @@ export const cancelBloodRequest = createAsyncThunk(
   }
 );
 
+export const updateBloodRequest = createAsyncThunk(
+  "bloodRequest/update",
+  async ({ reqID, payload }, { rejectWithValue }) => {
+    try {
+      const response = await api.put(`/requests/hospital/${reqID}`, payload);
+      toast.success("Cập nhật yêu cầu thành công!");
+      return response.data;
+    } catch (err) {
+      toast.error("Cập nhật yêu cầu thất bại!");
+      return rejectWithValue(err.response?.data?.message || err.message);
+    }
+  }
+);
+
+
 
 export const fetchAllBloodRequests = createAsyncThunk(
   "bloodRequest/fetchAll",
@@ -149,6 +164,18 @@ const bloodRequestSlice = createSlice({
           state.requestList[index].status = "CANCELLED";
         }
       })
+
+      .addCase(updateBloodRequest.fulfilled, (state, action) => {
+        const updated = action.payload;
+        const index = state.requestList.findIndex((r) => r.reqID === updated.reqID);
+        if (index !== -1) {
+          state.requestList[index] = updated;
+        }
+      })
+      .addCase(updateBloodRequest.rejected, (state, action) => {
+        state.error = action.payload || action.error.message;
+      })
+
 
       ;
   },
