@@ -13,7 +13,7 @@ import { toast } from "react-toastify";
 import styles from "./styles.module.scss";
 import { useDispatch } from "react-redux";
 import { logout } from "../../redux/features/userSlice";
-import DonationFormTable from "../../components/Donation-Form-Table/DonationFormTable";
+import DonationFormTable from "../../components/DonationFormTable/DonationFormTable";
 import BlogList from "../../components/Blog-Page/BlogList";
 import BlogCreateModal from "../../components/Blog-Page/BlogCreateModal";
 
