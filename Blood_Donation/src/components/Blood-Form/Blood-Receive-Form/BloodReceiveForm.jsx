@@ -32,7 +32,7 @@ function BloodReceiveForm( {onFinishSuccess} ) {
       isEmergency: values.isEmergency ? "yes" : "no", 
       medId: user.userID, 
       details: values.bloodRequestDetails.map((item) => ({
-        bloodType: item.bloodType,
+        typeBlood: item.typeBlood,
         packVolume: item.unitSize,
         packCount: item.quantity,
       })),
