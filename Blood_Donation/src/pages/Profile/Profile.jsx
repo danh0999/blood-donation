@@ -6,7 +6,7 @@ import styles from "./styles.module.scss";
 import { toast } from "react-toastify";
 import api from "../../configs/axios";
 import { updateUser } from "../../redux/features/userSlice";
-import EnhancedPlacesAutocomplete from "../../pages/Admin/Programs/EnhancedPlacesAutocomplete"; // Điều chỉnh lại path nếu khác
+import EnhancedPlacesAutocomplete from "../../pages/Admin/Programs/EnhancedPlacesAutocomplete";
 
 const Profile = () => {
   const user = useSelector((state) => state.user);
@@ -14,18 +14,10 @@ const Profile = () => {
   const [isUpdateModalVisible, setUpdateModalVisible] = useState(false);
   const [form] = Form.useForm();
   const { Option } = Select;
-
-  // State cho địa chỉ và tọa độ từ Google Maps
-  const [address, setAddress] = useState(user.address || ""); // eslint-disable-line no-unused-vars
-  /* eslint-disable no-unused-vars */
+  // eslint-disable-next-line no-unused-vars
   const [selectedLatLng, setSelectedLatLng] = useState({
-    lat: user.latitude || null,
-    lng: user.longitude || null,
-  });
-  /* eslint-disable no-unused-vars */
-  const [coordinates, setCoordinates] = useState({
-    lat: user.latitude || null,
-    lng: user.longitude || null,
+    lat: user.latitude || user.address?.latitude || null,
+    lng: user.longitude || user.address?.longitude || null,
   });
 
   const bloodTypeOptions = [
@@ -41,16 +33,34 @@ const Profile = () => {
 
   const handleUpdate = async (updatedData) => {
     try {
+      // Parse tọa độ về kiểu số hoặc null
+      const lat = updatedData.latitude
+        ? parseFloat(updatedData.latitude)
+        : null;
+      const lng = updatedData.longitude
+        ? parseFloat(updatedData.longitude)
+        : null;
+
       const formattedData = {
         ...user,
         ...updatedData,
         birthdate: updatedData.birthdate?.format("YYYY-MM-DD"),
-        address: {
-          name: updatedData.address,
-          latitude: updatedData.latitude,
-          longitude: updatedData.longitude,
-        },
       };
+
+      // Gán địa chỉ chỉ khi có đủ dữ liệu
+      if (updatedData.address && lat !== null && lng !== null) {
+        formattedData.address = {
+          name: updatedData.address,
+          latitude: lat,
+          longitude: lng,
+        };
+      } else {
+        formattedData.address = null;
+      }
+
+      // Không gửi riêng lẻ latitude/longitude nếu chúng đã nằm trong address
+      delete formattedData.latitude;
+      delete formattedData.longitude;
 
       const response = await api.put(`/users/${user.userID}`, formattedData);
       toast.success("Cập nhật thành công!");
@@ -73,7 +83,7 @@ const Profile = () => {
               email: user.email || "",
               username: user.username || "",
               cccd: user.cccd || "",
-              address: user.address?.name || "", // cập nhật
+              address: user.address?.name || "",
               latitude: user.address?.latitude || user.latitude || null,
               longitude: user.address?.longitude || user.longitude || null,
               phone: user.phone || "",
@@ -82,10 +92,9 @@ const Profile = () => {
               birthdate: user.birthdate ? dayjs(user.birthdate) : null,
             });
 
-            setAddress(user.address || "");
-            setCoordinates({
-              lat: user.latitude || null,
-              lng: user.longitude || null,
+            setSelectedLatLng({
+              lat: user.address?.latitude || user.latitude || null,
+              lng: user.address?.longitude || user.longitude || null,
             });
 
             setUpdateModalVisible(true);
@@ -94,8 +103,8 @@ const Profile = () => {
           Chỉnh sửa
         </Button>
       </div>
+
       <div className={styles.sectionWrapper}>
-        {/* Thông tin cá nhân */}
         <div className={styles.profileSection}>
           <h3>🧍 Thông tin cá nhân</h3>
           <p>
@@ -115,7 +124,6 @@ const Profile = () => {
           </p>
         </div>
 
-        {/* Thông tin liên hệ */}
         <div className={styles.profileSection}>
           <h3>📞 Thông tin liên hệ</h3>
           <p>
@@ -130,29 +138,13 @@ const Profile = () => {
         </div>
       </div>
 
-      {/* Modal cập nhật */}
       <Modal
         title="Cập nhật thông tin liên hệ"
         open={isUpdateModalVisible}
         onCancel={() => setUpdateModalVisible(false)}
         footer={null}
       >
-        <Form
-          form={form}
-          layout="vertical"
-          onFinish={handleUpdate}
-          initialValues={{
-            fullName: user.fullName,
-            email: user.email,
-            username: user.username,
-            cccd: user.cccd,
-            address: user.address,
-            phone: user.phone,
-            gender: user.gender,
-            typeBlood: user.typeBlood,
-            birthdate: user.birthdate ? dayjs(user.birthdate) : null,
-          }}
-        >
+        <Form form={form} layout="vertical" onFinish={handleUpdate}>
           <Form.Item
             name="fullName"
             label="Họ tên"
@@ -217,25 +209,24 @@ const Profile = () => {
               value={form.getFieldValue("address")}
               onChange={(val) => form.setFieldsValue({ address: val })}
               onPlaceSelect={(place) => {
+                const lat = place.coordinates?.lat ?? null;
+                const lng = place.coordinates?.lng ?? null;
                 form.setFieldsValue({
                   address: place.formattedAddress,
-                  latitude: place.coordinates?.lat,
-                  longitude: place.coordinates?.lng,
+                  latitude: lat,
+                  longitude: lng,
                 });
-                setSelectedLatLng({
-                  lat: place.coordinates?.lat,
-                  lng: place.coordinates?.lng,
-                });
+                setSelectedLatLng({ lat, lng });
               }}
             />
           </Form.Item>
 
           <Form.Item name="latitude" hidden>
-            <Input />
+            <Input type="number" />
           </Form.Item>
 
           <Form.Item name="longitude" hidden>
-            <Input />
+            <Input type="number" />
           </Form.Item>
 
           <Form.Item
@@ -266,7 +257,7 @@ const Profile = () => {
           <Form.Item
             name="typeBlood"
             label="Nhóm máu"
-            rules={[{ required: false, message: "Vui lòng chọn nhóm máu!" }]}
+            rules={[{ required: false }]}
           >
             <Select placeholder="Chọn nhóm máu">
               {bloodTypeOptions.map((option) => (
