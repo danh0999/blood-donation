@@ -20,24 +20,34 @@ function AccountTable() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
+  // B1: declare the "state" var, assign it with state.accounts (the slice state), which returned by useSelector()
+  // B2: assign the "state" var to the 3 vars (accounts, loading, error) and use it throughout this file
+
+  // note: "data: accounts" mean take the "data" property from accounts slice and assign it to a new var called "accounts"
+  // this is just for clarity
   const { data: accounts, loading, error } = useSelector((state) => state.account);
 
+  // Local state for search/filter
   const [selectedRole, setSelectedRole] = useState("All");
   const [searchText, setSearchText] = useState("");
 
+  // State for delete modal and countdown
   const [deleteModalVisible, setDeleteModalVisible] = useState(false);
   const [deleteTarget, setDeleteTarget] = useState(null);
   const [countdown, setCountdown] = useState(3);
   const [deleteBtnDisabled, setDeleteBtnDisabled] = useState(true);
 
+  // Get unique roles from accounts for the filter dropdown
   const roles = Array.from(new Set(accounts.map((acc) => acc.role)));
 
+  // State for add account modal and form
   const [addModalVisible, setAddModalVisible] = useState(false);
 
   useEffect(() => {
     dispatch(fetchAccounts());
   }, [dispatch]);
 
+   // Countdown logic for delete button
   useEffect(() => {
     let timer;
     if (deleteModalVisible && deleteBtnDisabled) {
@@ -72,6 +82,7 @@ function AccountTable() {
     setDeleteModalVisible(false);
   };
 
+  // Filter accounts based on selectedRole and searchText
   const filteredAccounts = accounts.filter((acc) => {
     const matchRole = selectedRole === "All" || acc.role === selectedRole;
     const matchName = (acc.fullName || "")
@@ -129,16 +140,6 @@ function AccountTable() {
   return (
     <>
       <div style={{ padding: 24 }}>
-        <div>
-          <b>To do: validate form information:</b>
-          <ul>
-            <li>trùng username</li>
-            <li>sdt, cccd không phải 1234567..</li>
-          </ul>
-          <b>Validate acc bị xóa không phải acc admin duy nhất</b>
-          <br />
-          <b>Add hospital info when creating hospital staff account</b>
-        </div>
         <div
           style={{
             display: "flex",
