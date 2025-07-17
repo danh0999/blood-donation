@@ -15,7 +15,7 @@ function UpdateBloodRequestForm({ initialData, onClose }) {
       form.setFieldsValue({
         isEmergency: initialData?.isEmergency?.toLowerCase() === "yes",
         bloodRequestDetails: initialData.details.map((item) => ({
-          bloodType: item.bloodType,
+          typeBlood: item.typeBlood,
           unitSize: item.packVolume,
           quantity: item.packCount,
         })),
@@ -28,7 +28,7 @@ function UpdateBloodRequestForm({ initialData, onClose }) {
       isEmergency: values.isEmergency ? "yes" : "no",
       medId: user.userID,
       details: values.bloodRequestDetails.map((item) => ({
-        bloodType: item.bloodType,
+        typeBlood: item.typeBlood,
         packVolume: item.unitSize,
         packCount: item.quantity,
       })),
@@ -56,7 +56,7 @@ function UpdateBloodRequestForm({ initialData, onClose }) {
               <div key={key} style={{ display: "flex", gap: 8, marginBottom: 16 }}>
                 <Form.Item
                   {...restField}
-                  name={[name, "bloodType"]}
+                  name={[name, "typeBlood"]}
                   rules={[{ required: true, message: "Chọn nhóm máu!" }]}
                   style={{ flex: 1 }}
                 >

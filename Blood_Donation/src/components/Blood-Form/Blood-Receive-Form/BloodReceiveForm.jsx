@@ -121,7 +121,7 @@ function BloodReceiveForm( {onFinishSuccess} ) {
                   <div key={key} style={{ display: "flex", gap: 8, marginBottom: 16 }}>
                     <Form.Item
                       {...restField}
-                      name={[name, "bloodType"]}
+                      name={[name, "typeBlood"]}
                       rules={[{ required: true, message: "Chọn nhóm máu!" }]}
                       style={{ flex: 1 }}
                     >

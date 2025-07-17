@@ -81,7 +81,7 @@ function BloodRequestTable() {
           {Array.isArray(details) && details.length > 0 ? (
             details.map((item, index) => (
               <li key={index}>
-                Nhóm máu: <b>{item.bloodType}</b> | Số túi: {item.packCount} | Dung tích: {item.packVolume}ml
+                Nhóm máu: <b>{item.typeBlood}</b> | Số túi: {item.packCount} | Dung tích: {item.packVolume}ml
               </li>
             ))
           ) : (
