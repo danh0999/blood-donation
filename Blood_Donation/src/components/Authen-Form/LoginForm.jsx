@@ -1,7 +1,7 @@
 import React from "react";
 import { LockOutlined, UserOutlined } from "@ant-design/icons";
 import { Button, Checkbox, Form, Input, Flex, Typography } from "antd";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import api from "../../configs/axios";
 import { toast } from "react-toastify";
 import { login } from "../../redux/features/userSlice";
@@ -11,7 +11,6 @@ import { setDonationHistory } from "../../redux/features/bloodHistorySlice";
 const { Title } = Typography;
 
 const LoginForm = () => {
-  const navigate = useNavigate();
   const dispatch = useDispatch();
 
   const onFinish = async (values) => {
@@ -28,7 +27,7 @@ const LoginForm = () => {
       // Lấy lịch hẹn
       if (userData.role === "MEMBER") {
         const appointmentRes = await api.get("/appointments/by-user", {
-          params: { userId: userData.userID },
+          params: { userId: userData.id },
         });
         const appointment = appointmentRes.data?.[0];
 
@@ -43,24 +42,6 @@ const LoginForm = () => {
             ])
           );
         }
-      }
-
-      // Điều hướng
-      switch (userData.role) {
-        case "ADMIN":
-          navigate("/admin");
-          break;
-        case "MEMBER":
-          navigate("/");
-          break;
-        case "STAFF":
-          navigate("/staff");
-          break;
-        case "HOSPITAL_STAFF":
-          navigate("/hospital");
-          break;
-        default:
-          navigate("/");
       }
     } catch (e) {
       toast.error(e.response?.data || "Đăng nhập thất bại!");

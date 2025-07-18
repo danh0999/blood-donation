@@ -24,7 +24,7 @@ const BloodDonate = () => {
     const fetchAppointmentHistory = async () => {
       try {
         const res = await api.get("/appointments/history", {
-          params: { userId: user.userID },
+          params: { userId: user.id },
         });
 
         const activeAppointment = res.data.find(
@@ -45,10 +45,10 @@ const BloodDonate = () => {
       }
     };
 
-    if (user?.userID) {
+    if (user?.id) {
       fetchAppointmentHistory();
     }
-  }, [user?.userID]);
+  }, [user?.id]);
 
   const handleRegister = () => {
     navigate("/user/donate/schedule");
@@ -60,7 +60,7 @@ const BloodDonate = () => {
     try {
       await api.patch(`/appointments/${appointment.id}/cancel`, null, {
         params: {
-          userId: user.userID,
+          id: user.id,
         },
       });
 
