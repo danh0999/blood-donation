@@ -60,7 +60,7 @@ const BloodDonate = () => {
     try {
       await api.patch(`/appointments/${appointment.id}/cancel`, null, {
         params: {
-          id: user.id,
+          userId: user.id,
         },
       });
 
