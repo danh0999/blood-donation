@@ -106,8 +106,13 @@ const useProgramSubmission = () => {
         proName: values.proName,
         startDate: values.startDate.format('YYYY-MM-DD'),
         endDate: values.endDate.format('YYYY-MM-DD'),
-        // if isEdit, don't change dateCreated
-        dateCreated: isEditMode ? values.dateCreated.format('YYYY-MM-DD') : dayjs().format('YYYY-MM-DD'),
+        // Safely handle dateCreated for edit mode, don't change dateCreated if in edit mode
+        dateCreated: isEditMode
+        // check if dateCreated exist and is a dayjs object
+          ? (values.dateCreated && typeof values.dateCreated.format === 'function'
+              ? values.dateCreated.format('YYYY-MM-DD')
+              : values.dateCreated || dayjs().format('YYYY-MM-DD')) // use raw data if present, or format today date into dateCreated
+          : dayjs().format('YYYY-MM-DD'),
         addressId: finalAddressId,
         cityId: finalCityId,
         description: values.description || null,

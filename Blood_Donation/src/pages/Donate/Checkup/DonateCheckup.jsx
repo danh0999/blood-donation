@@ -14,7 +14,7 @@ import ScrollToTopButton from "../../../components/ScrollToTopButton/ScrollToTop
 const questionList = [
   {
     text: "1. Anh/chị từng hiến máu chưa?",
-    options: ["Có", "Không"],
+    options: ["Đã từng", "Chưa từng"],
     isSingle: true,
   },
 
@@ -26,7 +26,7 @@ const questionList = [
   },
 
   {
-    text: "3. Trước đây, anh/chị có từng mắc một trong các bệnh ...?",
+    text: "3. Trước đây, anh/chị có từng mắc một trong các bệnh: viêm gan siêu vi B, C, HIV, vảy nến, phì đại tiền liệt tuyến, sốc phản vệ, tai biến mạch máu não, nhồi máu cơ tim, lupus ban đỏ, động kinh, ung thư, hen, được cấy ghép mô tạng?",
     options: ["Có", "Không", "Bệnh khác"],
     hasNote: true,
     isSingle: true,
@@ -67,6 +67,7 @@ const questionList = [
       "Đi vùng có dịch bệnh lưu hành (sốt rét, sốt xuất huyết, Zika,...)?",
       "Không",
     ],
+    isSingle: true,
   },
 
   {
@@ -77,6 +78,7 @@ const questionList = [
       "Khác (cụ thể)",
     ],
     hasNote: true,
+    isSingle: true
   },
 
   {
@@ -87,6 +89,7 @@ const questionList = [
       "Khác (cụ thể)",
     ],
     hasNote: true,
+    isSingle: true
   },
 
   {
