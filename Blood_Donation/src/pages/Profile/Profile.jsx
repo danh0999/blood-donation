@@ -62,7 +62,7 @@ const Profile = () => {
       delete formattedData.latitude;
       delete formattedData.longitude;
 
-      const response = await api.put(`/users/${user.userID}`, formattedData);
+      const response = await api.put(`/users/${user.id}`, formattedData);
       toast.success("Cập nhật thành công!");
       dispatch(updateUser({ ...user, ...response.data, token: user.token }));
       setUpdateModalVisible(false);

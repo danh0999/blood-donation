@@ -15,10 +15,10 @@ const CertPage = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (!user?.userID) return;
+    if (!user?.id) return;
     api
       .get(`/certificates`, {
-        params: { userId: user.userID },
+        params: { userId: user.id },
       })
       .then((res) => setCertificates(res.data || []))
       .catch(() => {
@@ -31,12 +31,12 @@ const CertPage = () => {
     formData.append("image", file);
     try {
       await api.post("/certificates/upload", formData, {
-        params: { userId: user.userID },
+        params: { userId: user.id },
         headers: { "Content-Type": "multipart/form-data" },
       });
       toast.success("Tải chứng nhận thành công!");
       const res = await api.get(`/certificates`, {
-        params: { userId: user.userID },
+        params: { userId: user.id },
       });
       setCertificates(res.data || []);
     } catch (err) {

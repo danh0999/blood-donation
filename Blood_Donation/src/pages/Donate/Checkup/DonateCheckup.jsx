@@ -111,7 +111,6 @@ const DonateCheckup = () => {
   const location = useLocation();
   const user = useSelector((state) => state.user);
 
-
   const { programId, date, cityId, slotId } = location.state || {};
 
   const handleCheckboxChange = (qIndex, option) => {
@@ -132,7 +131,7 @@ const DonateCheckup = () => {
   };
 
   const handleSubmit = async () => {
-    if (!programId || !user?.userID || !slotId) {
+    if (!programId || !user?.id || !slotId) {
       toast.error("Thiếu thông tin người dùng, chương trình hoặc khung giờ.");
       return;
     }
@@ -152,27 +151,35 @@ const DonateCheckup = () => {
       }
     }
 
-
-const payload = {
-  slotId,
-  programId,
-  cityId,
-  date,
-  answer1: answers[0].answer.join(", "),
-  answer2: answers[1].answer.join(", ") + (answers[1].note ? `: ${answers[1].note}` : ""),
-  answer3: answers[2].answer.join(", ") + (answers[2].note ? `: ${answers[2].note}` : ""),
-  answer4: answers[3].answer.join(", ") + (answers[3].note ? `: ${answers[3].note}` : ""),
-  answer5: answers[4].answer.join(", "),
-  answer6: answers[5].answer.join(", "),
-  answer7: answers[6].answer.join(", ") + (answers[6].note ? `: ${answers[6].note}` : ""),
-  answer8: answers[7].answer.join(", ") + (answers[7].note ? `: ${answers[7].note}` : ""),
-  answer9: answers[8].answer.join(", "),
-};
-
+    const payload = {
+      slotId,
+      programId,
+      cityId,
+      date,
+      answer1: answers[0].answer.join(", "),
+      answer2:
+        answers[1].answer.join(", ") +
+        (answers[1].note ? `: ${answers[1].note}` : ""),
+      answer3:
+        answers[2].answer.join(", ") +
+        (answers[2].note ? `: ${answers[2].note}` : ""),
+      answer4:
+        answers[3].answer.join(", ") +
+        (answers[3].note ? `: ${answers[3].note}` : ""),
+      answer5: answers[4].answer.join(", "),
+      answer6: answers[5].answer.join(", "),
+      answer7:
+        answers[6].answer.join(", ") +
+        (answers[6].note ? `: ${answers[6].note}` : ""),
+      answer8:
+        answers[7].answer.join(", ") +
+        (answers[7].note ? `: ${answers[7].note}` : ""),
+      answer9: answers[8].answer.join(", "),
+    };
 
     try {
       const res = await api.post("/appointments", payload, {
-        params: { userId: user.userID },
+        params: { userId: user.id },
       });
 
       const detail = (await api.get(`/appointments/${res.data.id}`)).data;
@@ -199,7 +206,7 @@ const payload = {
         // Thử lấy lại lịch hẹn đang hoạt động
         try {
           const res = await api.get(`/appointments/by-user`, {
-            params: { userId: user.userID },
+            params: { userId: user.id },
           });
 
           const appointment = res.data.find(

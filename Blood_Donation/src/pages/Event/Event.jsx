@@ -43,7 +43,13 @@ export const Event = () => {
       } else {
         res = await api.get("/programs");
       }
-      setPrograms(res.data);
+
+      // ⚠️ Lọc bỏ chương trình đã kết thúc
+      const filteredPrograms = res.data.filter(
+        (program) => program.status !== "FINISHED"
+      );
+
+      setPrograms(filteredPrograms);
     } catch (error) {
       console.error(error);
       message.error("Lỗi khi tải danh sách chương trình");

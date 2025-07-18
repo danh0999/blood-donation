@@ -38,7 +38,7 @@ export const History = () => {
       setLoading(true);
       try {
         const res = await api.get("/appointments/history", {
-          params: { userId: user.userID },
+          params: { userId: user.id },
         });
         const sortedAppointments = res.data.sort((a, b) => b.id - a.id); // sắp xếp giảm dần theo id
         setAppointments(sortedAppointments);
@@ -49,10 +49,10 @@ export const History = () => {
       }
     };
 
-    if (user.userID) {
+    if (user.id) {
       fetchHistory();
     }
-  }, [user.userID]);
+  }, [user.id]);
 
   return (
     <div className={container}>
