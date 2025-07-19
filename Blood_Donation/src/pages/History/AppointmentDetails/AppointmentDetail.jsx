@@ -1,86 +1,88 @@
 import React, { useEffect, useState } from "react";
-import { useParams, useNavigate } from "react-router-dom";
-import { Descriptions, Tag, Spin, Button } from "antd";
+import { useParams } from "react-router-dom";
 import api from "../../../configs/axios";
+import { toast } from "react-toastify";
 import styles from "../AppointmentDetails/styles.module.scss";
-
-const statusColor = {
-  PENDING: "orange",
-  APPROVED: "green",
-  FULFILLED: "blue",
-  CANCELLED: "red",
-  REJECTED: "volcano",
-};
-
-const statusLabel = {
-  PENDING: "Đang chờ",
-  APPROVED: "Đã duyệt",
-  FULFILLED: "Đã hiến",
-  CANCELLED: "Đã hủy",
-  REJECTED: "Bị từ chối",
-};
 
 const AppointmentDetail = () => {
   const { id } = useParams();
-  const navigate = useNavigate();
   const [appointment, setAppointment] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const [donationDetail, setDonationDetail] = useState(null);
 
   useEffect(() => {
-    const fetchDetail = async () => {
+    const fetchData = async () => {
       try {
-        const res = await api.get(`/appointments/${id}`);
-        setAppointment(res.data);
+        // Fetch appointment
+        const appointmentRes = await api.get(`/appointments/${id}`);
+        setAppointment(appointmentRes.data);
+
+        // Fetch donation detail using correct endpoint
+        const donationRes = await api.get(
+          `donation-details/by-appointment/${id}`
+        );
+        setDonationDetail(donationRes.data);
       } catch (error) {
-        console.error("Lỗi lấy chi tiết:", error);
-      } finally {
-        setLoading(false);
+        console.error(error);
+        toast.error("Lỗi khi tải dữ liệu chi tiết lịch hẹn hoặc hiến máu");
       }
     };
 
-    fetchDetail();
+    if (id) {
+      fetchData();
+    }
   }, [id]);
-
-  if (loading) return <Spin />;
-
-  if (!appointment)
-    return (
-      <p style={{ textAlign: "center", marginTop: 40 }}>
-        Không tìm thấy lịch hẹn
-      </p>
-    );
 
   return (
     <div className={styles.container}>
-      <h1>Chi tiết lịch hẹn</h1>
-      <Descriptions bordered column={1}>
-        <Descriptions.Item label="Ngày hẹn">
-          {appointment.date}
-        </Descriptions.Item>
-        <Descriptions.Item label="Thời gian">
-          {appointment.timeRange}
-        </Descriptions.Item>
-        <Descriptions.Item label="Địa điểm">
-          {appointment.address}
-        </Descriptions.Item>
-        <Descriptions.Item label="Ghi chú">
-          {appointment.note || "Không có"}
-        </Descriptions.Item>
-        <Descriptions.Item label="Trạng thái">
-          <Tag color={statusColor[appointment.status]}>
-            {statusLabel[appointment.status]}
-          </Tag>
-        </Descriptions.Item>
-        {appointment.updatedBy && (
-          <Descriptions.Item label="Người xác nhận">
-            {appointment.updatedBy}
-          </Descriptions.Item>
-        )}
-      </Descriptions>
+      <h3 className="mb-4">Chi tiết lịch hẹn</h3>
+      <div className="card">
+        <div className="card-body">
+          {appointment ? (
+            <>
+              <p>
+                <strong>Tên chương trình:</strong>{" "}
+                {appointment.program?.name || "(Không có dữ liệu)"}
+              </p>
+              <p>
+                <strong>Địa điểm:</strong> {appointment.address}
+              </p>
+              <p>
+                <strong>Thời gian hiến máu:</strong> {appointment.date} (
+                {appointment.timeRange})
+              </p>
+              <p>
+                <strong>Trạng thái:</strong> {appointment.status}
+              </p>
+            </>
+          ) : (
+            <p>Đang tải thông tin lịch hẹn...</p>
+          )}
+        </div>
+      </div>
 
-      <Button style={{ marginTop: 24 }} onClick={() => navigate(-1)}>
-        Quay lại
-      </Button>
+      <div className="mt-4">
+        <h5>Chi tiết hiến máu</h5>
+        <div className="card">
+          <div className="card-body">
+            {donationDetail ? (
+              <>
+                <p>
+                  <strong>Số lượng hiến máu:</strong> {donationDetail.donAmount}{" "}
+                  ml
+                </p>
+                <p>
+                  <strong>Ngày hiến máu:</strong> {donationDetail.donDate}
+                </p>
+                <p>
+                  <strong>Nhóm máu:</strong> {donationDetail.bloodType}
+                </p>
+              </>
+            ) : (
+              <p>Chưa có thông tin chi tiết hiến máu.</p>
+            )}
+          </div>
+        </div>
+      </div>
     </div>
   );
 };
