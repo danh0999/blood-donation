@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { parseISO, isBefore } from "date-fns";
+import dayjs from "dayjs";
 import {
   Table,
   Tag,
@@ -14,6 +14,12 @@ import {
   Select,
 } from "antd";
 import { useSelector, useDispatch } from "react-redux";
+import {
+  EyeOutlined,
+  EditOutlined,
+  FileSearchOutlined,
+  StopOutlined,
+} from "@ant-design/icons";
 import {
   fetchAllAppointments,
   updateAppointmentStatus,
@@ -30,7 +36,6 @@ function DonationFormTable() {
   const dispatch = useDispatch();
   const { appointments, loading } = useSelector((state) => state.donationForm);
   const user = useSelector((state) => state.user);
-
   const [selectedForm, setSelectedForm] = useState(null);
   const [modalVisible, setModalVisible] = useState(false);
   const [donationModalVisible, setDonationModalVisible] = useState(false);
@@ -38,6 +43,18 @@ function DonationFormTable() {
   const [editMode, setEditMode] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [sortKey, setSortKey] = useState("status");
+
+  const questionTitles = [
+  "1. Anh/chị từng hiến máu chưa?",
+  "2. Hiện tại, anh/chị có mắc bệnh lý nào không?",
+  "3. Trước đây, anh/chị có từng mắc một trong các bệnh ...?",
+  "4. Trong 12 tháng gần đây, anh/chị có:",
+  "5. Trong 06 tháng gần đây, anh/chị có:",
+  "6. Trong 01 tháng gần đây, anh/chị có:",
+  "7. Trong 14 ngày gần đây, anh/chị có:",
+  "8. Trong 07 ngày gần đây, anh/chị có:",
+  "9. Câu hỏi dành cho phụ nữ:",
+];
 
   useEffect(() => {
     dispatch(fetchAllAppointments());
@@ -71,14 +88,14 @@ function DonationFormTable() {
     const payload = {
       ...values,
       appointmentId: selectedForm.id,
-      staffId: user.userID,
+      staffId: user.id,
       memberId: selectedForm.userId,
     };
 
     const isEdit = selectedForm.status === "FULFILLED";
 
     const thunk = isEdit
-      ? updateDonationDetail({ id: selectedForm.id, payload })
+      ? updateDonationDetail({ id: selectedForm.donationId, payload })
       : createDonationDetail(payload);
 
     dispatch(thunk)
@@ -107,17 +124,18 @@ function DonationFormTable() {
       const donationDetail = await dispatch(
         fetchDonationDetailByAppointmentId(record.id)
       ).unwrap();
-
       // Fill form if donation exists
       if (donationDetail) {
+        setSelectedForm({
+          ...record,
+          donationId: donationDetail.donID,
+        });
+
         donationForm.setFieldsValue({
-          donationId: donationDetail.donationId,
-          donDate: donationDetail.donDate ? parseISO(donationDetail.donDate) : null,
-          location: donationDetail.location,
+          donationId: donationDetail.donID,
+          donDate: donationDetail.donDate ? dayjs(donationDetail.donDate) : null,
           bloodType: donationDetail.bloodType,
           donAmount: donationDetail.donAmount,
-          userId: donationDetail.userId,
-          notes: donationDetail.notes,
         });
       } else {
         donationForm.resetFields(); // If no data, start fresh
@@ -162,35 +180,65 @@ function DonationFormTable() {
     {
       title: "Hành Động",
       key: "actions",
-      width: 200,
+      width: 160,
       render: (_, record) => (
-        <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-          <div style={{ display: "flex", flexDirection: "row", gap: 8 }}>
+        <div style={{ display: "flex", gap: 8, justifyContent: "center" }}>
+          {/* Xem phiếu */}
+          <Tooltip title="Xem phiếu">
             <Button
-              type="default"
+              icon={<EyeOutlined />}
               onClick={() => handleViewForm(record)}
               size="small"
-            >
-              Xem phiếu
-            </Button>
+            />
+          </Tooltip>
+          {/* Nhập / xem thông tin hiến máu */}
+          <Tooltip
+            title={
+              record.status === "FULFILLED"
+                ? "Xem thông tin hiến máu"
+                : "Nhập thông tin hiến máu"
+            }
+          >
             <Button
+              icon={<FileSearchOutlined />}
               type="primary"
               size="small"
               disabled={record.status !== "APPROVED" && record.status !== "FULFILLED"}
               onClick={() => handleOpenDonationModal(record)}
               style={
                 record.status === "FULFILLED"
-                  ? { backgroundColor: 'green', borderColor: 'green' }
+                  ? { backgroundColor: "green", borderColor: "green" }
                   : {}
               }
-            >
-              {record.status === "FULFILLED"
-                ? "Xem thông tin hiến máu"
-                : "Nhập thông tin hiến máu"}
-            </Button>
-          </div>
-          <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-            <span style={{ fontSize: 12 }}>Thay đổi trạng thái:</span>
+            />
+          </Tooltip>
+
+          {/* Hủy đơn hiến */}
+          {["PENDING", "APPROVED"].includes(record.status) ? (
+            <Tooltip title="Hủy đơn hiến">
+              <Button
+                icon={<StopOutlined />}
+                danger
+                size="small"
+                onClick={() => {
+                  if (
+                    window.confirm(
+                      `Bạn có chắc chắn muốn hủy lịch hẹn #${record.id}?`
+                    )
+                  ) {
+                    handleStatusUpdate(record.id, "CANCELLED");
+                  }
+                }}
+              />
+            </Tooltip>
+          ) : (
+            <Tooltip title="Không thể hủy">
+              <Button icon={<StopOutlined />} danger size="small" disabled />
+            </Tooltip>
+          )}
+          
+          {/* Đổi trạng thái nhanh để dễ test */}
+          {/* <span style={{ fontSize: 12 }}>Thay đổi trạng thái:</span>
             <Select
               size="small"
               defaultValue={record.status}
@@ -202,11 +250,10 @@ function DonationFormTable() {
               <Select.Option value="REJECTED">REJECTED</Select.Option>
               <Select.Option value="FULFILLED">FULFILLED</Select.Option>
               <Select.Option value="CANCELLED">CANCELLED</Select.Option>
-            </Select>
-          </div>
+            </Select> */}
         </div>
       ),
-    },
+    }
   ];
 
   return (
@@ -298,9 +345,9 @@ function DonationFormTable() {
       >
         {selectedForm ? (
           <div>
-            {[...Array(9)].map((_, i) => (
+            {questionTitles.map((title, i) => (
               <div key={i} style={{ marginBottom: 8 }}>
-                <b>{`${i + 1}. Câu hỏi khảo sát`}</b>
+                <b>{title}</b>
                 <p style={{ margin: "4px 0 0 12px" }}>
                   {selectedForm[`answer${i + 1}`] || "Không có câu trả lời"}
                 </p>
@@ -373,10 +420,10 @@ function DonationFormTable() {
                   if (!value) return Promise.resolve();
 
                   const appointmentDate = selectedForm?.date
-                    ? parseISO(selectedForm.date)
+                    ? dayjs(selectedForm.date)
                     : null;
 
-                  if (appointmentDate && isBefore(value.toDate(), appointmentDate)) {
+                  if (appointmentDate && value.isBefore(appointmentDate, "day")) {
                     return Promise.reject(
                       new Error("Ngày hiến máu không được trước ngày lịch hẹn!")
                     );
@@ -393,8 +440,8 @@ function DonationFormTable() {
               disabled={isReadOnly}
               disabledDate={(current) => {
                 if (!selectedForm?.date) return false;
-                const appointmentDate = parseISO(selectedForm.date);
-                return current && isBefore(current.toDate(), appointmentDate);
+                const appointmentDate = dayjs(selectedForm.date);
+                return current && current.isBefore(appointmentDate, "day");
               }}
             />
           </Form.Item>
@@ -405,10 +452,10 @@ function DonationFormTable() {
             rules={[{ required: true, message: "Chọn nhóm máu" }]}
           >
             <Select placeholder="Nhóm máu" disabled={isReadOnly}>
-              <Option value={1}>A</Option>
-              <Option value={2}>B</Option>
-              <Option value={3}>AB</Option>
-              <Option value={4}>O</Option>
+              <Option value={'A'}>A</Option>
+              <Option value={'B'}>B</Option>
+              <Option value={'AB'}>AB</Option>
+              <Option value={'O'}>O</Option>
             </Select>
           </Form.Item>
         </Form>

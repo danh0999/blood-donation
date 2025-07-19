@@ -65,7 +65,7 @@ export const fetchDonationDetailByAppointmentId = createAsyncThunk(
   "donationForm/fetchDonationDetailByAppointmentId",
   async (id, { rejectWithValue }) => {
     try {
-      const response = await api.get(`/donation-details/${id}`);
+      const response = await api.get(`/donation-details/by-appointment/${id}`);
       return response.data;
     } catch (err) {
       return rejectWithValue(err.response?.data?.message || err.message);
