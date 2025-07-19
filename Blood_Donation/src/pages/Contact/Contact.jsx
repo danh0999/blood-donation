@@ -2,6 +2,11 @@ import React, { useState } from "react";
 import styles from "./styles.module.scss";
 import { Button } from "../../components/Button/Button";
 
+/**
+ * Trang Liên Hệ: Người dùng có thể nhập họ tên, email và lời nhắn.
+ * Hiện tại chưa tích hợp API gửi mail, chỉ hiển thị thông báo "Gửi thành công" khi hợp lệ.
+ * Mục tiêu tương lai: Gửi dữ liệu form tới backend để gửi email đến gmv@intelin.vn.
+ */
 export const Contact = () => {
   const [formData, setFormData] = useState({
     name: "",
@@ -15,16 +20,19 @@ export const Contact = () => {
     message: "",
   });
 
+  // Xử lý khi người dùng nhập vào input/textarea
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
 
-    // Clear error as user types
+    // Xóa lỗi tạm thời khi người dùng nhập lại
     setErrors({ ...errors, [name]: "" });
   };
 
+  // Kiểm tra dữ liệu trước khi gửi
   const validate = () => {
     const newErrors = {};
+
     if (!formData.name.trim()) {
       newErrors.name = "Vui lòng nhập họ và tên";
     }
@@ -44,16 +52,25 @@ export const Contact = () => {
     return Object.keys(newErrors).length === 0;
   };
 
+  // Gửi form
   const handleSubmit = (e) => {
     e.preventDefault();
     if (validate()) {
+      /**
+       * GHI CHÚ: Hiện tại chưa có backend, nên chỉ hiển thị thông báo thành công tạm thời.
+       * SAU NÀY: Thay alert bằng gọi API POST tới server để gửi mail đến gmv@intelin.vn
+       * Ví dụ:
+       * await axios.post('/api/contact', formData)
+       */
       alert("Gửi thành công!");
-      // Reset form nếu cần
+
+      // Reset form
       setFormData({ name: "", email: "", message: "" });
       setErrors({ name: "", email: "", message: "" });
     }
   };
 
+  // Kiểm tra tổng thể hợp lệ trước khi bật nút submit
   const isFormValid =
     formData.name.trim() &&
     formData.email.trim() &&
@@ -63,12 +80,13 @@ export const Contact = () => {
   return (
     <div className={styles.container}>
       <div className={styles.card}>
+        {/* Thông tin liên hệ hiển thị bên trái */}
         <div className={styles.left}>
           <h2>Liên hệ</h2>
           <ul className={styles.infoList}>
             <li>
               <span>Email:</span>
-              <p>gmv@intelin.vn</p>
+              <p>contact.bloodvn@gmail.com</p>
             </li>
             <li>
               <span>TT Hiến Máu Nhân Đạo:</span>
@@ -81,17 +99,18 @@ export const Contact = () => {
               <p>028 39557858</p>
             </li>
             <li>
-              <span>TT truyền máu Chợ Rẫy:</span>
+              <span>TT truyền máu Chợ Rẩy:</span>
               <p>028 39555885</p>
             </li>
           </ul>
         </div>
 
+        {/* Form gửi lời nhắn hiển thị bên phải */}
         <div className={styles.right}>
           <h2>Gửi lời nhắn</h2>
           <p className={styles.desc}>
             Mọi thắc mắc về hiến máu tình nguyện, vui lòng gửi email tới{" "}
-            <b>gmv@intelin.vn</b> hoặc điền thông tin bên dưới:
+            <b>contact.bloodvn@gmail.com</b> hoặc điền thông tin bên dưới:
           </p>
 
           <form className={styles.form} onSubmit={handleSubmit}>
@@ -106,7 +125,7 @@ export const Contact = () => {
             {errors.name && <span className={styles.error}>{errors.name}</span>}
 
             <input
-              type="text" // <-- Đổi từ "email" sang "text" để tránh cảnh báo mặc định của trình duyệt
+              type="text" // Không dùng type="email" để tránh cảnh báo mặc định
               name="email"
               placeholder="Email"
               value={formData.email}

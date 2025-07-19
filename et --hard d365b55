@@ -1,0 +1,103 @@
+[33m0c8c56a[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m, [m[1;31morigin/main[m[33m)[m HEAD@{0}: checkout: moving from main to main
+[33m0c8c56a[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m, [m[1;31morigin/main[m[33m)[m HEAD@{1}: pull origin main: Fast-forward
+[33md365b55[m HEAD@{2}: reset: moving to HEAD
+[33md365b55[m HEAD@{3}: pull origin main: Fast-forward
+[33m0117883[m HEAD@{4}: pull origin main: Fast-forward
+[33mb9adb5c[m HEAD@{5}: pull origin main: Fast-forward
+[33m230e83b[m HEAD@{6}: pull origin main: Fast-forward
+[33m779a9a9[m HEAD@{7}: pull origin main: Fast-forward
+[33m7fd6855[m HEAD@{8}: pull origin main: Fast-forward
+[33m3fea645[m HEAD@{9}: pull origin main: Fast-forward
+[33mb48a05f[m HEAD@{10}: pull origin main: Fast-forward
+[33m1d1db97[m HEAD@{11}: commit: Ignore .env.local
+[33ma0a30e7[m HEAD@{12}: pull origin main: Fast-forward
+[33m506dfc3[m HEAD@{13}: pull origin main: Fast-forward
+[33m533d0eb[m HEAD@{14}: pull origin main: Fast-forward
+[33m54e28ab[m HEAD@{15}: commit: fix: corrected image file import for Banner2.jpg
+[33mcd51bcc[m HEAD@{16}: commit: fix: rename bloodHistorySlice to match import casing
+[33ma23e126[m HEAD@{17}: commit: fix: correct import casing for bloodHistorySlice
+[33m8ccedbc[m HEAD@{18}: commit: Fix: Add react-scripts for Vercel build
+[33m9176dcc[m HEAD@{19}: commit: update
+[33m8bc2597[m HEAD@{20}: pull origin main: Fast-forward
+[33m698245d[m HEAD@{21}: pull origin main --rebase (finish): returning to refs/heads/main
+[33m698245d[m HEAD@{22}: pull origin main --rebase (pick): WIP: tạm commit để pull
+[33m73d5c30[m HEAD@{23}: pull origin main --rebase (start): checkout 73d5c305f0a06cb05493b8b8b7fad0be56ce5794
+[33mbc284ec[m HEAD@{24}: commit: WIP: tạm commit để pull
+[33m2c10033[m HEAD@{25}: pull origin main: Fast-forward
+[33m9d2d68a[m HEAD@{26}: pull origin main: Fast-forward
+[33m947f4c2[m HEAD@{27}: pull origin main: Fast-forward
+[33ma0af35f[m HEAD@{28}: pull origin main: Fast-forward
+[33mc7d2486[m HEAD@{29}: pull origin main: Fast-forward
+[33mc171423[m HEAD@{30}: commit: event-page-update
+[33m105a4d4[m[33m ([m[1;31morigin/QuangKhanh1[m[33m)[m HEAD@{31}: pull origin main: Fast-forward
+[33m706bb2d[m HEAD@{32}: pull origin main: Fast-forward
+[33mf828d9b[m HEAD@{33}: commit: event-page-update
+[33mf2e7291[m[33m ([m[1;31morigin/feature/certificate-api-crud[m[33m, [m[1;31morigin/add-sidebar[m[33m)[m HEAD@{34}: commit: schedule-update
+[33me6ff15a[m HEAD@{35}: pull origin main: Fast-forward
+[33m78d5c33[m HEAD@{36}: commit: Schedule-Update
+[33m1b51c6a[m HEAD@{37}: commit: Scroll-to-top-button
+[33md910be2[m HEAD@{38}: pull origin main: Fast-forward
+[33m9615cc2[m HEAD@{39}: pull origin main: Fast-forward
+[33m08ec2f6[m HEAD@{40}: commit: delete-admin-page
+[33mbc3fcaf[m HEAD@{41}: pull origin main: Fast-forward
+[33m352988f[m HEAD@{42}: commit: update-view-uses-list
+[33mbb017c7[m HEAD@{43}: checkout: moving from main to main
+[33mbb017c7[m HEAD@{44}: pull origin main: Fast-forward
+[33mda42d40[m HEAD@{45}: checkout: moving from admin-page-update to main
+[33m207e5ac[m[33m ([m[1;31morigin/admin-page-update[m[33m, [m[1;32madmin-page-update[m[33m)[m HEAD@{46}: reset: moving to HEAD
+[33m207e5ac[m[33m ([m[1;31morigin/admin-page-update[m[33m, [m[1;32madmin-page-update[m[33m)[m HEAD@{47}: commit: Fix merge conflicts
+[33m01aeed6[m[33m ([m[1;32mpagination-update[m[33m)[m HEAD@{48}: merge pagination-update: Fast-forward
+[33meeb937d[m HEAD@{49}: checkout: moving from pagination-update to admin-page-update
+[33m01aeed6[m[33m ([m[1;32mpagination-update[m[33m)[m HEAD@{50}: reset: moving to HEAD
+[33m01aeed6[m[33m ([m[1;32mpagination-update[m[33m)[m HEAD@{51}: pull origin main: Fast-forward
+[33m3a3c996[m HEAD@{52}: pull origin main: Fast-forward
+[33m5f90b75[m HEAD@{53}: commit: pagination-update
+[33meeb937d[m HEAD@{54}: checkout: moving from admin-page-update to pagination-update
+[33meeb937d[m HEAD@{55}: commit: admin-crud
+[33mda42d40[m HEAD@{56}: checkout: moving from main to admin-page-update
+[33mda42d40[m HEAD@{57}: checkout: moving from add-sidebar to main
+[33m840a66a[m[33m ([m[1;32madd-sidebar[m[33m)[m HEAD@{58}: checkout: moving from main to add-sidebar
+[33mda42d40[m HEAD@{59}: commit (merge): Resolve merge conflict in routes
+[33mc2597bf[m HEAD@{60}: commit: temporary save
+[33m91e87b8[m HEAD@{61}: checkout: moving from main to main
+[33m91e87b8[m HEAD@{62}: commit: contact-page-update
+[33mf59cc59[m HEAD@{63}: checkout: moving from main to main
+[33mf59cc59[m HEAD@{64}: commit: Resolve conflict in Route.jsx: merged Profile & NewsDetail routes
+[33m5708b25[m HEAD@{65}: pull origin main: Fast-forward
+[33m0ad620b[m HEAD@{66}: reset: moving to HEAD
+[33m0ad620b[m HEAD@{67}: pull origin main: Fast-forward
+[33m4b4b517[m HEAD@{68}: checkout: moving from news-page-update to main
+[33m043f824[m[33m ([m[1;31morigin/news-page-update[m[33m, [m[1;32mnews-page-update[m[33m)[m HEAD@{69}: commit: news-pages-update
+[33m4b4b517[m HEAD@{70}: checkout: moving from main to news-page-update
+[33m4b4b517[m HEAD@{71}: commit (merge): Resolve merge conflicts between main and call-api-login-register
+[33m95b79a6[m HEAD@{72}: pull origin main: Fast-forward
+[33md9c17cf[m HEAD@{73}: checkout: moving from call-api-login-register to main
+[33m252875b[m[33m ([m[1;32mcall-api-login-register[m[33m)[m HEAD@{74}: commit: Fix conflicts and update code
+[33m3e23a5f[m HEAD@{75}: checkout: moving from Information-page-update to call-api-login-register
+[33me58660a[m[33m ([m[1;32mInformation-page-update[m[33m)[m HEAD@{76}: reset: moving to HEAD
+[33me58660a[m[33m ([m[1;32mInformation-page-update[m[33m)[m HEAD@{77}: commit: Information-update
+[33m110e910[m[33m ([m[1;31morigin/login-register-update[m[33m, [m[1;32mlogin-register-update[m[33m)[m HEAD@{78}: checkout: moving from login-register-update to Information-page-update
+[33m110e910[m[33m ([m[1;31morigin/login-register-update[m[33m, [m[1;32mlogin-register-update[m[33m)[m HEAD@{79}: checkout: moving from main to login-register-update
+[33md9c17cf[m HEAD@{80}: commit: Update-homepage
+[33md68643d[m[33m ([m[1;32mupdate-faqs[m[33m)[m HEAD@{81}: merge update-faqs: Fast-forward
+[33m088b1ff[m HEAD@{82}: checkout: moving from FaqsItem to main
+[33mb0837d5[m[33m ([m[1;32mFaqsItem[m[33m)[m HEAD@{83}: pull origin main: Fast-forward
+[33m088b1ff[m HEAD@{84}: reset: moving to HEAD
+[33m088b1ff[m HEAD@{85}: checkout: moving from main to FaqsItem
+[33m088b1ff[m HEAD@{86}: checkout: moving from update-faqs to main
+[33md68643d[m[33m ([m[1;32mupdate-faqs[m[33m)[m HEAD@{87}: pull origin main --rebase (finish): returning to refs/heads/update-faqs
+[33md68643d[m[33m ([m[1;32mupdate-faqs[m[33m)[m HEAD@{88}: pull origin main --rebase (pick): update-pointer-click
+[33mb0837d5[m[33m ([m[1;32mFaqsItem[m[33m)[m HEAD@{89}: pull origin main --rebase (start): checkout b0837d530d2fa1497fbb6556539c8ba797098bb6
+[33m3cb1454[m HEAD@{90}: commit: update-pointer-click
+[33m8c4aaef[m[33m ([m[1;31morigin/update-faqs[m[33m)[m HEAD@{91}: commit: update-faqs
+[33m088b1ff[m HEAD@{92}: checkout: moving from main to update-faqs
+[33m088b1ff[m HEAD@{93}: commit: Update-faqs
+[33m699eccc[m HEAD@{94}: commit: update-blood-donation-standard and update css donor-benefit
+[33m29973c8[m HEAD@{95}: pull origin main: Fast-forward
+[33m86d9374[m[33m ([m[1;32mupdate-hompage[m[33m)[m HEAD@{96}: checkout: moving from update-hompage to main
+[33m86d9374[m[33m ([m[1;32mupdate-hompage[m[33m)[m HEAD@{97}: checkout: moving from main to update-hompage
+[33m86d9374[m[33m ([m[1;32mupdate-hompage[m[33m)[m HEAD@{98}: checkout: moving from main to main
+[33m86d9374[m[33m ([m[1;32mupdate-hompage[m[33m)[m HEAD@{99}: commit: Update footer, update folder stucture
+[33m260e938[m HEAD@{100}: commit: config alias
+[33m1edeed7[m HEAD@{101}: Branch: renamed refs/heads/master to refs/heads/main
+[33m1edeed7[m HEAD@{103}: 
